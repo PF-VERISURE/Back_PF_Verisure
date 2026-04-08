@@ -1,5 +1,5 @@
 package com.verisure.backend.entities;
 
-public class Admin {
+public class User {
 
 }

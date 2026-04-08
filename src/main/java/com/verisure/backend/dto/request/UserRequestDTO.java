@@ -1,5 +1,5 @@
 package com.verisure.backend.dto.request;
 
-public record AdminRequestDTO() {
+public record UserRequestDTO() {
 
 }

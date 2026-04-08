@@ -1,5 +1,5 @@
 package com.verisure.backend.service;
 
-public interface AdminService {
+public interface UserService {
 
 }

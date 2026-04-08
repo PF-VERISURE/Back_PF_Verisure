@@ -1,5 +1,5 @@
 package com.verisure.backend.controller;
 
-public class AdminController {
+public class UserController {
 
 }

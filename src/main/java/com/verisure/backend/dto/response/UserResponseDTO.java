@@ -1,5 +1,5 @@
 package com.verisure.backend.dto.response;
 
-public record AdminResponseDTO() {
+public record UserResponseDTO() {
 
 }
