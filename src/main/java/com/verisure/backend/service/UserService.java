@@ -1,8 +1,9 @@
-package com.verisure.backend.service;import com.verisure.backend.entity.User;
+package com.verisure.backend.service;
+
+import com.verisure.backend.entity.User;
 
 public interface UserService {
     
     User findByEmail(String email);
 
-    // UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 }
