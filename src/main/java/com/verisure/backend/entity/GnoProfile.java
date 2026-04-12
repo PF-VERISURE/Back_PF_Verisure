@@ -41,7 +41,7 @@ public class GnoProfile {
   private String contactName;
 
   // @NotBlank(message = "El teléfono es obligatorio")
-  @Column(name = "contact_phone", nullable = false)
+  @Column(nullable = false)
   private String contactPhone;
 
   // @NotBlank(message = "El email de contacto es obligatorio")
