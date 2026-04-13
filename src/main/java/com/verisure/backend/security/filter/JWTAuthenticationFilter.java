@@ -53,38 +53,19 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.getWriter().flush();
     }
 
-    // @Override
-    // protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-    //     List<String> roles = authResult.getAuthorities().stream()
-    //             .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
-    //             .collect(Collectors.toList());
-    //     String token = JWT.create()
-    //             .withSubject(authResult.getName())
-    //             .withClaim("roles", roles)
-    //             .withExpiresAt(new Date(System.currentTimeMillis() + (12 * 60 * 60 * 1000))) 
-    //             .sign(Algorithm.HMAC512(jwtSecret));
-    //     response.addHeader("Authorization", "Bearer " + token);
-    // }
-
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        // 1. Sacamos los roles
         List<String> roles = authResult.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
                 .collect(Collectors.toList());
-        
-        // 2. Generamos el Token
         String token = JWT.create()
                 .withSubject(authResult.getName()) 
                 .withClaim("roles", roles)
                 .withExpiresAt(new Date(System.currentTimeMillis() + (12 * 60 * 60 * 1000))) 
                 .sign(Algorithm.HMAC512(jwtSecret));
-        
-        // 3. Metemos el token en el Header (Práctica pura)
         response.addHeader("Authorization", "Bearer " + token);
 
-        // 4. NUEVO: Cumplimos tu tarjeta devolviendo el DTO en el Body
-        Role userRole = Role.valueOf(roles.get(0)); // Asumiendo que tiene un rol
+        Role userRole = Role.valueOf(roles.get(0));
         UserAuthResponseDTO authResponse = new UserAuthResponseDTO(authResult.getName(), userRole);
         
         response.setContentType("application/json");
