@@ -1,6 +1,5 @@
 package com.verisure.backend.entity;
 
-
 import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
