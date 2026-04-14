@@ -1,5 +1,8 @@
-package com.verisure.backend.mapper;
+// package com.verisure.backend.mapper;
 
-public interface UserMapper {
+// import org.mapstruct.Mapper;
 
-}
+// @Mapper(componentModel = "spring")
+// public interface UserMapper {
+
+// }
