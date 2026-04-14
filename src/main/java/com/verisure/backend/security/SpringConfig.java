@@ -8,6 +8,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.verisure.backend.mapper.EmployeeProfileMapper;
+import com.verisure.backend.mapper.GnoProfileMapper;
+import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.filter.JWTAuthenticationFilter;
 import com.verisure.backend.security.filter.JWTAuthorizationFilter;
 
@@ -16,34 +19,47 @@ public class SpringConfig {
 
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String jwtSecret;
+    private final UserRepository userRepository;
+    private final GnoProfileMapper gnoProfileMapper;
+    private final EmployeeProfileMapper employeeProfileMapper;
 
-    public SpringConfig(CustomAuthenticationManager customAuthenticationManager, @Value("${jwt.secret}") String jwtSecret) {
+    public SpringConfig(CustomAuthenticationManager customAuthenticationManager,
+            @Value("${jwt.secret}") String jwtSecret, UserRepository userRepository,
+            GnoProfileMapper gnoProfileMapper,EmployeeProfileMapper employeeProfileMapper) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtSecret = jwtSecret;
+        this.userRepository = userRepository;
+        this.gnoProfileMapper = gnoProfileMapper;
+        this.employeeProfileMapper = employeeProfileMapper;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(customAuthenticationManager, jwtSecret);
-        
+        JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(
+            customAuthenticationManager,
+            jwtSecret,
+            userRepository,
+            gnoProfileMapper,
+            employeeProfileMapper
+        );
+
         authenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
 
         http
-            .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf.disable())
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
-            .authorizeHttpRequests(request -> request
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/employees/**").hasAnyRole("ADMIN", "EMPLOYEE")
-                .requestMatchers("/api/v1/ong/**").hasAnyRole("ADMIN", "ONG")
-                .requestMatchers("/error").permitAll()
-                .anyRequest().authenticated()
-            )
-            .addFilter(authenticationFilter)
-            .addFilterAfter(new JWTAuthorizationFilter(jwtSecret), JWTAuthenticationFilter.class)
-            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/employees/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/api/v1/gnos/**").hasAnyRole("ADMIN", "ONG")
+                        .requestMatchers("/error").permitAll()
+                        .anyRequest().authenticated())
+                .addFilter(authenticationFilter)
+                .addFilterAfter(new JWTAuthorizationFilter(jwtSecret), JWTAuthenticationFilter.class)
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
