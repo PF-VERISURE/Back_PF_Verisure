@@ -24,6 +24,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado en la base de datos"));
     }
 
+
+    // Es el que usa el filtro de JWT para obtener el usuario
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)

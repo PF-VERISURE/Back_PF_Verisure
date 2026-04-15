@@ -3,6 +3,7 @@ package com.verisure.backend.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -51,10 +52,13 @@ public class SpringConfig {
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/employees/**").hasAnyRole("ADMIN", "EMPLOYEE")
-                        .requestMatchers("/api/v1/gnos/**").hasAnyRole("ADMIN", "ONG")
+                        .requestMatchers(HttpMethod.POST,"/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/gnos/profile").hasRole("ONG")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/gnos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/gnos").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/gnos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/employees/profile").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/employees/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)
