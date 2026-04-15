@@ -59,6 +59,7 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/gnos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employees/profile").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/employees/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/sdgs/**").authenticated()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)
