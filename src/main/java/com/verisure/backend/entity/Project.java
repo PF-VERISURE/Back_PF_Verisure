@@ -38,8 +38,8 @@ public class Project {
   private Long id;
   
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "ngo_id", nullable = false, referencedColumnName = "id")
-  private GnoProfile ngo;
+  @JoinColumn(name = "gno_id", nullable = false, referencedColumnName = "id")
+  private GnoProfile gno;
   
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id", referencedColumnName = "id")
