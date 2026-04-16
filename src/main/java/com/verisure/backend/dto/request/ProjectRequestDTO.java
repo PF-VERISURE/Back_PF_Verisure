@@ -17,7 +17,7 @@ public record ProjectRequestDTO(
     @NotBlank(message = "La descripción es obligatoria")
     String description,
 
-    @URL(message = "La URL de la imagen no es válida")
+    // @URL(message = "La URL de la imagen no es válida")
     String imageUrl,
 
     @NotNull(message = "Número de plazas es obligatorio")
@@ -42,12 +42,9 @@ public record ProjectRequestDTO(
     @Future(message= "La fecha fin debe ser en el Futuro")
     OffsetDateTime endDate,
 
-    @NotBlank(message = "La cantidad de horas es obligatoria")
+    @NotNull(message = "La cantidad de horas es obligatoria")
     @Positive
     Integer totalHours,
-
-    @NotNull
-    Long gnoId,
 
     @NotEmpty(message = "Debe seleccionar una opción")
     List<Integer> sdgIds

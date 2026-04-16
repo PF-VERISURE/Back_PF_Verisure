@@ -17,8 +17,9 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectRequestDTO dto) {
-        ProjectResponseDTO response = projectService.createProject(dto, dto.gnoId());
+    public ResponseEntity<ProjectResponseDTO> createProject(@Valid @RequestBody ProjectRequestDTO dto, org.springframework.security.core.Authentication authentication) {
+        String email = authentication.getName();
+        ProjectResponseDTO response = projectService.createProject(dto, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

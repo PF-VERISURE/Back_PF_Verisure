@@ -42,7 +42,6 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage()); 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-
     } 
 
     @ExceptionHandler(RuntimeException.class)
