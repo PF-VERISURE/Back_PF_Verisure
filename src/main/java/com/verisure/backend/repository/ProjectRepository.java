@@ -27,7 +27,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     //--------Perfil ADMIN (valida y publica)--------/
 
     // Obtener proyectos por estado
-    List<Project> adminFindByStatusProjects(StatusProject status);
+    List<Project> findByStatusProjects(StatusProject status);
 
     // Obtener proyectos pendientes
     List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);

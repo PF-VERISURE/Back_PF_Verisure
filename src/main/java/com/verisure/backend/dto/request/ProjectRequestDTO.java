@@ -42,8 +42,13 @@ public record ProjectRequestDTO(
     @Future(message= "La fecha fin debe ser en el Futuro")
     OffsetDateTime endDate,
 
+    @NotBlank(message = "La cantidad de horas es obligatoria")
+    @Positive
+    Integer totalHours,
+
+    @NotNull
     Long gnoId,
 
-    @NotEmpty(message = "Debe seleccionar al menos un opción")
-    List<Long> sdgIds
+    @NotEmpty(message = "Debe seleccionar una opción")
+    List<Integer> sdgIds
 ){}

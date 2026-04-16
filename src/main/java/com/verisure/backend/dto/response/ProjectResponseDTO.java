@@ -15,6 +15,7 @@ public record ProjectResponseDTO(
     String city,
     OffsetDateTime startDate,
     OffsetDateTime endDate,
+    Integer totalHours,
     String impactUnit,
     String certificateTemplate,
     Long gnoId,

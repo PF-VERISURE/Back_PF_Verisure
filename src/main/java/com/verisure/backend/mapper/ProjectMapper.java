@@ -1,7 +1,8 @@
 package com.verisure.backend.mapper;
-import org.mapstruct.*;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.entity.Project;
@@ -11,11 +12,13 @@ public interface ProjectMapper {
     
     //DTO -> Entity
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", constant = "PENDING")
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "gno", ignore = true)
+    @Mapping(target = "sdgs", ignore = true)
     Project toEntity(ProjectRequestDTO dto);
 
     //Entity -> Response
     @Mapping(source = "gno.organizationName", target = "gnoName")
-    @Mapping(target = "sdgs", expression = "java(project.getSgds().stream().map(s -> s.getName()).toList())")
+    @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
     ProjectResponseDTO toResponseDTO(Project project);
 }
