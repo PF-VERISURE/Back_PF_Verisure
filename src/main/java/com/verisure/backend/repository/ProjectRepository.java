@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.enums.StatusProject;
@@ -27,7 +27,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     //--------Perfil ADMIN (valida y publica)--------/
 
     // Obtener proyectos por estado
-    List<Project> findByStatusProjects(StatusProject status);
+    List<Project> findByStatus(StatusProject status);
 
     // Obtener proyectos pendientes
     List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);
@@ -38,7 +38,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     //--------------Perfil EMPLEADO----------------/
 
     // Obtener proyectos publicados
-    List<Project> findByStatus(StatusProject status);
+    //List<Project> findByStatus(StatusProject status);
 
     // Filtros básicos
     List<Project> findByStatusAndCity(StatusProject status, String city);

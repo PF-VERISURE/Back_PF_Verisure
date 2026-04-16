@@ -79,7 +79,7 @@ public class Project {
   // @NotNull(message = "El estado del proyecto es obligatorio")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private StatusProject status; // Enum {PENDING, PUBLISHED, REJECTED, COMPLETED, CANCELED}
+  private StatusProject status = StatusProject.PENDING; // Enum {PENDING, PUBLISHED, REJECTED, COMPLETED, CANCELED}
 
   // @NotNull(message = "El número de voluntarios es obligatorio")
   // @Min(value = 1, message = "Debe haber al menos 1 plaza")
