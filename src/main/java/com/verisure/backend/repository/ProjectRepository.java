@@ -37,9 +37,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     //--------------Perfil EMPLEADO----------------/
 
-    // Obtener proyectos publicados
-    //List<Project> findByStatus(StatusProject status);
-
     // Filtros básicos
     List<Project> findByStatusAndCity(StatusProject status, String city);
 

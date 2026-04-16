@@ -42,7 +42,7 @@ public record ProjectRequestDTO(
     @Future(message= "La fecha fin debe ser en el Futuro")
     OffsetDateTime endDate,
 
-    @NotBlank(message = "La cantidad de horas es obligatoria")
+    @NotNull(message = "La cantidad de horas es obligatoria")
     @Positive
     Integer totalHours,
 
