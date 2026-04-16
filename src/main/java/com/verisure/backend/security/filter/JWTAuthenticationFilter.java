@@ -14,7 +14,11 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verisure.backend.dto.request.LoginRequestDTO;
 import com.verisure.backend.dto.response.UserAuthResponseDTO;
+import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.Role;
+import com.verisure.backend.mapper.EmployeeProfileMapper;
+import com.verisure.backend.mapper.GnoProfileMapper;
+import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.CustomAuthenticationManager;
 
 import java.io.IOException;
@@ -26,10 +30,16 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String jwtSecret;
+    private final UserRepository userRepository;
+    private final GnoProfileMapper gnoProfileMapper;
+    private final EmployeeProfileMapper employeeProfileMapper;
 
-    public JWTAuthenticationFilter(CustomAuthenticationManager customAuthenticationManager, String jwtSecret) {
+    public JWTAuthenticationFilter(CustomAuthenticationManager customAuthenticationManager, String jwtSecret    , UserRepository userRepository, GnoProfileMapper gnoProfileMapper, EmployeeProfileMapper employeeProfileMapper) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtSecret = jwtSecret;
+        this.userRepository = userRepository;
+        this.gnoProfileMapper = gnoProfileMapper;
+        this.employeeProfileMapper = employeeProfileMapper;
     }
 
     @Override
@@ -55,18 +65,38 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        
         List<String> roles = authResult.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
                 .collect(Collectors.toList());
+        
         String token = JWT.create()
                 .withSubject(authResult.getName()) 
                 .withClaim("roles", roles)
                 .withExpiresAt(new Date(System.currentTimeMillis() + (12 * 60 * 60 * 1000))) 
                 .sign(Algorithm.HMAC512(jwtSecret));
-        response.addHeader("Authorization", "Bearer " + token);
 
-        Role userRole = Role.valueOf(roles.get(0));
-        UserAuthResponseDTO authResponse = new UserAuthResponseDTO(authResult.getName(), userRole);
+        response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader("Access-Control-Expose-Headers", "Authorization");
+
+        String email = authResult.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Object profileData = null;
+        Role userRole = user.getRole();
+
+        if (userRole == Role.ONG) {
+            if (user.getGnoProfile() != null) {
+                profileData = gnoProfileMapper.toResponseDTO(user.getGnoProfile());
+            }
+        } else {
+            if (user.getEmployeeProfile() != null) {
+                profileData = employeeProfileMapper.toResponseDTO(user.getEmployeeProfile());
+            }
+        }
+
+        UserAuthResponseDTO authResponse = new UserAuthResponseDTO(userRole.name(), profileData);
         
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");

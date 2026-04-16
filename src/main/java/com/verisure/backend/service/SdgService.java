@@ -1,8 +1,13 @@
 package com.verisure.backend.service;
 
-import com.verisure.backend.dto.response.SdgResponseDTO;
 import java.util.List;
 
+import com.verisure.backend.dto.response.SdgResponseDTO;
+
 public interface SdgService {
-    List<SdgResponseDTO> getAllSdg();
+
+    SdgResponseDTO getById(Integer id);
+
+    List<SdgResponseDTO> getAllSdgs();
+
 }

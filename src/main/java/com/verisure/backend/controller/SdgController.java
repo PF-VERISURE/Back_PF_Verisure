@@ -2,16 +2,16 @@ package com.verisure.backend.controller;
 
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.verisure.backend.dto.response.SdgResponseDTO;
 import com.verisure.backend.service.SdgService;
+import com.verisure.backend.dto.response.SdgResponseDTO;
 
 @RestController
-@RequestMapping("api/v1/sdgs")
+@RequestMapping("/api/v1/sdgs")
 public class SdgController {
 
     private final SdgService sdgService;
@@ -21,9 +21,13 @@ public class SdgController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SdgResponseDTO>> getAllSdgs() {
-        List<SdgResponseDTO> sdgs = sdgService.getAllSdg();
-        return ResponseEntity.ok(sdgs);
+    public List<SdgResponseDTO> getAllSdgs() {
+        return sdgService.getAllSdgs();
+    }
+
+    @GetMapping("/{id}")
+    public SdgResponseDTO getSdgById(@PathVariable Integer id) {
+        return sdgService.getById(id);
     }
     
 }
