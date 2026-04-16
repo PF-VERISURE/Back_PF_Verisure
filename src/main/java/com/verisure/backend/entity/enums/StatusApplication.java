@@ -5,6 +5,6 @@ public enum StatusApplication {
     APPROVED,
     WAITLISTED,
     REJECTED,
-    CANCELLED,
+    CANCELED,
     CLOSED
 }

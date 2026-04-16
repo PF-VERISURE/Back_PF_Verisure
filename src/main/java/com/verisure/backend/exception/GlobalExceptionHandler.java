@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         error.put("error", ex.getMessage()); 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 
-    }
+    } 
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
