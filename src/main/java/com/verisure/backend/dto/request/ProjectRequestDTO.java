@@ -17,7 +17,7 @@ public record ProjectRequestDTO(
     @NotBlank(message = "La descripción es obligatoria")
     String description,
 
-    // @URL(message = "La URL de la imagen no es válida")
+    @URL(message = "La URL de la imagen no es válida")
     String imageUrl,
 
     @NotNull(message = "Número de plazas es obligatorio")

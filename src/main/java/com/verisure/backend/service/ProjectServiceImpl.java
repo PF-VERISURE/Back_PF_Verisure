@@ -36,6 +36,7 @@ public class ProjectServiceImpl implements ProjectService{
     private final ProjectMapper projectMapper;
     private final UserRepository userRepository;
     
+    //-------Para ONG----/
     @Override
     public ProjectResponseDTO createProject(ProjectRequestDTO dto, String email){
 
@@ -64,10 +65,93 @@ public class ProjectServiceImpl implements ProjectService{
         }
         
         Project saved = projectRepository.save(project);
-
         return projectMapper.toResponseDTO(saved);
-
     }
+
+    @Override
+    public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, String email) {
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
+
+        if (!project.getGno().getUser().getEmail().equals(email)) {
+            throw new BadRequestException("No tienes permisos para editar este proyecto");
+        }
+
+        if (dto.endDate().isBefore(dto.startDate())) {
+            throw new BadRequestException("La fecha de fin no puede ser anterior a la de inicio");
+        }
+
+        project.setTitle(dto.title());
+        project.setDescription(dto.description());
+        project.setImageUrl(dto.imageUrl());
+        project.setRequiredVolunteers(dto.requiredVolunteers());
+        project.setLocationType(dto.locationType());
+        project.setImpactUnit(dto.impactUnit());
+        project.setStartDate(dto.startDate());
+        project.setEndDate(dto.endDate());
+
+        if (dto.sdgIds() != null) {
+            List<Sdg> sdgs = sdgRepository.findAllById(dto.sdgIds());
+            if (sdgs.size() != dto.sdgIds().size()) {
+            throw new ResourceNotFoundException("Uno o más SDGs no fueron encontrados");
+            }
+            project.setSdgs(sdgs);
+        }
+
+        return projectMapper.toResponseDTO(projectRepository.save(project));
+    }
+
+    @Override
+    public void deleteProject(Long id, String email) {
+
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
+
+        // Validar que sea su propio proyecto
+        if (!project.getGno().getUser().getEmail().equals(email)) {
+            throw new BadRequestException("No tienes permisos para eliminar este proyecto");
+        }
+
+        projectRepository.delete(project);
+    }
+
+    @Override
+    public List<ProjectResponseDTO> getMyProjects(String email) {
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        GnoProfile gno = user.getGnoProfile();
+        if (gno == null) {
+            throw new ResourceNotFoundException("El usuario no tiene perfil de ONG");
+        }
+        
+        return projectRepository.findByGnoId(gno.getId()).stream()
+            .map(projectMapper::toResponseDTO)
+            .toList();
+    }
+
+    //----Para Admin y Ong----/
+    @Override
+    public List<ProjectResponseDTO> getPendingProjects() {
+        return projectRepository.findByStatus(StatusProject.PENDING)
+                .stream()
+                .map(projectMapper::toResponseDTO)
+                .toList();
+    }
+
+    //---Admin
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProjectResponseDTO> getAllProjectsForAdmin() {
+        
+        List<Project> projects = projectRepository.findAll();
+        return projects.stream()
+            .map(projectMapper::toResponseDTO)
+            .toList();
+    }
+
+
+
 
 
 }
