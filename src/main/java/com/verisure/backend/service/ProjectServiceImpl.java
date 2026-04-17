@@ -89,6 +89,7 @@ public class ProjectServiceImpl implements ProjectService{
         project.setImpactUnit(dto.impactUnit());
         project.setStartDate(dto.startDate());
         project.setEndDate(dto.endDate());
+        project.setTotalHours(dto.totalHours());
 
         if (dto.sdgIds() != null) {
             List<Sdg> sdgs = sdgRepository.findAllById(dto.sdgIds());

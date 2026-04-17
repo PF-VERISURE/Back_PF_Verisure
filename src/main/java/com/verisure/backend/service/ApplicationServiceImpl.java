@@ -44,7 +44,7 @@
 //     @Transactional
 //     public EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId) {
         
-//         Project project = ProjectRepository.findById(request.projectId())
+//         Project project = projectRepository.findById(id)
 //                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
 //         EmployeeProfile employee = employeeProfileRepository.findByUserId(userId)
@@ -81,13 +81,13 @@
 //         if (!applicationToCancel.getEmployee().getId().equals(employee.getId())) {
 //             throw new UnauthorizedActionException("No tienes permiso para cancelar esta inscripción");
 //         }
-//         if (applicationToCancel.getStatus() == StatusApplication.CANCELLED) {
+//         if (applicationToCancel.getStatus() == StatusApplication.CANCELED) {
 //             throw new IllegalStateException("La inscripción ya estaba cancelada");
 //         }
 
 //         boolean wasApproved = (applicationToCancel.getStatus() == StatusApplication.APPROVED);
 
-//         applicationToCancel.setStatus(StatusApplication.CANCELLED);
+//         applicationToCancel.setStatus(StatusApplication.CANCELED);
 //         applicationRepository.save(applicationToCancel);
 
 //         if (wasApproved) {
