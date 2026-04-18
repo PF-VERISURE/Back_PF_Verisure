@@ -146,7 +146,7 @@ public class DataSeeder implements CommandLineRunner {
                         LocationType.ONLINE,
                         null, "Madrid", "Horas de clase impartidas",
                         OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusMonths(2), 40,
-                        List.of(1, 4) // Asumiendo que existen ODS con ID 1 y 4
+                        List.of(1, 4) 
                 );
                 p1.setGno(ongs.get(0).getGnoProfile());
 
