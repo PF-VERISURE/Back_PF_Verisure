@@ -46,13 +46,9 @@ public class GnoProfileServiceImpl implements GnoProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public GnoProfileResponseDTO getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
-        GnoProfile profile = user.getGnoProfile();
-        if (profile == null) {
-            throw new ResourceNotFoundException("Este usuario no tiene un perfil de ONG configurado");
-        }
+    public GnoProfileResponseDTO getMyProfile(Long userId) {
+        GnoProfile profile = gnoProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Este usuario no tiene un perfil de ONG"));
         return gnoProfileMapper.toResponseDTO(profile);
     }
 

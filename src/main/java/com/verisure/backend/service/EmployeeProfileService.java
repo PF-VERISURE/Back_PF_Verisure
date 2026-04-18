@@ -10,6 +10,6 @@ public interface EmployeeProfileService {
 
     List<EmployeeProfileResponseDTO> getAllEmployeeProfiles();
     
-    EmployeeProfileResponseDTO getMyProfile(String email); 
+    EmployeeProfileResponseDTO getMyProfile(Long userId); 
     
 }

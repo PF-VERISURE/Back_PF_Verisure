@@ -8,7 +8,7 @@ public interface GnoProfileService {
 
     GnoProfileResponseDTO createGnoProfile(GnoCreateRequestDTO request);
 
-    GnoProfileResponseDTO getMyProfile(String email);
+    GnoProfileResponseDTO getMyProfile(Long userId);
     
     GnoProfileResponseDTO getGnoProfile(Long id);
     

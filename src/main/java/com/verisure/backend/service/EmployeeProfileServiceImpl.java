@@ -7,38 +7,27 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.verisure.backend.dto.response.EmployeeProfileResponseDTO;
 import com.verisure.backend.entity.EmployeeProfile;
-import com.verisure.backend.entity.User;
 import com.verisure.backend.exception.ResourceNotFoundException;
 import com.verisure.backend.mapper.EmployeeProfileMapper;
 import com.verisure.backend.repository.EmployeeProfileRepository;
-import com.verisure.backend.repository.UserRepository;
 
 @Service
 public class EmployeeProfileServiceImpl implements EmployeeProfileService {
 
     private final EmployeeProfileRepository employeeProfileRepository;
-    private final UserRepository userRepository;
     private final EmployeeProfileMapper employeeProfileMapper;
 
     public EmployeeProfileServiceImpl(EmployeeProfileRepository employeeProfileRepository,
-            UserRepository userRepository, EmployeeProfileMapper employeeProfileMapper) {
+            EmployeeProfileMapper employeeProfileMapper) {
         this.employeeProfileRepository = employeeProfileRepository;
-        this.userRepository = userRepository;
         this.employeeProfileMapper = employeeProfileMapper;
     }
 
-    
     @Override
     @Transactional(readOnly = true)
-    public EmployeeProfileResponseDTO getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
-        
-        EmployeeProfile profile = user.getEmployeeProfile();
-        if (profile == null) {
-            throw new ResourceNotFoundException("Este usuario no tiene un perfil de Empleado configurado");
-        }
-        
+    public EmployeeProfileResponseDTO getMyProfile(Long userId) {
+        EmployeeProfile profile = employeeProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Este usuario no tiene un perfil de Empleado"));
         return employeeProfileMapper.toResponseDTO(profile);
     }
 

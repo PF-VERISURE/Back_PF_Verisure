@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
+import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.GnoProfileService;
 
 @RestController
@@ -25,8 +26,8 @@ public class GnoProfileController {
 
     @GetMapping("/profile")
     public ResponseEntity<GnoProfileResponseDTO> getMyProfile(Authentication authentication) {
-        String email = authentication.getName();
-        GnoProfileResponseDTO response = gnoProfileService.getMyProfile(email);
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        GnoProfileResponseDTO response = gnoProfileService.getMyProfile(currentUser.userId());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
