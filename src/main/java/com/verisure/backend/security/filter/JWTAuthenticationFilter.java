@@ -13,6 +13,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.verisure.backend.dto.request.LoginRequestDTO;
+import com.verisure.backend.dto.response.EmployeeLoginResponseDTO;
+import com.verisure.backend.dto.response.GnoLoginResponseDTO;
 import com.verisure.backend.dto.response.UserAuthResponseDTO;
 import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.Role;
@@ -69,30 +71,37 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         List<String> roles = authResult.getAuthorities().stream()
                 .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
                 .collect(Collectors.toList());
+
+        String email = authResult.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         
         String token = JWT.create()
                 .withSubject(authResult.getName()) 
                 .withClaim("roles", roles)
+                .withClaim("userId", user.getId())
                 .withExpiresAt(new Date(System.currentTimeMillis() + (12 * 60 * 60 * 1000))) 
                 .sign(Algorithm.HMAC512(jwtSecret));
 
         response.addHeader("Authorization", "Bearer " + token);
         response.addHeader("Access-Control-Expose-Headers", "Authorization");
 
-        String email = authResult.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
         Object profileData = null;
         Role userRole = user.getRole();
 
         if (userRole == Role.ONG) {
             if (user.getGnoProfile() != null) {
-                profileData = gnoProfileMapper.toResponseDTO(user.getGnoProfile());
+                profileData = new GnoLoginResponseDTO(
+                    user.getGnoProfile().getContactName(),
+                    user.getGnoProfile().getOrganizationName()
+                );
             }
         } else {
             if (user.getEmployeeProfile() != null) {
-                profileData = employeeProfileMapper.toResponseDTO(user.getEmployeeProfile());
+                profileData = new EmployeeLoginResponseDTO(
+                    user.getEmployeeProfile().getFirstName(),
+                    user.getEmployeeProfile().getDepartment()
+                );
             }
         }
 
