@@ -2,7 +2,6 @@ package com.verisure.backend.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
@@ -40,7 +39,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.applicationMapper = applicationMapper;
     }
 
-    // ADMIN: ver todas las inscripciones orderby desc
+    // ==========================================
+    // ADMIN
+    // ==========================================
+
+    // ver todas las inscripciones orderby desc
     @Override
     @Transactional(readOnly = true)
     public List<AdminApplicationResponseDTO> getAllApplications() {
@@ -49,7 +52,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .toList();
     }
 
-    // EMPLOYEE: inscribirse a un proyecto
+
+    // ==========================================
+    // EMPLOYEE
+    // ==========================================
+
+    // inscribirse a un proyecto
     @Override
     @Transactional
     public EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId) {
@@ -87,7 +95,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationMapper.toEmployeeResponse(saved);
     }
 
-    // EMPLOYEE: cancelar inscripción
+    // cancelar inscripción
     @Override
     @Transactional
     public void cancelApplication(Long applicationId, Long userId) {
@@ -123,7 +131,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    // EMPLOYEE: ver sus inscripciones
+    // ver sus inscripciones
     @Override
     @Transactional(readOnly = true)
     public List<EmployeeApplicationResponseDTO> getMyApplications(Long userId) {
@@ -133,12 +141,26 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .toList();
     }
 
-    // ADMIN: cronjob para finalizar proyectos
+
+    // ==========================================
+    // AUTOMATIZACIÓN
+    // ==========================================
+
+    // cronjob para finalizar proyectos
     @Override
     @Transactional
     public void completeApplication(Long applicationId) {
-
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada con ID: " + applicationId));
+        
+        if (application.getStatus() != StatusApplication.APPROVED) {
+            throw new IllegalStateException("Solo las inscripciones APPROVED pueden marcarse como completadas.");
+        }
+        application.setStatus(StatusApplication.CLOSED);
+        // participationRecordService.generate(application); //Activará el certificado todavia no programado.
+        applicationRepository.save(application);
     }
+
 
     //metodos privados para el DRY
 

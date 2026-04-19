@@ -46,9 +46,7 @@ public class ApplicationController {
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancelApplication(
-            @PathVariable Long id, 
-            Authentication authentication) {
+    public ResponseEntity<Void> cancelApplication(@PathVariable Long id, Authentication authentication) {
             
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
         applicationService.cancelApplication(id, currentUser.userId());

@@ -1,5 +1,6 @@
 package com.verisure.backend.repository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +64,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         LEFT JOIN FETCH p.sdgs
         WHERE p.id = :id
     """)
+
     Optional<Project> findByIdWithSdgs(Long id);
+
+    // Para el filtrado del Cron Job
+    List<Project> findByStatusAndEndDateBefore(StatusProject status, OffsetDateTime date);
     
 }

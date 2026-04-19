@@ -22,4 +22,6 @@ public interface ApplicationService {
     // Sistema automatizacion.
     void completeApplication(Long applicationId);
 
+
+
 }
