@@ -16,6 +16,10 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     boolean existsByProjectIdAndEmployeeId(Long projectId, Long employeeId);
 
+    Optional<Application> findByProjectIdAndEmployeeId(Long projectId, Long employeeId);
+
+    List<Application> findAllByOrderByCreatedAtDesc();
+
     @Query("SELECT a FROM Application a WHERE a.employee.id = :employeeId ORDER BY a.createdAt DESC")
     List<Application> findEmployeeHistory(@Param("employeeId") Long employeeId);
 

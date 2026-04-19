@@ -2,12 +2,17 @@ package com.verisure.backend.config;
 
 import com.verisure.backend.entity.EmployeeProfile;
 import com.verisure.backend.entity.GnoProfile;
+import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.Sdg;
 import com.verisure.backend.entity.User;
+import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.Role;
+import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
 import com.verisure.backend.repository.UserRepository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
@@ -19,11 +24,13 @@ public class DataSeeder implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final SdgRepository sdgRepository;
+    private final ProjectRepository projectRepository;
     private final BCryptPasswordEncoder encoder;
 
-    public DataSeeder(UserRepository userRepository, SdgRepository sdgRepository, BCryptPasswordEncoder encoder) {
+    public DataSeeder(UserRepository userRepository, SdgRepository sdgRepository, ProjectRepository projectRepository, BCryptPasswordEncoder encoder) {
         this.userRepository = userRepository;
         this.sdgRepository = sdgRepository;
+        this.projectRepository = projectRepository;
         this.encoder = encoder;
     }
 
@@ -55,15 +62,14 @@ public class DataSeeder implements CommandLineRunner {
             // ==========================================
             // EMPLEADOS (Simulando carga de RRHH)
             // ==========================================
-            String[] employeeNames = { "Laura", "Carlos", "Marta" };
-            String[] employeeLastNames = { "Gómez", "Ruiz", "Sánchez" };
-            String[] departments = { "IT Support", "Ventas", "Marketing" };
-            Long[] empIds = { 100456L, 100457L, 100458L };
+            String[] employeeNames = { "Laura", "Carlos", "Marta", "David", "Ana" };
+            String[] employeeLastNames = { "Gómez", "Ruiz", "Sánchez", "López", "Martínez" };
+            String[] departments = { "IT Support", "Ventas", "Marketing", "RRHH", "Finanzas" };
+            Long[] empIds = { 100456L, 100457L, 100458L, 100459L, 100460L };
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 5; i++) {
                 User employee = new User();
                 employee.setEmail("empleado" + (i + 1) + "@verisure.com");
-                // OJO AQUÍ: La contraseña es user123
                 employee.setPasswordHash(encoder.encode("user123"));
                 employee.setRole(Role.EMPLOYEE);
 
@@ -108,6 +114,7 @@ public class DataSeeder implements CommandLineRunner {
             System.out.println("✅ Administrador, Empleados y ONGs creados con éxito.");
         }
 
+        // 2. SEEDER DE ODS
         if (sdgRepository.count() == 0) {
             List<Sdg> sdgs = List.of(
                     createSdg(1, "Fin de la pobreza"),
@@ -123,6 +130,59 @@ public class DataSeeder implements CommandLineRunner {
             sdgRepository.saveAll(sdgs);
             System.out.println("✅ Catálogo de ODS (SDGs) inicializado.");
         }
+
+        // 3. SEEDER DE PROYECTOS
+        if (projectRepository.count() == 0) {
+            List<User> ongs = userRepository.findAll().stream()
+                    .filter(u -> u.getRole() == Role.ONG)
+                    .toList();
+
+            if (ongs.size() >= 3) {
+                // Proyecto 1: Cruz Roja - ONLINE
+                Project p1 = createProject(
+                        "Apoyo Escolar Digital",
+                        "Clases de refuerzo online para niños en riesgo de exclusión. Fabricado con % relacionado.",
+                        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
+                        2, 
+                        LocationType.ONLINE,
+                        null, "Madrid", "Horas de clase impartidas",
+                        OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusMonths(2), 40,
+                        List.of(1, 4) 
+                );
+                p1.setGno(ongs.get(0).getGnoProfile());
+                p1.setStatus(StatusProject.PUBLISHED);
+
+                // Proyecto 2: MSF - IN_PERSON
+                Project p2 = createProject(
+                        "Clasificación de Material Sanitario",
+                        "Apoyo presencial en la organización de suministros médicos de primera necesidad. Fabricado con % relacionado.",
+                        "https://images.unsplash.com/photo-1584515933487-779824d29309",
+                        1, 
+                        LocationType.IN_PERSON,
+                        "Calle Solidaridad 123", "Barcelona", "Cajas organizadas",
+                        OffsetDateTime.now().plusDays(10), OffsetDateTime.now().plusMonths(1), 20,
+                        List.of(3)
+                );
+                p2.setGno(ongs.get(1).getGnoProfile());
+                p2.setStatus(StatusProject.PUBLISHED);
+
+                // Proyecto 3: Save the Children - ONLINE 
+                Project p3 = createProject(
+                        "Mentoring para Jóvenes",
+                        "Programa de mentoría a distancia para el desarrollo personal y profesional juvenil. Fabricado con % relacionado.",
+                        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c",
+                        3,
+                        LocationType.ONLINE,
+                        null, "Sevilla", "Sesiones completadas",
+                        OffsetDateTime.now().plusDays(15), OffsetDateTime.now().plusMonths(3), 60,
+                        List.of(10)
+                );
+                p3.setGno(ongs.get(2).getGnoProfile());
+
+                projectRepository.saveAll(List.of(p1, p2, p3));
+                System.out.println("✅ Proyectos de prueba creados y asignados a ONGs.");
+            }
+        }
     }
 
     private Sdg createSdg(Integer id, String name) {
@@ -131,6 +191,26 @@ public class DataSeeder implements CommandLineRunner {
         sdg.setName(name);
         return sdg;
     }
+
+    private Project createProject(String title, String description, String imageUrl, Integer requiredVolunteers, LocationType locationType, String address, String city, String impactUnit, OffsetDateTime startDate, OffsetDateTime endDate, Integer totalHours, List<Integer> sdgIds){
+        Project project = new Project();
+        project.setTitle(title);
+        project.setDescription(description);
+        project.setImageUrl(imageUrl);
+        project.setRequiredVolunteers(requiredVolunteers);
+        project.setLocationType(locationType);
+        project.setAddress(address);
+        project.setCity(city);
+        project.setImpactUnit(impactUnit);
+        project.setStartDate(startDate);
+        project.setEndDate(endDate);
+        project.setTotalHours(totalHours);
+        
+        List<Sdg> sdgs = sdgRepository.findAllById(sdgIds);
+        project.setSdgs(sdgs);
+        
+        return project;
+    }
 }
-// Vamos a ir ampliando el seeder segun se vayan creando las entidades y los
-// servicios.
+
+// Vamos a ir ampliando el seeder segun se vayan creando las entidades y los servicios.

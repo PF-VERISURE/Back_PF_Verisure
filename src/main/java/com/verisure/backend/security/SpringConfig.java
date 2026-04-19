@@ -64,6 +64,8 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/my-projects").hasRole("ONG")
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/all").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/pending").hasAnyRole("ADMIN", "ONG")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/applications/**").hasRole("EMPLOYEE")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)

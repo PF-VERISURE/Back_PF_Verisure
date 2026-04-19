@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
+import com.verisure.backend.dto.response.AdminApplicationResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,19 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
+    // ADMIN endpoints.
+    
+    @GetMapping("/all")
+    public ResponseEntity<List<AdminApplicationResponseDTO>> getAllApplications(Authentication authentication) {
+        
+        List<AdminApplicationResponseDTO> response = applicationService.getAllApplications();
+        
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    
+    // EMPLOYEE endpoints.
+
     @PostMapping
     public ResponseEntity<EmployeeApplicationResponseDTO> applyToProject(@Valid @RequestBody ApplicationRequestDTO request,
             Authentication authentication) {
@@ -31,7 +45,7 @@ public class ApplicationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{id}/cancel")
+    @PatchMapping("/{id}/cancel")
     public ResponseEntity<Void> cancelApplication(
             @PathVariable Long id, 
             Authentication authentication) {
@@ -42,7 +56,7 @@ public class ApplicationController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/history")
+    @GetMapping("/me")
     public ResponseEntity<List<EmployeeApplicationResponseDTO>> getMyApplications(Authentication authentication) {
         
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();

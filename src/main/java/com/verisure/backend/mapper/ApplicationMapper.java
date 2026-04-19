@@ -28,6 +28,7 @@ public interface ApplicationMapper {
     @Mapping(source = "employee.firstName", target = "firstName")
     @Mapping(source = "employee.lastName", target = "lastName")
     @Mapping(source = "employee.department", target = "department")
+    @Mapping(source = "project.totalHours", target = "totalHours")
     
     AdminApplicationResponseDTO toAdminResponse(Application application);
 }
