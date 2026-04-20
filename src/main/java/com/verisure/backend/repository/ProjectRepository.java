@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.verisure.backend.entity.Project;
+import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusProject;
 
 @Repository
@@ -41,9 +42,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Filtros básicos
     List<Project> findByStatusAndCity(StatusProject status, String city);
 
-    List<Project> findByStatusAndLocationType(
-        StatusProject status, 
-        com.verisure.backend.entity.enums.LocationType locationType);
+    List<Project> findByStatusAndLocationType(StatusProject status, LocationType locationType);
 
     // Búsqueda por título (tipo catálogo)
     List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);

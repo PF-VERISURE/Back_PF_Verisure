@@ -1,7 +1,5 @@
 package com.verisure.backend.controller;
 
-import java.util.List;
-
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
@@ -51,44 +49,23 @@ public class ProjectController {
     }
 
     @GetMapping("/my-projects")
-    public ResponseEntity<List<ProjectResponseDTO>> getMyProjects(Authentication authentication) {
+    public ResponseEntity<ProjectListResponseDTO> getMyProjects(Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        List<ProjectResponseDTO> response = projectService.getMyProjects(currentUser.userId());
+        ProjectListResponseDTO response = projectService.getMyProjects(currentUser.userId());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // @GetMapping("/my-projects") // Refactor Alex feedback para getMyProjects
-    // public ResponseEntity<ProjectListResponseDTO> getMyProjects(Authentication
-    // authentication) {
-    // AuthenticatedUser currentUser = (AuthenticatedUser)
-    // authentication.getPrincipal();
-    // ProjectListResponseDTO response =
-    // projectService.getMyProjects(currentUser.userId());
-    // return new ResponseEntity<>(response, HttpStatus.OK);
-    // }
-
     @GetMapping("/pending")
-    public ResponseEntity<List<ProjectResponseDTO>> getPendingProjects() {
-        List<ProjectResponseDTO> pendingProjects = projectService.getPendingProjects();
+    public ResponseEntity<ProjectListResponseDTO> getPendingProjects() {
+        ProjectListResponseDTO pendingProjects = projectService.getPendingProjects();
         return new ResponseEntity<>(pendingProjects, HttpStatus.OK);
     }
 
-    // @GetMapping("/pending") // Refactor Alex feedback para getPendingProjects
-    // public ResponseEntity<ProjectListResponseDTO> getPendingProjects() {
-    //     ProjectListResponseDTO pendingProjects = projectService.getPendingProjects();
-    //     return new ResponseEntity<>(pendingProjects, HttpStatus.OK);
-    // }
-
     @GetMapping("/all")
-    public ResponseEntity<List<ProjectResponseDTO>> getAllProjectsForAdmin(Authentication authentication) {
-        List<ProjectResponseDTO> response = projectService.getAllProjectsForAdmin();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ProjectListResponseDTO>
+    getAllProjectsForAdmin(Authentication authentication) {
+    ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
+    return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    // @GetMapping("/all") // Refactor Alex feedback para getAllProjectsForAdmin
-    // public ResponseEntity<ProjectListResponseDTO> getAllProjectsForAdmin(Authentication authentication) {
-    //     ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
-    //     return new ResponseEntity<>(response, HttpStatus.OK);
-    // }
 
 }

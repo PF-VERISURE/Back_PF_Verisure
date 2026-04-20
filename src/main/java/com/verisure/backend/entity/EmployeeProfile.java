@@ -35,12 +35,12 @@ public class EmployeeProfile {
 
   // @NotBlank(message = "El nombre no puede estar vacío")
   // @Size(max = 50, message = "El nombre es demasiado largo")
-  @Column(nullable = false)
+  @Column(nullable = false, length = 50)
   private String firstName;
 
   // @NotBlank(message = "El apellido no puede estar vacío")
   // @Size(max = 100, message = "El apellido es demasiado largo")
-  @Column(nullable = false)
+  @Column(nullable = false, length = 100)
   private String lastName;
 
   // @NotBlank(message = "El departamento es obligatorio")
