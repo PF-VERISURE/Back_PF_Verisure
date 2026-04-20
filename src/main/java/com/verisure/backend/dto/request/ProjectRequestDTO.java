@@ -48,7 +48,4 @@ public record ProjectRequestDTO(
 
     @NotEmpty(message = "Debe seleccionar una opción")
     List<Integer> sdgIds
-
-){
-    
-}
+){}

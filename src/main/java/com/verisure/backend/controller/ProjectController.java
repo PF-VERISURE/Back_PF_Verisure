@@ -8,9 +8,11 @@ import com.verisure.backend.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -19,12 +21,13 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> createProject(
-            @Valid @RequestBody ProjectRequestDTO dto,
+            @Valid @RequestPart("project") ProjectRequestDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile image,
             Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        ProjectResponseDTO response = projectService.createProject(dto, currentUser.userId());
+        ProjectResponseDTO response = projectService.createProject(dto, currentUser.userId(), image);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -49,7 +52,8 @@ public class ProjectController {
     }
 
     @GetMapping("/my-projects")
-    public ResponseEntity<ProjectListResponseDTO> getMyProjects(Authentication authentication) {
+    public ResponseEntity<ProjectListResponseDTO> getMyProjects(
+            Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
         ProjectListResponseDTO response = projectService.getMyProjects(currentUser.userId());
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -62,10 +66,9 @@ public class ProjectController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<ProjectListResponseDTO>
-    getAllProjectsForAdmin(Authentication authentication) {
-    ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<ProjectListResponseDTO> getAllProjectsForAdmin(Authentication authentication) {
+        ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

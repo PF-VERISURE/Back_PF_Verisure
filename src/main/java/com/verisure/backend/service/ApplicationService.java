@@ -17,7 +17,7 @@ public interface ApplicationService {
 
     EmployeeApplicationListResponseDTO getMyApplications(Long userId);
 
-    // Sistema automatizacion.
     void completeApplication(Long applicationId);
 
 }
+

@@ -42,7 +42,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Filtros básicos
     List<Project> findByStatusAndCity(StatusProject status, String city);
 
-    List<Project> findByStatusAndLocationType(StatusProject status, LocationType locationType);
+    List<Project> findByStatusAndLocationType(
+        StatusProject status, 
+        LocationType locationType);
 
     // Búsqueda por título (tipo catálogo)
     List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);

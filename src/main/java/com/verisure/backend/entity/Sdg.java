@@ -24,7 +24,7 @@ public class Sdg {
   @Column(nullable = false, unique = true)
   private String name;
 
-    @ManyToMany(mappedBy = "sdgs", fetch = FetchType.LAZY)
+  @ManyToMany(mappedBy = "sdgs", fetch = FetchType.LAZY)
   private List<Project> projects = new ArrayList<>();
   
 }
