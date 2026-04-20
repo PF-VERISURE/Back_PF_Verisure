@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/main/java/com/verisure/backend/config/DataSeeder.java
-package com.verisure.backend.config;
-=======
 package com.verisure.backend.seeder;
->>>>>>> 8cb058da0d1cef49bde92c6d7d56ce32cfee30f6:src/main/java/com/verisure/backend/seeder/DataSeeder.java
 
 import com.verisure.backend.entity.Application;
 import com.verisure.backend.entity.EmployeeProfile;
