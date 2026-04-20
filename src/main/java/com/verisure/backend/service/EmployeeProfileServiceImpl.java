@@ -5,51 +5,46 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.verisure.backend.dto.response.EmployeeProfileListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeProfileResponseDTO;
 import com.verisure.backend.entity.EmployeeProfile;
-import com.verisure.backend.entity.User;
 import com.verisure.backend.exception.ResourceNotFoundException;
 import com.verisure.backend.mapper.EmployeeProfileMapper;
 import com.verisure.backend.repository.EmployeeProfileRepository;
-import com.verisure.backend.repository.UserRepository;
 
 @Service
 public class EmployeeProfileServiceImpl implements EmployeeProfileService {
 
     private final EmployeeProfileRepository employeeProfileRepository;
-    private final UserRepository userRepository;
     private final EmployeeProfileMapper employeeProfileMapper;
 
     public EmployeeProfileServiceImpl(EmployeeProfileRepository employeeProfileRepository,
-            UserRepository userRepository, EmployeeProfileMapper employeeProfileMapper) {
+            EmployeeProfileMapper employeeProfileMapper) {
         this.employeeProfileRepository = employeeProfileRepository;
-        this.userRepository = userRepository;
         this.employeeProfileMapper = employeeProfileMapper;
     }
 
-    
     @Override
     @Transactional(readOnly = true)
-    public EmployeeProfileResponseDTO getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
-        
-        EmployeeProfile profile = user.getEmployeeProfile();
-        if (profile == null) {
-            throw new ResourceNotFoundException("Este usuario no tiene un perfil de Empleado configurado");
-        }
-        
+    public EmployeeProfileResponseDTO getMyProfile(Long userId) {
+        EmployeeProfile profile = employeeProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Este usuario no tiene un perfil de Empleado"));
         return employeeProfileMapper.toResponseDTO(profile);
     }
 
-    // para el admin poder ver todos, buscar uno por id. No Delete pq esto lo gestiona RRHH.
+    // para el admin poder ver todos, buscar uno por id. No Delete pq esto lo
+    // gestiona RRHH.
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeProfileResponseDTO> getAllEmployeeProfiles() {
-        return employeeProfileRepository.findAll()
+    public EmployeeProfileListResponseDTO getAllEmployeeProfiles() {
+        List<EmployeeProfileResponseDTO> employeeProfiles = employeeProfileRepository.findAll()
                 .stream()
                 .map(employeeProfileMapper::toResponseDTO)
                 .toList();
+        return new EmployeeProfileListResponseDTO(
+                employeeProfiles,
+                employeeProfiles.size()
+        );
     }
 
     @Override

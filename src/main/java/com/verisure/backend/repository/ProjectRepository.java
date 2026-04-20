@@ -1,5 +1,6 @@
 package com.verisure.backend.repository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.verisure.backend.entity.Project;
+import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusProject;
 
 @Repository
@@ -42,7 +44,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     List<Project> findByStatusAndLocationType(
         StatusProject status, 
-        com.verisure.backend.entity.enums.LocationType locationType);
+        LocationType locationType);
 
     // Búsqueda por título (tipo catálogo)
     List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);
@@ -63,6 +65,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         LEFT JOIN FETCH p.sdgs
         WHERE p.id = :id
     """)
+
     Optional<Project> findByIdWithSdgs(Long id);
+
+    // Para el filtrado del Cron Job
+    List<Project> findByStatusAndEndDateBefore(StatusProject status, OffsetDateTime date);
     
 }

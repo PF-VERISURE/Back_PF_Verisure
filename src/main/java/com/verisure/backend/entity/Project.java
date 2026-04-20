@@ -3,6 +3,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.validator.constraints.URL;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -72,7 +73,7 @@ public class Project {
   @Column(columnDefinition = "TEXT", nullable = false)
   private String description;
 
-  // @URL(message = "La URL de la imagen no es válida")
+  @URL(message = "La URL de la imagen no es válida")
   @Column(name = "image_url")
   private String imageUrl;
 
@@ -101,6 +102,9 @@ public class Project {
   @Column(name = "impact_unit")
   private String impactUnit;
 
+  @Column(nullable = false)
+  private Integer totalHours;
+
   @Column(name = "certificate_template")
   private String certificateTemplate;
 
@@ -118,9 +122,5 @@ public class Project {
 
   @UpdateTimestamp 
   @Column(nullable = true)
-  private OffsetDateTime updatedAt;
-
-  @Column(nullable = false)
-  private Integer totalHours;
-  
+  private OffsetDateTime updatedAt;  
 }

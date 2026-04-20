@@ -14,7 +14,8 @@ public record AdminApplicationResponseDTO(
     Long corporateEmployeeId,
     String firstName,
     String lastName,
-    String department
+    String department,
+    Integer totalHours
 
 ) {    
 
