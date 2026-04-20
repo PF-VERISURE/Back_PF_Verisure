@@ -102,6 +102,9 @@ public class Project {
   @Column(name = "impact_unit")
   private String impactUnit;
 
+  @Column(nullable = false)
+  private Integer totalHours;
+
   @Column(name = "certificate_template")
   private String certificateTemplate;
 
@@ -119,9 +122,5 @@ public class Project {
 
   @UpdateTimestamp 
   @Column(nullable = true)
-  private OffsetDateTime updatedAt;
-
-  @Column(nullable = false)
-  private Integer totalHours;
-  
+  private OffsetDateTime updatedAt;  
 }

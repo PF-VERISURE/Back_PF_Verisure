@@ -7,22 +7,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
-
 import com.verisure.backend.entity.GnoProfile;
 import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.Sdg;
 import com.verisure.backend.entity.enums.StatusProject;
-import com.verisure.backend.entity.User;
 import com.verisure.backend.exception.*;
 import com.verisure.backend.mapper.ProjectMapper;
 
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
-import com.verisure.backend.repository.UserRepository;
-
-//import com.verisure.backend.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,12 +31,11 @@ public class ProjectServiceImpl implements ProjectService{
     private final GnoProfileRepository gnoProfileRepository;
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
-    private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
     
     //-------Para ONG----/
     @Override
-    public ProjectResponseDTO createProject(ProjectRequestDTO dto, String email, MultipartFile image){
+    public ProjectResponseDTO createProject(ProjectRequestDTO dto, Long userId, MultipartFile image){
         
         String imageUrl = (image != null && !image.isEmpty()) 
             ? cloudinaryService.uploadImage(image) 
@@ -50,17 +45,14 @@ public class ProjectServiceImpl implements ProjectService{
             throw new BadRequestException("La fecha de fin no puede ser anterior a la de inicio");
         }    
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
-
-        GnoProfile gnoProfile = user.getGnoProfile();
-        if (gnoProfile == null) {
-            throw new ResourceNotFoundException("Este usuario no tiene un perfil de ONG configurado");
-        }
+        GnoProfile gnoProfile = gnoProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Este usuario no tiene un perfil de ONG configurado"));
+        
 
         Project project = projectMapper.toEntity(dto);
         project.setGno(gnoProfile);
         project.setImageUrl(imageUrl);
+
         
         if (dto.sdgIds() != null && !dto.sdgIds().isEmpty()) {
             List<Sdg> sdgs = sdgRepository.findAllById(dto.sdgIds());
@@ -75,11 +67,14 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, String email) {
+    public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId) {
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
 
-        if (!project.getGno().getUser().getEmail().equals(email)) {
+        GnoProfile currentGno = gnoProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil de ONG no encontrado"));
+
+        if (!project.getGno().getId().equals(currentGno.getId())) {
             throw new BadRequestException("No tienes permisos para editar este proyecto");
         }
 
@@ -109,13 +104,16 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public void deleteProject(Long id, String email) {
+    public void deleteProject(Long id, Long userId) {
 
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
 
+        GnoProfile currentGno = gnoProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil de ONG no encontrado"));
+
         // Validar que sea su propio proyecto
-        if (!project.getGno().getUser().getEmail().equals(email)) {
+        if (!project.getGno().getId().equals(currentGno.getId())) {
             throw new BadRequestException("No tienes permisos para eliminar este proyecto");
         }
 
@@ -123,42 +121,36 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public List<ProjectResponseDTO> getMyProjects(String email) {
-        User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-
-        GnoProfile gno = user.getGnoProfile();
-        if (gno == null) {
-            throw new ResourceNotFoundException("El usuario no tiene perfil de ONG");
-        }
-        
-        return projectRepository.findByGnoId(gno.getId()).stream()
+    public ProjectListResponseDTO getMyProjects(Long userId) {
+        GnoProfile gno = gnoProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("El usuario no tiene perfil de ONG"));
+        List<ProjectResponseDTO> projectsList = projectRepository.findByGnoId(gno.getId()).stream()
             .map(projectMapper::toResponseDTO)
             .toList();
+        return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
+
 
     //----Para Admin y Ong----/
     @Override
-    public List<ProjectResponseDTO> getPendingProjects() {
-        return projectRepository.findByStatus(StatusProject.PENDING)
+    public ProjectListResponseDTO getPendingProjects() {
+        List<ProjectResponseDTO> pendingList = projectRepository.findByStatus(StatusProject.PENDING)
                 .stream()
                 .map(projectMapper::toResponseDTO)
                 .toList();
+        return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
+
 
     //---Admin
     @Override
     @Transactional(readOnly = true)
-    public List<ProjectResponseDTO> getAllProjectsForAdmin() {
-        
-        List<Project> projects = projectRepository.findAll();
-        return projects.stream()
+    public ProjectListResponseDTO getAllProjectsForAdmin() {
+        List<ProjectResponseDTO> adminProjectsList = projectRepository.findAll().stream()
             .map(projectMapper::toResponseDTO)
             .toList();
+        return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
     }
 
-
-
-
-
 }
+

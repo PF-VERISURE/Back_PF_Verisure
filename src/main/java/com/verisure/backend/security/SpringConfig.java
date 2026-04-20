@@ -21,17 +21,12 @@ public class SpringConfig {
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String jwtSecret;
     private final UserRepository userRepository;
-    private final GnoProfileMapper gnoProfileMapper;
-    private final EmployeeProfileMapper employeeProfileMapper;
 
     public SpringConfig(CustomAuthenticationManager customAuthenticationManager,
-            @Value("${jwt.secret}") String jwtSecret, UserRepository userRepository,
-            GnoProfileMapper gnoProfileMapper,EmployeeProfileMapper employeeProfileMapper) {
+            @Value("${jwt.secret}") String jwtSecret, UserRepository userRepository) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtSecret = jwtSecret;
         this.userRepository = userRepository;
-        this.gnoProfileMapper = gnoProfileMapper;
-        this.employeeProfileMapper = employeeProfileMapper;
     }
 
     @Bean
@@ -40,9 +35,7 @@ public class SpringConfig {
         JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(
             customAuthenticationManager,
             jwtSecret,
-            userRepository,
-            gnoProfileMapper,
-            employeeProfileMapper
+            userRepository
         );
 
         authenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
@@ -64,6 +57,8 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/my-projects").hasRole("ONG")
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/all").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/pending").hasAnyRole("ADMIN", "ONG")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/all").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/applications/**").hasRole("EMPLOYEE")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)

@@ -20,14 +20,15 @@
 
 //     EmployeeApplicationResponseDTO toEmployeeResponse(Application application);
 
-//     @Mapping(source = "id", target = "applicationId")
-//     @Mapping(source = "createdAt", target = "appliedAt")
-//     @Mapping(source = "project.id", target = "projectId")
-//     @Mapping(source = "project.title", target = "projectTitle")
-//     @Mapping(source = "employee.employeeId", target = "corporateEmployeeId")
-//     @Mapping(source = "employee.firstName", target = "firstName")
-//     @Mapping(source = "employee.lastName", target = "lastName")
-//     @Mapping(source = "employee.department", target = "department")
+    @Mapping(source = "id", target = "applicationId")
+    @Mapping(source = "createdAt", target = "appliedAt")
+    @Mapping(source = "project.id", target = "projectId")
+    @Mapping(source = "project.title", target = "projectTitle")
+    @Mapping(source = "employee.employeeId", target = "corporateEmployeeId")
+    @Mapping(source = "employee.firstName", target = "firstName")
+    @Mapping(source = "employee.lastName", target = "lastName")
+    @Mapping(source = "employee.department", target = "department")
+    @Mapping(source = "project.totalHours", target = "totalHours")
     
 //     AdminApplicationResponseDTO toAdminResponse(Application application);
 // }

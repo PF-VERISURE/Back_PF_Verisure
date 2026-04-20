@@ -1,23 +1,22 @@
 package com.verisure.backend.service;
 
-import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 
 public interface ProjectService {
     
     //------ONG------/
-    ProjectResponseDTO createProject(ProjectRequestDTO dto, String email, MultipartFile image);
-    ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, String email);
-    void deleteProject(Long id, String email);
-    List<ProjectResponseDTO> getMyProjects(String email);
+    ProjectResponseDTO createProject(ProjectRequestDTO dto, Long userId, MultipartFile image);
+    ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId);
+    void deleteProject(Long id, Long userId);
+    ProjectListResponseDTO getMyProjects(Long userId);
 
     //---------ADMIN-----/
-    List<ProjectResponseDTO> getPendingProjects();
-    List<ProjectResponseDTO> getAllProjectsForAdmin();
+    ProjectListResponseDTO getPendingProjects();
+    ProjectListResponseDTO getAllProjectsForAdmin();
     //ProjectResponseDTO updateStatus(Long projectId, String status);
 
 }

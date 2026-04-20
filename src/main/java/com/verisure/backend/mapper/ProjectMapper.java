@@ -21,4 +21,6 @@ public interface ProjectMapper {
     @Mapping(source = "gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
     ProjectResponseDTO toResponseDTO(Project project);
+
 }
+

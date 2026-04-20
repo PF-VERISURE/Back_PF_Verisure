@@ -1,118 +1,183 @@
-// package com.verisure.backend.service;
+package com.verisure.backend.service;
 
-// import java.util.List;
-// import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.verisure.backend.dto.request.ApplicationRequestDTO;
+import com.verisure.backend.dto.response.AdminApplicationListResponseDTO;
+import com.verisure.backend.dto.response.AdminApplicationResponseDTO;
+import com.verisure.backend.dto.response.EmployeeApplicationListResponseDTO;
+import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
+import com.verisure.backend.entity.Application;
+import com.verisure.backend.entity.EmployeeProfile;
+import com.verisure.backend.entity.Project;
+import com.verisure.backend.entity.enums.StatusApplication;
+import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.exception.BadRequestException;
+import com.verisure.backend.exception.DuplicateResourceException;
+import com.verisure.backend.exception.ResourceNotFoundException;
+import com.verisure.backend.exception.UnauthorizedActionException;
+import com.verisure.backend.mapper.ApplicationMapper;
+import com.verisure.backend.repository.ApplicationRepository;
+import com.verisure.backend.repository.EmployeeProfileRepository;
+import com.verisure.backend.repository.ProjectRepository;
 
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
+@Service
+public class ApplicationServiceImpl implements ApplicationService {
 
-// import com.verisure.backend.dto.request.ApplicationRequestDTO;
-// import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
-// import com.verisure.backend.entity.Application;
-// import com.verisure.backend.entity.EmployeeProfile;
-// import com.verisure.backend.entity.Project;
-// import com.verisure.backend.entity.enums.StatusApplication;
-// import com.verisure.backend.entity.enums.StatusProject;
-// import com.verisure.backend.exception.DuplicateResourceException;
-// import com.verisure.backend.exception.ResourceNotFoundException;
-// import com.verisure.backend.exception.UnauthorizedActionException;
-// import com.verisure.backend.mapper.ApplicationMapper;
-// import com.verisure.backend.repository.ApplicationRepository;
-// import com.verisure.backend.repository.EmployeeProfileRepository;
-// import com.verisure.backend.repository.ProjectRepository;
-// import com.verisure.backend.service.ApplicationService;
+    private final ApplicationRepository applicationRepository;
+    private final ProjectRepository projectRepository;
+    private final EmployeeProfileRepository employeeProfileRepository;
+    private final ApplicationMapper applicationMapper;
 
-// @Service
-// public class ApplicationServiceImpl implements ApplicationService {
+    public ApplicationServiceImpl(ApplicationRepository applicationRepository,
+            ProjectRepository projectRepository,
+            EmployeeProfileRepository employeeProfileRepository,
+            ApplicationMapper applicationMapper) {
+        this.applicationRepository = applicationRepository;
+        this.projectRepository = projectRepository;
+        this.employeeProfileRepository = employeeProfileRepository;
+        this.applicationMapper = applicationMapper;
+    }
 
-//     private final ApplicationRepository applicationRepository;
-//     private final ProjectRepository projectRepository;
-//     private final EmployeeProfileRepository employeeProfileRepository;
-//     private final ApplicationMapper applicationMapper;
+    // ==========================================
+    // ADMIN
+    // ==========================================
 
-//     public ApplicationServiceImpl(ApplicationRepository applicationRepository, 
-//                                   ProjectRepository projectRepository,
-//                                   EmployeeProfileRepository employeeProfileRepository,
-//                                   ApplicationMapper applicationMapper) {
-//         this.applicationRepository = applicationRepository;
-//         this.projectRepository = projectRepository;
-//         this.employeeProfileRepository = employeeProfileRepository;
-//         this.applicationMapper = applicationMapper;
-//     }
+    // ver todas las inscripciones orderby desc
+    @Override
+    @Transactional(readOnly = true)
+    public AdminApplicationListResponseDTO getAllApplications() {
+        List<AdminApplicationResponseDTO> list = applicationRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(applicationMapper::toAdminResponse)
+                .toList();
+        return new AdminApplicationListResponseDTO(list, list.size());
+    }
 
-//     @Override
-//     @Transactional
-//     public EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId) {
+
+    // ==========================================
+    // EMPLOYEE
+    // ==========================================
+
+    // inscribirse a un proyecto
+    @Override
+    @Transactional
+    public EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId) {
+
+        Project project = getProjectById(request.projectId());
+        EmployeeProfile employee = getEmployeeByUserId(userId);
+
+        if (project.getStatus() != StatusProject.PUBLISHED) {
+            throw new BadRequestException("No puedes inscribirte: el proyecto no está publicado.");
+        }
         
-//         Project project = projectRepository.findById(id)
-//                 .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
-
-//         EmployeeProfile employee = employeeProfileRepository.findByUserId(userId)
-//                 .orElseThrow(() -> new ResourceNotFoundException("Perfil de empleado no encontrado"));
-//         if (applicationRepository.existsByProjectIdAndEmployeeId(project.getId(), employee.getId())) {
-//             throw new DuplicateResourceException("Ya estás inscrito en este proyecto");
-//         }
-
-//         long currentApproved = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-
-//         StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers()) 
-//                 ? StatusApplication.APPROVED 
-//                 : StatusApplication.WAITLISTED;
-
-//         Application application = new Application();
-//         application.setProject(project);
-//         application.setEmployee(employee);
-//         application.setStatus(finalStatus);
+        Optional<Application> existingApplication = applicationRepository.findByProjectIdAndEmployeeId(project.getId(), employee.getId());
         
-//         Application saved = applicationRepository.save(application);
-
-//         return applicationMapper.toEmployeeResponse(saved);
-//     }
-
-//     @Override
-//     @Transactional
-//     public void cancelApplication(Long applicationId, Long userId) {
+        Application application;
         
-//         EmployeeProfile employee = employeeProfileRepository.findByUserId(userId)
-//                 .orElseThrow(() -> new ResourceNotFoundException("Perfil de empleado no encontrado"));
+        if (existingApplication.isPresent()) {
+            application = existingApplication.get();
+            if (application.getStatus() != StatusApplication.CANCELED) {
+                throw new DuplicateResourceException("Ya estás inscrito en este proyecto");
+            }
+        } else {
+            application = new Application();
+            application.setProject(project);
+            application.setEmployee(employee);
+        }
 
-//         Application applicationToCancel = applicationRepository.findById(applicationId)
-//                 .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada"));
-//         if (!applicationToCancel.getEmployee().getId().equals(employee.getId())) {
-//             throw new UnauthorizedActionException("No tienes permiso para cancelar esta inscripción");
-//         }
-//         if (applicationToCancel.getStatus() == StatusApplication.CANCELED) {
-//             throw new IllegalStateException("La inscripción ya estaba cancelada");
-//         }
+        long currentApproved = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+        StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers()) 
+                ? StatusApplication.APPROVED 
+                : StatusApplication.WAITLISTED;
 
-//         boolean wasApproved = (applicationToCancel.getStatus() == StatusApplication.APPROVED);
+        application.setStatus(finalStatus);
 
-//         applicationToCancel.setStatus(StatusApplication.CANCELED);
-//         applicationRepository.save(applicationToCancel);
+        Application saved = applicationRepository.save(application);
+        return applicationMapper.toEmployeeResponse(saved);
+    }
 
-//         if (wasApproved) {
-//             applicationRepository.findNextInWaitlist(applicationToCancel.getProject().getId(), StatusApplication.WAITLISTED)
-//                 .ifPresent(nextInLine -> {
-//                     nextInLine.setStatus(StatusApplication.APPROVED);
-//                     applicationRepository.save(nextInLine);
-                    
-//                     // Aquí iría un servicio de Email/Notificaciones para avisarle, intentare el finde a ver como se gestiona.
-//                     System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " + 
-//                                        nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
-//                 });
-//         }
-//     }
+    // cancelar inscripción
+    @Override
+    @Transactional
+    public void cancelApplication(Long applicationId, Long userId) {
 
-//     @Override
-//     public List<EmployeeApplicationResponseDTO> getMyApplications(Long userId) {
-//         // findEmployeeHistory
-//         return null; 
-//     }
+        EmployeeProfile employee = getEmployeeByUserId(userId);
 
-//     @Override
-//     @Transactional
-//     public void completeApplication(Long applicationId) {
+        Application applicationToCancel = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada"));
+
+        if (!applicationToCancel.getEmployee().getId().equals(employee.getId())) {
+            throw new UnauthorizedActionException("No tienes permiso para cancelar esta inscripción");
+        }
+        if (applicationToCancel.getStatus() == StatusApplication.CANCELED) {
+            throw new IllegalStateException("La inscripción ya estaba cancelada");
+        }
+
+        boolean wasApproved = (applicationToCancel.getStatus() == StatusApplication.APPROVED);
+
+        applicationToCancel.setStatus(StatusApplication.CANCELED);
+        applicationRepository.save(applicationToCancel);
+
+        if (wasApproved) {
+            applicationRepository
+                    .findNextInWaitlist(applicationToCancel.getProject().getId(), StatusApplication.WAITLISTED)
+                    .ifPresent(nextInLine -> {
+                        nextInLine.setStatus(StatusApplication.APPROVED);
+                        applicationRepository.save(nextInLine);
+
+                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent Events.
+                        System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " +
+                                nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
+                    });
+        }
+    }
+
+    // ver sus inscripciones
+    @Override
+    @Transactional(readOnly = true)
+    public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
+        EmployeeProfile employee = getEmployeeByUserId(userId);
+        List<EmployeeApplicationResponseDTO> list = applicationRepository.findEmployeeHistory(employee.getId())
+                .stream()
+                .map(applicationMapper::toEmployeeResponse)
+                .toList();
+        return new EmployeeApplicationListResponseDTO(list, list.size());
+    }
+
+
+    // ==========================================
+    // AUTOMATIZACIÓN
+    // ==========================================
+
+    // cronjob para finalizar proyectos
+    @Override
+    @Transactional
+    public void completeApplication(Long applicationId) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada con ID: " + applicationId));
         
-//     }
+        if (application.getStatus() != StatusApplication.APPROVED) {
+            throw new IllegalStateException("Solo las inscripciones APPROVED pueden marcarse como completadas.");
+        }
+        application.setStatus(StatusApplication.CLOSED);
+        // participationRecordService.generate(application); //Activará el certificado todavia no programado.
+        applicationRepository.save(application);
+    }
 
-// }
+
+    //metodos privados para el DRY
+
+    private EmployeeProfile getEmployeeByUserId(Long userId) {
+        return employeeProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Perfil de empleado no encontrado"));
+    }
+
+    private Project getProjectById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado"));
+    }
+
+}
