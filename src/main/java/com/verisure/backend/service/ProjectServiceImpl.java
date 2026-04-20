@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
@@ -35,16 +36,19 @@ public class ProjectServiceImpl implements ProjectService{
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
     
     //-------Para ONG----/
     @Override
-    public ProjectResponseDTO createProject(ProjectRequestDTO dto, String email){
-
+    public ProjectResponseDTO createProject(ProjectRequestDTO dto, String email, MultipartFile image){
+        
+        String imageUrl = (image != null && !image.isEmpty()) 
+            ? cloudinaryService.uploadImage(image) 
+            : null;
+        
         if (dto.endDate().isBefore(dto.startDate())) {
             throw new BadRequestException("La fecha de fin no puede ser anterior a la de inicio");
-        }
-
-        Project project = projectMapper.toEntity(dto);
+        }    
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
@@ -54,7 +58,9 @@ public class ProjectServiceImpl implements ProjectService{
             throw new ResourceNotFoundException("Este usuario no tiene un perfil de ONG configurado");
         }
 
+        Project project = projectMapper.toEntity(dto);
         project.setGno(gnoProfile);
+        project.setImageUrl(imageUrl);
         
         if (dto.sdgIds() != null && !dto.sdgIds().isEmpty()) {
             List<Sdg> sdgs = sdgRepository.findAllById(dto.sdgIds());

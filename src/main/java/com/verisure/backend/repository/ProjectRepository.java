@@ -54,6 +54,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     // Conteo por ONG y estado
     long countByGnoIdAndStatus(Long gnoId, StatusProject status);
+    
 
     //------------------Optimización------
 

@@ -8,9 +8,11 @@ import com.verisure.backend.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -19,13 +21,14 @@ public class ProjectController {
     
     private final ProjectService projectService;
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> createProject(
-            @Valid @RequestBody
+            @Valid @RequestPart("project")
             ProjectRequestDTO dto, 
+            @RequestPart(value = "file", required = false) MultipartFile image,
             Authentication authentication) {
         String email = authentication.getName();
-        ProjectResponseDTO response = projectService.createProject(dto, email);
+        ProjectResponseDTO response = projectService.createProject(dto, email, image);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
