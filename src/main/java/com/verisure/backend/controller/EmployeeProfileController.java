@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.verisure.backend.dto.response.EmployeeProfileListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeProfileResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.EmployeeProfileService;
@@ -32,8 +33,8 @@ public class EmployeeProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmployeeProfileResponseDTO>> getAllEmployees() {
-        List<EmployeeProfileResponseDTO> response = employeeProfileService.getAllEmployeeProfiles();
+    public ResponseEntity<EmployeeProfileListResponseDTO> getAllEmployees() {
+        EmployeeProfileListResponseDTO response = employeeProfileService.getAllEmployeeProfiles();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

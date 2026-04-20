@@ -1,4 +1,4 @@
-package com.verisure.backend.cron;
+package com.verisure.backend.tasks;
 
 import java.time.OffsetDateTime;
 import java.util.List;

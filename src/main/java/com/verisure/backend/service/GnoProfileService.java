@@ -1,7 +1,7 @@
 package com.verisure.backend.service;
 
-import java.util.List;
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
+import com.verisure.backend.dto.response.GnoProfileListResponseDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
 
 public interface GnoProfileService {
@@ -12,7 +12,7 @@ public interface GnoProfileService {
     
     GnoProfileResponseDTO getGnoProfile(Long id);
     
-    List<GnoProfileResponseDTO> getAllGnoProfiles();
+    GnoProfileListResponseDTO getAllGnoProfiles();
 
     void deleteGno(Long id);
 

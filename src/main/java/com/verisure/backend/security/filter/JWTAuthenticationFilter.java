@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,11 +17,8 @@ import com.verisure.backend.dto.response.GnoLoginResponseDTO;
 import com.verisure.backend.dto.response.UserAuthResponseDTO;
 import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.Role;
-import com.verisure.backend.mapper.EmployeeProfileMapper;
-import com.verisure.backend.mapper.GnoProfileMapper;
 import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.CustomAuthenticationManager;
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -33,15 +29,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String jwtSecret;
     private final UserRepository userRepository;
-    private final GnoProfileMapper gnoProfileMapper;
-    private final EmployeeProfileMapper employeeProfileMapper;
 
-    public JWTAuthenticationFilter(CustomAuthenticationManager customAuthenticationManager, String jwtSecret    , UserRepository userRepository, GnoProfileMapper gnoProfileMapper, EmployeeProfileMapper employeeProfileMapper) {
+    public JWTAuthenticationFilter(CustomAuthenticationManager customAuthenticationManager, String jwtSecret    , UserRepository userRepository) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtSecret = jwtSecret;
         this.userRepository = userRepository;
-        this.gnoProfileMapper = gnoProfileMapper;
-        this.employeeProfileMapper = employeeProfileMapper;
     }
 
     @Override

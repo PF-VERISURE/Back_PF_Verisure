@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
+import com.verisure.backend.dto.response.AdminApplicationListResponseDTO;
 import com.verisure.backend.dto.response.AdminApplicationResponseDTO;
+import com.verisure.backend.dto.response.EmployeeApplicationListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import org.springframework.security.core.Authentication;
@@ -25,13 +27,10 @@ public class ApplicationController {
     // ADMIN endpoints.
     
     @GetMapping("/all")
-    public ResponseEntity<List<AdminApplicationResponseDTO>> getAllApplications(Authentication authentication) {
-        
-        List<AdminApplicationResponseDTO> response = applicationService.getAllApplications();
-        
+    public ResponseEntity<AdminApplicationListResponseDTO> getAllApplications(Authentication authentication) {
+        AdminApplicationListResponseDTO response = applicationService.getAllApplications();
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
+    }  
     
     // EMPLOYEE endpoints.
 
@@ -55,10 +54,10 @@ public class ApplicationController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<EmployeeApplicationResponseDTO>> getMyApplications(Authentication authentication) {
+    public ResponseEntity<EmployeeApplicationListResponseDTO> getMyApplications(Authentication authentication) {
         
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        List<EmployeeApplicationResponseDTO> response = applicationService.getMyApplications(currentUser.userId());
+        EmployeeApplicationListResponseDTO response = applicationService.getMyApplications(currentUser.userId());
         
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

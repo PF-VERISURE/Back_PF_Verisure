@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
+import com.verisure.backend.dto.response.GnoProfileListResponseDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
 import com.verisure.backend.entity.GnoProfile;
 import com.verisure.backend.entity.User;
@@ -64,11 +65,15 @@ public class GnoProfileServiceImpl implements GnoProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GnoProfileResponseDTO> getAllGnoProfiles() {
-        return gnoProfileRepository.findAll()
+    public GnoProfileListResponseDTO getAllGnoProfiles() {
+        List<GnoProfileResponseDTO> gnoProfiles = gnoProfileRepository.findAll()
                 .stream()
                 .map(gnoProfileMapper::toResponseDTO)
                 .toList();
+        return new GnoProfileListResponseDTO(
+            gnoProfiles,
+            gnoProfiles.size()
+        );
     }
 
     @Override

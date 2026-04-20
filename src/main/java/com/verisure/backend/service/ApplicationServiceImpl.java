@@ -5,7 +5,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
+import com.verisure.backend.dto.response.AdminApplicationListResponseDTO;
 import com.verisure.backend.dto.response.AdminApplicationResponseDTO;
+import com.verisure.backend.dto.response.EmployeeApplicationListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 import com.verisure.backend.entity.Application;
 import com.verisure.backend.entity.EmployeeProfile;
@@ -46,10 +48,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     // ver todas las inscripciones orderby desc
     @Override
     @Transactional(readOnly = true)
-    public List<AdminApplicationResponseDTO> getAllApplications() {
-        return applicationRepository.findAllByOrderByCreatedAtDesc().stream()
+    public AdminApplicationListResponseDTO getAllApplications() {
+        List<AdminApplicationResponseDTO> list = applicationRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
                 .map(applicationMapper::toAdminResponse)
                 .toList();
+        return new AdminApplicationListResponseDTO(list, list.size());
     }
 
 
@@ -134,11 +138,13 @@ public class ApplicationServiceImpl implements ApplicationService {
     // ver sus inscripciones
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeApplicationResponseDTO> getMyApplications(Long userId) {
+    public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
         EmployeeProfile employee = getEmployeeByUserId(userId);
-        return applicationRepository.findEmployeeHistory(employee.getId()).stream()
+        List<EmployeeApplicationResponseDTO> list = applicationRepository.findEmployeeHistory(employee.getId())
+                .stream()
                 .map(applicationMapper::toEmployeeResponse)
                 .toList();
+        return new EmployeeApplicationListResponseDTO(list, list.size());
     }
 
 

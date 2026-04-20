@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 
 import com.verisure.backend.entity.GnoProfile;
@@ -19,9 +20,6 @@ import com.verisure.backend.mapper.ProjectMapper;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
-import com.verisure.backend.repository.UserRepository;
-
-//import com.verisure.backend.service.ProjectService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,7 +32,6 @@ public class ProjectServiceImpl implements ProjectService{
     private final GnoProfileRepository gnoProfileRepository;
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
-    private final UserRepository userRepository;
     
     //-------Para ONG----/
     @Override
@@ -127,6 +124,16 @@ public class ProjectServiceImpl implements ProjectService{
             .toList();
     }
 
+    // @Override // Refactor Alex feedback para getMyProjects
+    // public ProjectListResponseDTO getMyProjects(Long userId) {
+    //     GnoProfile gno = gnoProfileRepository.findByUserId(userId)
+    //             .orElseThrow(() -> new ResourceNotFoundException("El usuario no tiene perfil de ONG"));
+    //     List<ProjectResponseDTO> projectsList = projectRepository.findByGnoId(gno.getId()).stream()
+    //         .map(projectMapper::toResponseDTO)
+    //         .toList();
+    //     return new ProjectListResponseDTO(projectsList, projectsList.size());
+    // }
+
     //----Para Admin y Ong----/
     @Override
     public List<ProjectResponseDTO> getPendingProjects() {
@@ -135,6 +142,15 @@ public class ProjectServiceImpl implements ProjectService{
                 .map(projectMapper::toResponseDTO)
                 .toList();
     }
+
+    // @Override // Refactor Alex feedback para getPendingProjects
+    // public ProjectListResponseDTO getPendingProjects() {
+    //     List<ProjectResponseDTO> pendingList = projectRepository.findByStatus(StatusProject.PENDING)
+    //             .stream()
+    //             .map(projectMapper::toResponseDTO)
+    //             .toList();
+    //     return new ProjectListResponseDTO(pendingList, pendingList.size());
+    // }
 
     //---Admin
     @Override
@@ -147,8 +163,13 @@ public class ProjectServiceImpl implements ProjectService{
             .toList();
     }
 
-
-
-
+    // @Override // Refactor Alex feedback para getAllProjectsForAdmin
+    // @Transactional(readOnly = true)
+    // public ProjectListResponseDTO getAllProjectsForAdmin() {
+    //     List<ProjectResponseDTO> adminProjectsList = projectRepository.findAll().stream()
+    //         .map(projectMapper::toResponseDTO)
+    //         .toList();
+    //     return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
+    // }
 
 }

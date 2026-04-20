@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
+import com.verisure.backend.dto.response.GnoProfileListResponseDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.GnoProfileService;
@@ -32,8 +33,8 @@ public class GnoProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GnoProfileResponseDTO>> getAllGnos() {
-        List<GnoProfileResponseDTO> response = gnoProfileService.getAllGnoProfiles();
+    public ResponseEntity<GnoProfileListResponseDTO> getAllGnos() {
+        GnoProfileListResponseDTO response = gnoProfileService.getAllGnoProfiles();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

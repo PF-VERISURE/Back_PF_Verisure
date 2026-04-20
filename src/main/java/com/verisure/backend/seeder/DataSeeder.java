@@ -1,4 +1,4 @@
-package com.verisure.backend.config;
+package com.verisure.backend.seeder;
 
 import com.verisure.backend.entity.Application;
 import com.verisure.backend.entity.EmployeeProfile;

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.verisure.backend.dto.response.EmployeeProfileListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeProfileResponseDTO;
 import com.verisure.backend.entity.EmployeeProfile;
 import com.verisure.backend.exception.ResourceNotFoundException;
@@ -31,14 +32,19 @@ public class EmployeeProfileServiceImpl implements EmployeeProfileService {
         return employeeProfileMapper.toResponseDTO(profile);
     }
 
-    // para el admin poder ver todos, buscar uno por id. No Delete pq esto lo gestiona RRHH.
+    // para el admin poder ver todos, buscar uno por id. No Delete pq esto lo
+    // gestiona RRHH.
     @Override
     @Transactional(readOnly = true)
-    public List<EmployeeProfileResponseDTO> getAllEmployeeProfiles() {
-        return employeeProfileRepository.findAll()
+    public EmployeeProfileListResponseDTO getAllEmployeeProfiles() {
+        List<EmployeeProfileResponseDTO> employeeProfiles = employeeProfileRepository.findAll()
                 .stream()
                 .map(employeeProfileMapper::toResponseDTO)
                 .toList();
+        return new EmployeeProfileListResponseDTO(
+                employeeProfiles,
+                employeeProfiles.size()
+        );
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.verisure.backend.controller;
 import java.util.List;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.ProjectService;
@@ -17,13 +18,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 public class ProjectController {
-    
+
     private final ProjectService projectService;
 
     @PostMapping
     public ResponseEntity<ProjectResponseDTO> createProject(
-            @Valid @RequestBody
-            ProjectRequestDTO dto, 
+            @Valid @RequestBody ProjectRequestDTO dto,
             Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
         ProjectResponseDTO response = projectService.createProject(dto, currentUser.userId());
@@ -32,8 +32,8 @@ public class ProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
-            @PathVariable Long id, 
-            @Valid @RequestBody ProjectRequestDTO dto, 
+            @PathVariable Long id,
+            @Valid @RequestBody ProjectRequestDTO dto,
             Authentication authentication) {
 
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
@@ -43,7 +43,7 @@ public class ProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
         projectService.deleteProject(id, currentUser.userId());
@@ -57,16 +57,38 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // @GetMapping("/my-projects") // Refactor Alex feedback para getMyProjects
+    // public ResponseEntity<ProjectListResponseDTO> getMyProjects(Authentication
+    // authentication) {
+    // AuthenticatedUser currentUser = (AuthenticatedUser)
+    // authentication.getPrincipal();
+    // ProjectListResponseDTO response =
+    // projectService.getMyProjects(currentUser.userId());
+    // return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
+
     @GetMapping("/pending")
     public ResponseEntity<List<ProjectResponseDTO>> getPendingProjects() {
         List<ProjectResponseDTO> pendingProjects = projectService.getPendingProjects();
         return new ResponseEntity<>(pendingProjects, HttpStatus.OK);
     }
 
+    // @GetMapping("/pending") // Refactor Alex feedback para getPendingProjects
+    // public ResponseEntity<ProjectListResponseDTO> getPendingProjects() {
+    //     ProjectListResponseDTO pendingProjects = projectService.getPendingProjects();
+    //     return new ResponseEntity<>(pendingProjects, HttpStatus.OK);
+    // }
+
     @GetMapping("/all")
     public ResponseEntity<List<ProjectResponseDTO>> getAllProjectsForAdmin(Authentication authentication) {
         List<ProjectResponseDTO> response = projectService.getAllProjectsForAdmin();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // @GetMapping("/all") // Refactor Alex feedback para getAllProjectsForAdmin
+    // public ResponseEntity<ProjectListResponseDTO> getAllProjectsForAdmin(Authentication authentication) {
+    //     ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
+    //     return new ResponseEntity<>(response, HttpStatus.OK);
+    // }
 
 }
