@@ -15,9 +15,11 @@ public record ProjectRequestDTO(
     String title,
 
     @NotBlank(message = "La descripción es obligatoria")
+    @Size(max = 1500, message = "La descripción no puede superar los 1500 caracteres")
     String description,
 
     @URL(message = "La URL de la imagen no es válida")
+    @Size(max = 1000, message = "La URL de la imagen no puede exceder los 1000 caracteres")
     String imageUrl,
 
     @NotNull(message = "Número de plazas es obligatorio")
@@ -27,8 +29,12 @@ public record ProjectRequestDTO(
     @NotNull(message = "El tipo de localización es obligatorio")
     LocationType locationType,
 
+    @NotBlank(message = "La dirección/enlace es obligatorio")
+    @Size(max = 500, message = "La dirección/enlace no puede exceder los 500 caracteres")
     String address,
 
+    @NotBlank(message = "La ciudad es obligatoria")
+    @Size(max = 100, message = "La ciudad no puede exceder los 100 caracteres")
     String city,
 
     @NotBlank(message = "La unidad de impacto es obligatoria")
@@ -48,4 +54,7 @@ public record ProjectRequestDTO(
 
     @NotEmpty(message = "Debe seleccionar una opción")
     List<Integer> sdgIds
-){}
+
+){
+
+}

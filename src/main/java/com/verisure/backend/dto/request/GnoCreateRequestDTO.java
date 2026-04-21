@@ -1,7 +1,6 @@
 package com.verisure.backend.dto.request;
 
 import org.hibernate.validator.constraints.URL;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -32,10 +31,12 @@ public record GnoCreateRequestDTO(
     String contactName,
 
     @NotBlank(message = "El teléfono es obligatorio")
+    @Size(max = 20, message = "El teléfono no puede exceder los 20 caracteres")
     String contactPhone,
 
     @NotBlank(message = "El email de contacto es obligatorio")
     @Email(message = "El formato del email de contacto no es válido")
+    @Size(max = 100, message = "El email de contacto no puede exceder los 100 caracteres")
     String contactEmail,
 
     @URL(message = "Debe ser una URL válida")

@@ -1,9 +1,6 @@
 package com.verisure.backend.service;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
@@ -14,6 +11,7 @@ import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.Role;
 import com.verisure.backend.exception.DuplicateResourceException;
 import com.verisure.backend.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import com.verisure.backend.mapper.GnoProfileMapper;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.UserRepository;

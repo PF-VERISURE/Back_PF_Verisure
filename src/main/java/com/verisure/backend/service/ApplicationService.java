@@ -20,4 +20,3 @@ public interface ApplicationService {
     void completeApplication(Long applicationId);
 
 }
-

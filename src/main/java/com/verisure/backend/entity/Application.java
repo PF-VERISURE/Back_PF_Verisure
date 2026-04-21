@@ -43,10 +43,9 @@ public class Application {
   @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private ParticipationRecord participationRecord;
 
-  // @NotNull(message = "El estado de la solicitud es obligatorio")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private StatusApplication status; // Enum {PENDING, APPROVED, REJECTED, WAITLISTED, CLOSED}
+  private StatusApplication status; 
   
   @CreationTimestamp
   @Column(nullable = false, updatable = false)
