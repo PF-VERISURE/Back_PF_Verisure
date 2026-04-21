@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.entity.GnoProfile;
@@ -150,6 +151,14 @@ public class ProjectServiceImpl implements ProjectService {
             publishedProjects,
             publishedProjects.size()
         );
+    }
+
+    @Override
+    public ProjectResponseDTO updateStatus(Long id, StatusUpdateRequestDTO statusDto) {
+        Project project = getProjectOrThrow(id);
+        project.setStatus(statusDto.status());
+        Project updatedProject = projectRepository.save(project);
+        return projectMapper.toResponseDTO(updatedProject);
     }
 
     private String extractPublicIdFromUrl(String url) {
