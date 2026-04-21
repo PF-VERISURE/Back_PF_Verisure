@@ -18,13 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 public class ProjectController {
-    
+
     private final ProjectService projectService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> createProject(
-            @Valid @RequestPart("project")
-            ProjectRequestDTO dto, 
+            @Valid @RequestPart("project") ProjectRequestDTO dto,
             @RequestPart(value = "file", required = false) MultipartFile image,
             Authentication authentication) {
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
@@ -79,4 +78,3 @@ public class ProjectController {
     }
 
 }
-

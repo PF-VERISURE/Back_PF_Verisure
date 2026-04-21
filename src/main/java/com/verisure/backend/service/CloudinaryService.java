@@ -2,14 +2,11 @@ package com.verisure.backend.service;
 
 import java.io.IOException;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.verisure.backend.exception.InvalidImageException;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

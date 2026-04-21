@@ -150,7 +150,7 @@ public class DataSeeder implements CommandLineRunner {
                         "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
                         2,
                         LocationType.ONLINE,
-                        null, "Madrid", "Horas de clase impartidas",
+                        "https://zoom.us/j/123456789", "Madrid", "Horas de clase impartidas",
                         OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusMonths(2), 40,
                         List.of(1, 4));
                 p1.setGno(ongs.get(0).getGnoProfile());
@@ -176,7 +176,7 @@ public class DataSeeder implements CommandLineRunner {
                         "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c",
                         3,
                         LocationType.ONLINE,
-                        null, "Sevilla", "Sesiones completadas",
+                        "https://meet.google.com/abc-defg-hij", "Sevilla", "Sesiones completadas",
                         OffsetDateTime.now().plusDays(15), OffsetDateTime.now().plusMonths(3), 60,
                         List.of(10));
                 p3.setGno(ongs.get(2).getGnoProfile());

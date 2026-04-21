@@ -1,10 +1,8 @@
 package com.verisure.backend.service;
 
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.verisure.backend.dto.response.EmployeeProfileListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeProfileResponseDTO;
 import com.verisure.backend.entity.EmployeeProfile;

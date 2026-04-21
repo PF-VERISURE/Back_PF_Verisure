@@ -25,35 +25,24 @@ public class GnoProfile {
   @JoinColumn(name = "user_id", unique = true, nullable = false, referencedColumnName = "id")
   private User user;
 
-  //valiadaciones de formato para dto comentadas.
-  // @NotBlank(message = "El CIF es obligatorio")
-  // @Pattern(regexp = "^[a-zA-Z][0-9]{7}[0-9a-zA-Z]$", message = "El formato del CIF no es válido")
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, length = 9)
   private String cif;
 
-  // @NotBlank(message = "El nombre de la organización es obligatorio")
-  // @Size(max = 100, message = "El nombre es demasiado largo")
-  @Column(nullable = false)
+  @Column(nullable = false, length = 100)
   private String organizationName;
 
-  // @NotBlank(message = "El nombre de contacto es obligatorio")
   @Column(nullable = false)
   private String contactName;
 
-  // @NotBlank(message = "El teléfono es obligatorio")
-  @Column(nullable = false)
+  @Column(nullable = false, length = 20)
   private String contactPhone;
 
-  // @NotBlank(message = "El email de contacto es obligatorio")
-  // @Email(message = "El formato del email no es válido")
-  @Column(nullable = false)
+  @Column(nullable = false, length = 100)
   private String contactEmail;
 
-  // @URL(message = "Debe ser una URL válida")
   @Column(nullable = true)
   private String website;
 
-  // @NotBlank(message = "La dirección es obligatoria")
   @Column(nullable = false)
   private String address;
   
