@@ -73,5 +73,10 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/published")
+    public ResponseEntity<ProjectListResponseDTO> getAllPublished() {
+        return ResponseEntity.ok(projectService.getAllPublished());
+    }
+
 }
 

@@ -19,4 +19,7 @@ public interface ProjectService {
     ProjectListResponseDTO getAllProjectsForAdmin();
     //ProjectResponseDTO updateStatus(Long projectId, String status);
 
+
+    //-----EMPLOYEED-----/
+    ProjectListResponseDTO getAllPublished();
 }

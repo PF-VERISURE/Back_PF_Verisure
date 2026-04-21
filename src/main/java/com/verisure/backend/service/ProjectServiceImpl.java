@@ -152,7 +152,6 @@ public class ProjectServiceImpl implements ProjectService{
         return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
 
-
     //---Admin
     @Override
     @Transactional(readOnly = true)
@@ -161,6 +160,21 @@ public class ProjectServiceImpl implements ProjectService{
             .map(projectMapper::toResponseDTO)
             .toList();
         return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectListResponseDTO getAllPublished() {
+        
+        List<ProjectResponseDTO> publishedProjects = projectRepository.findByStatus(StatusProject.PUBLISHED)
+            .stream()
+            .map(projectMapper::toResponseDTO)
+            .toList();
+
+        return new ProjectListResponseDTO(
+            publishedProjects,
+            publishedProjects.size()
+        );
     }
 
     private String extractPublicIdFromUrl(String url) {
