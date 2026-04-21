@@ -1,8 +1,8 @@
 package com.verisure.backend.mapper;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.entity.Project;
@@ -23,4 +23,3 @@ public interface ProjectMapper {
     ProjectResponseDTO toResponseDTO(Project project);
 
 }
-

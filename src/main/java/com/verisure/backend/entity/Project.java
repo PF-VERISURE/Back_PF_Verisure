@@ -1,15 +1,12 @@
 package com.verisure.backend.entity;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.hibernate.validator.constraints.URL;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusProject;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -63,43 +60,33 @@ public class Project {
 
   private List<Sdg> sdgs = new ArrayList<>();
 
-  //valiadaciones de formato para dto comentadas.
-  // @NotBlank(message = "El título es obligatorio")
-  // @Size(max = 150, message = "El título es demasiado largo")
   @Column(nullable = false, length = 150)
   private String title;
   
-  // @NotBlank(message = "La descripción es obligatoria")
   @Column(columnDefinition = "TEXT", nullable = false)
   private String description;
 
-  @URL(message = "La URL de la imagen no es válida")
-  @Column(name = "image_url")
+  @Column(name = "image_url", length = 1000)
   private String imageUrl;
 
-  // @NotNull(message = "El estado del proyecto es obligatorio")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private StatusProject status = StatusProject.PENDING;
 
-  // @NotNull(message = "El número de voluntarios es obligatorio")
-  // @Min(value = 1, message = "Debe haber al menos 1 plaza")
   @Column(nullable = false)
   private Integer requiredVolunteers;
   
-  // @NotNull(message = "El tipo de localización es obligatorio")
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private LocationType locationType; // Enum { ONLINE, IN_PERSON, HYBRID }
+  private LocationType locationType;
 
-  @Column(nullable = true)
-  private String address; // NO NECESARIO MVP.
+  @Column(nullable = false, length = 500)
+  private String address;
   
-  @Column(nullable = true)
-  private String city; // NO NECESARIO MVP.
+  @Column(nullable = false, length = 100)
+  private String city;
 
-  // @NotBlank(message = "La unidad de impacto es obligatoria")
-  @Column(name = "impact_unit")
+  @Column(nullable = false, name = "impact_unit")
   private String impactUnit;
 
   @Column(nullable = false)
@@ -108,11 +95,9 @@ public class Project {
   @Column(name = "certificate_template")
   private String certificateTemplate;
 
-  // @FutureOrPresent(message = "La fecha de inicio no puede ser en el pasado")
   @Column(nullable = false)
   private OffsetDateTime startDate;
 
-  // @Future(message = "La fecha de fin debe ser en el futuro")
   @Column(nullable = false)
   private OffsetDateTime endDate;
 
@@ -123,4 +108,5 @@ public class Project {
   @UpdateTimestamp 
   @Column(nullable = true)
   private OffsetDateTime updatedAt;  
+  
 }

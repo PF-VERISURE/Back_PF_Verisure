@@ -27,23 +27,15 @@ public class EmployeeProfile {
   @JoinColumn(name = "user_id", unique = true, nullable = false, referencedColumnName = "id")
   private User user;
 
-  //valiadaciones de formato para dto comentadas.
-  // @NotNull(message = "El número de empleado es obligatorio")
-  // @Min(value = 1, message = "El número de empleado no es válido")
   @Column(unique = true, nullable = false)
   private Long employeeId;
 
-  // @NotBlank(message = "El nombre no puede estar vacío")
-  // @Size(max = 50, message = "El nombre es demasiado largo")
   @Column(nullable = false, length = 50)
   private String firstName;
 
-  // @NotBlank(message = "El apellido no puede estar vacío")
-  // @Size(max = 100, message = "El apellido es demasiado largo")
   @Column(nullable = false, length = 100)
   private String lastName;
 
-  // @NotBlank(message = "El departamento es obligatorio")
   @Column(nullable = false)
   private String department;
 
