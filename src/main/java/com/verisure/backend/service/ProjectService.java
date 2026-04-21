@@ -10,7 +10,7 @@ public interface ProjectService {
     
     //------ONG------/
     ProjectResponseDTO createProject(ProjectRequestDTO dto, Long userId, MultipartFile image);
-    ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId);
+    ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId, MultipartFile image);
     void deleteProject(Long id, Long userId);
     ProjectListResponseDTO getMyProjects(Long userId);
 

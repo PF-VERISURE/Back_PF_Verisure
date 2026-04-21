@@ -67,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
-    public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId) {
+    public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId, MultipartFile image) {
         Project project = projectRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + id));
 
@@ -82,9 +82,16 @@ public class ProjectServiceImpl implements ProjectService{
             throw new BadRequestException("La fecha de fin no puede ser anterior a la de inicio");
         }
 
+        if (image != null && !image.isEmpty()) {
+            if (project.getImageUrl() != null) {
+                cloudinaryService.deleteImage(extractPublicIdFromUrl(project.getImageUrl()));
+            }
+            String newImageUrl = cloudinaryService.uploadImage(image);
+            project.setImageUrl(newImageUrl);
+        }
+
         project.setTitle(dto.title());
         project.setDescription(dto.description());
-        project.setImageUrl(dto.imageUrl());
         project.setRequiredVolunteers(dto.requiredVolunteers());
         project.setLocationType(dto.locationType());
         project.setImpactUnit(dto.impactUnit());
@@ -112,9 +119,13 @@ public class ProjectServiceImpl implements ProjectService{
         GnoProfile currentGno = gnoProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Perfil de ONG no encontrado"));
 
-        // Validar que sea su propio proyecto
         if (!project.getGno().getId().equals(currentGno.getId())) {
             throw new BadRequestException("No tienes permisos para eliminar este proyecto");
+        }
+
+        if (project.getImageUrl() != null){
+            String publicId = extractPublicIdFromUrl(project.getImageUrl());
+            cloudinaryService.deleteImage(publicId);
         }
 
         projectRepository.delete(project);
@@ -150,6 +161,12 @@ public class ProjectServiceImpl implements ProjectService{
             .map(projectMapper::toResponseDTO)
             .toList();
         return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
+    }
+
+    private String extractPublicIdFromUrl(String url) {
+        if (url == null) return null;
+        String publicId = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
+        return "projects/" + publicId;
     }
 
 }

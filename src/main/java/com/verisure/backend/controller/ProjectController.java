@@ -32,14 +32,15 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
-            @Valid @RequestBody ProjectRequestDTO dto,
+            @Valid @RequestPart("project") ProjectRequestDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile image,
             Authentication authentication) {
 
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        ProjectResponseDTO response = projectService.updateProject(dto, id, currentUser.userId());
+        ProjectResponseDTO response = projectService.updateProject(dto, id, currentUser.userId(), image);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
