@@ -14,6 +14,8 @@ import com.verisure.backend.entity.enums.StatusApplication;
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
+    List<Application> findByProjectId(Long projectId);
+
     boolean existsByProjectIdAndEmployeeId(Long projectId, Long employeeId);
 
     Optional<Application> findByProjectIdAndEmployeeId(Long projectId, Long employeeId);

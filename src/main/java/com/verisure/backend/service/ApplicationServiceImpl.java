@@ -56,7 +56,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new AdminApplicationListResponseDTO(list, list.size());
     }
 
-
     // ==========================================
     // EMPLOYEE
     // ==========================================
@@ -72,11 +71,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (project.getStatus() != StatusProject.PUBLISHED) {
             throw new BadRequestException("No puedes inscribirte: el proyecto no está publicado.");
         }
-        
-        Optional<Application> existingApplication = applicationRepository.findByProjectIdAndEmployeeId(project.getId(), employee.getId());
-        
+
+        Optional<Application> existingApplication = applicationRepository.findByProjectIdAndEmployeeId(project.getId(),
+                employee.getId());
+
         Application application;
-        
+
         if (existingApplication.isPresent()) {
             application = existingApplication.get();
             if (application.getStatus() != StatusApplication.CANCELED) {
@@ -89,8 +89,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         long currentApproved = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-        StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers()) 
-                ? StatusApplication.APPROVED 
+        StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers())
+                ? StatusApplication.APPROVED
                 : StatusApplication.WAITLISTED;
 
         application.setStatus(finalStatus);
@@ -128,7 +128,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         nextInLine.setStatus(StatusApplication.APPROVED);
                         applicationRepository.save(nextInLine);
 
-                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent Events.
+                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent
+                        // Events.
                         System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " +
                                 nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
                     });
@@ -147,28 +148,46 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new EmployeeApplicationListResponseDTO(list, list.size());
     }
 
-
     // ==========================================
     // AUTOMATIZACIÓN
     // ==========================================
 
-    // cronjob para finalizar proyectos
+    // cronjob para finalizar proyectos de todo los estados
     @Override
     @Transactional
-    public void completeApplication(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada con ID: " + applicationId));
-        
-        if (application.getStatus() != StatusApplication.APPROVED) {
-            throw new IllegalStateException("Solo las inscripciones APPROVED pueden marcarse como completadas.");
+    public int completeApplication(Long projectId) {
+        List<Application> applications = applicationRepository.findByProjectId(projectId);
+
+        int closedCount = 0;
+        int rejectedCount = 0;
+
+        for (Application app : applications) {
+            switch (app.getStatus()) {
+                case APPROVED:
+                    app.setStatus(StatusApplication.CLOSED);
+                    // participationRecordService.generate(app); // el certificado no para MVP sprint2
+                    closedCount++;
+                    break;
+
+                case WAITLISTED:
+                case PENDING:
+                    app.setStatus(StatusApplication.REJECTED);
+                    rejectedCount++;
+                    break;
+
+                case CANCELED:
+                case REJECTED:
+                case CLOSED:
+                    break;
+            }
         }
-        application.setStatus(StatusApplication.CLOSED);
-        // participationRecordService.generate(application); //Activará el certificado todavia no programado.
-        applicationRepository.save(application);
+
+        applicationRepository.saveAll(applications);
+
+        return closedCount;
     }
 
-
-    //metodos privados para el DRY
+    // metodos privados para el DRY
 
     private EmployeeProfile getEmployeeByUserId(Long userId) {
         return employeeProfileRepository.findByUserId(userId)

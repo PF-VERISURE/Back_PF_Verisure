@@ -14,6 +14,7 @@ import com.verisure.backend.repository.ApplicationRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.service.ApplicationService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,13 +24,13 @@ import lombok.extern.slf4j.Slf4j;
 public class ProjectStatusCronJob {
 
     private final ProjectRepository projectRepository;
-    private final ApplicationRepository applicationRepository;
     private final ApplicationService applicationService;
 
     // cron =[Segundos] [Minutos] [Horas] [Día del mes] [Mes] [Día de la semana]
-    // @Scheduled(cron = "*/10 * * * * *", zone = "Europe/Madrid") //Pruebas para ver la funcionalidad.
+    @Scheduled(cron = "*/10 * * * * *", zone = "Europe/Madrid") //Pruebas para ver la funcionalidad.
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Madrid")
+    // @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Madrid")
+    @Transactional
     public void executeNightlyProjectClosure() {
 
         log.info("🌙 [CRON] Iniciando revisión de proyectos caducados a medianoche...");
@@ -45,21 +46,16 @@ public class ProjectStatusCronJob {
         }
 
         for (Project project : expiredProjects) {
+
             project.setStatus(StatusProject.COMPLETED); 
-            projectRepository.save(project);
-            log.info("🔒 Proyecto cerrado automáticamente: " + project.getTitle());
-
-            List<Application> approvedApps = applicationRepository.findByProjectIdAndStatus(
-                    project.getId(), 
-                    StatusApplication.APPROVED
-            );
-
-            for (Application app : approvedApps) {
-                applicationService.completeApplication(app.getId());
-            }
             
-            log.info("🎓 Empleados que han participado en este proyecto: " + approvedApps.size());
+            int certificados = applicationService.completeApplication(project.getId());
+            
+            log.info("🔒 Proyecto cerrado automáticamente: " + project.getTitle());
+            //log.info("🎓 Empleados que han participado en este proyecto: " + certificados); todavia no hay certificados implementados
         }
+        
+        projectRepository.saveAll(expiredProjects);
         
         log.info("✅ [CRON] Revisión nocturna finalizada con éxito.");
     }
