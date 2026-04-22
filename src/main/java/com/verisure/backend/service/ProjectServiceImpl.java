@@ -82,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public void deleteProject(Long id, Long userId) {
         Project project = getProjectOrThrow(id);
-        GnoProfile currentGno = getGnoProfileOrThrow(userId);
+        GnoProfile currentGno = getGnoProfileOrThrow(userId); 
         projectRepository.delete(project);
     }
 
