@@ -183,6 +183,8 @@ public class DataSeeder implements CommandLineRunner {
 
                 projectRepository.saveAll(List.of(p1, p2, p3));
                 System.out.println("✅ Proyectos de prueba creados y asignados a ONGs.");
+                
+                // Proyecto 4 (CADUCADO)
                 Project p4_caducado = createProject(
                         "Reforestación Invernal (Test Cron)",
                         "Proyecto de plantación de árboles en zonas afectadas. Fabricado con % relacionado.",
@@ -202,6 +204,7 @@ public class DataSeeder implements CommandLineRunner {
             }
         } 
 
+        // 4. SEEDER DE INSCRIPCIONES (TEST CRON JOB)
         if (applicationRepository.count() == 0) {
 
             Project expiredProject = projectRepository
@@ -210,25 +213,42 @@ public class DataSeeder implements CommandLineRunner {
                     .filter(u -> u.getRole() == Role.EMPLOYEE)
                     .toList();
 
+            // Empleado 1: Aprobado -> Pasará a CLOSED
             Application app1 = new Application();
             app1.setProject(expiredProject);
             app1.setEmployee(employees.get(0).getEmployeeProfile());
             app1.setStatus(com.verisure.backend.entity.enums.StatusApplication.APPROVED);
             applicationRepository.save(app1);
 
+            // Empleado 2: Aprobado -> Pasará a CLOSED
             Application app2 = new Application();
             app2.setProject(expiredProject);
             app2.setEmployee(employees.get(1).getEmployeeProfile());
             app2.setStatus(com.verisure.backend.entity.enums.StatusApplication.APPROVED);
             applicationRepository.save(app2);
 
+            // Empleado 3: En lista de espera -> Pasará a REJECTED
             Application app3 = new Application();
             app3.setProject(expiredProject);
             app3.setEmployee(employees.get(2).getEmployeeProfile());
             app3.setStatus(com.verisure.backend.entity.enums.StatusApplication.WAITLISTED);
             applicationRepository.save(app3);
 
-            System.out.println("✅ Inscripciones de prueba creadas (2 Aprobados, 1 En Espera).");
+            // Empleado 4: Pendiente -> Pasará a REJECTED
+            Application app4 = new Application();
+            app4.setProject(expiredProject);
+            app4.setEmployee(employees.get(3).getEmployeeProfile());
+            app4.setStatus(com.verisure.backend.entity.enums.StatusApplication.PENDING);
+            applicationRepository.save(app4);
+
+            // Empleado 5: Cancelado -> Se quedará en CANCELED
+            Application app5 = new Application();
+            app5.setProject(expiredProject);
+            app5.setEmployee(employees.get(4).getEmployeeProfile());
+            app5.setStatus(com.verisure.backend.entity.enums.StatusApplication.CANCELED);
+            applicationRepository.save(app5);
+
+            System.out.println("✅ Inscripciones de prueba creadas (2 APPROVED, 1 WAITLISTED, 1 PENDING, 1 CANCELED).");
         }
     }
 
