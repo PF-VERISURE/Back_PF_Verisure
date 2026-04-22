@@ -38,6 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponseDTO createProject(ProjectRequestDTO dto, Long userId, MultipartFile image) {
         validateProjectDates(dto.startDate(), dto.endDate());
         validateLocationType(dto);
+        validateCity(dto);
 
         GnoProfile gnoProfile = getGnoProfileOrThrow(userId);
         List<Sdg> sdgs = getValidatedSdgs(dto.sdgIds());
@@ -59,12 +60,13 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponseDTO updateProject(ProjectRequestDTO dto, Long id, Long userId, MultipartFile image) {
         validateProjectDates(dto.startDate(), dto.endDate());
         validateLocationType(dto);
+        validateCity(dto);
 
         Project project = getProjectOrThrow(id);
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
 
-        if (!project.getGno().getId().equals(currentGno.getId())) { 
-            throw new BadRequestException("No tienes permisos para editar este proyecto"); 
+        if (!project.getGno().getId().equals(currentGno.getId())) {
+            throw new BadRequestException("No tienes permisos para editar este proyecto");
         }
 
         if (image != null && !image.isEmpty()) {
@@ -96,11 +98,11 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = getProjectOrThrow(id);
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
 
-        if (!project.getGno().getId().equals(currentGno.getId())) { 
-            throw new ForbiddenException("No tienes permisos para editar este proyecto"); 
+        if (!project.getGno().getId().equals(currentGno.getId())) {
+            throw new ForbiddenException("No tienes permisos para editar este proyecto");
         }
 
-        if (project.getImageUrl() != null){
+        if (project.getImageUrl() != null) {
             String publicId = extractPublicIdFromUrl(project.getImageUrl());
             cloudinaryService.deleteImage(publicId);
         }
@@ -128,7 +130,7 @@ public class ProjectServiceImpl implements ProjectService {
         return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
 
-    //---Admin
+    // ---Admin
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllProjectsForAdmin() {
@@ -141,16 +143,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllPublished() {
-        
+
         List<ProjectResponseDTO> publishedProjects = projectRepository.findByStatus(StatusProject.PUBLISHED)
-            .stream()
-            .map(projectMapper::toResponseDTO)
-            .toList();
+                .stream()
+                .map(projectMapper::toResponseDTO)
+                .toList();
 
         return new ProjectListResponseDTO(
-            publishedProjects,
-            publishedProjects.size()
-        );
+                publishedProjects,
+                publishedProjects.size());
     }
 
     @Override
@@ -162,7 +163,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private String extractPublicIdFromUrl(String url) {
-        if (url == null) return null;
+        if (url == null)
+            return null;
         String publicId = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
         return "projects/" + publicId;
     }
@@ -198,12 +200,21 @@ public class ProjectServiceImpl implements ProjectService {
 
     private void validateLocationType(ProjectRequestDTO dto) {
         if (dto.locationType() == LocationType.IN_PERSON || dto.locationType() == LocationType.HYBRID) {
-            if (dto.city() == null || dto.city().trim().isEmpty()) {
-                throw new BadRequestException("Para proyectos presenciales o híbridos, la ciudad es obligatoria.");
+            if (dto.address() == null || dto.address().trim().isEmpty()) {
+                throw new BadRequestException("Para proyectos presenciales o híbridos, la dirección es obligatoria.");
             }
         } else if (dto.locationType() == LocationType.ONLINE) {
-            if (!dto.address().startsWith("http://") && !dto.address().startsWith("https://")) {
+            if (dto.address() == null
+                    || (!dto.address().startsWith("http://") && !dto.address().startsWith("https://"))) {
                 throw new BadRequestException("El enlace del proyecto online debe comenzar por http:// o https://");
+            }
+        }
+    }
+
+    private void validateCity(ProjectRequestDTO dto) {
+        if (dto.locationType() == LocationType.IN_PERSON || dto.locationType() == LocationType.HYBRID) {
+            if (dto.city() == null || dto.city().trim().isEmpty()) {
+                throw new BadRequestException("Para proyectos presenciales o híbridos, la ciudad es obligatoria.");
             }
         }
     }
