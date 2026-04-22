@@ -1,6 +1,7 @@
 package com.verisure.backend.controller;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
@@ -75,6 +76,15 @@ public class ProjectController {
     @GetMapping("/published")
     public ResponseEntity<ProjectListResponseDTO> getAllPublished() {
         return ResponseEntity.ok(projectService.getAllPublished());
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ProjectResponseDTO> updateProjectStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody StatusUpdateRequestDTO statusDto,
+            Authentication authentication) {
+        ProjectResponseDTO response = projectService.updateStatus(id, statusDto);
+        return ResponseEntity.ok(response);
     }
 
 }
