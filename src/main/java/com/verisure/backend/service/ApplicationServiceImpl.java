@@ -29,15 +29,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ProjectRepository projectRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final ParticipationRecordService participationRecordService;    
     private final ApplicationMapper applicationMapper;
 
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
             ProjectRepository projectRepository,
             EmployeeProfileRepository employeeProfileRepository,
+            ParticipationRecordService participationRecordService,
             ApplicationMapper applicationMapper) {
         this.applicationRepository = applicationRepository;
         this.projectRepository = projectRepository;
         this.employeeProfileRepository = employeeProfileRepository;
+        this.participationRecordService = participationRecordService;
         this.applicationMapper = applicationMapper;
     }
 
@@ -49,11 +52,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @Transactional(readOnly = true)
     public AdminApplicationListResponseDTO getAllApplications() {
-        List<AdminApplicationResponseDTO> list = applicationRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(applicationMapper::toAdminResponse)
-                .toList();
-        return new AdminApplicationListResponseDTO(list, list.size());
+        List<Application> applications = applicationRepository.findAllByOrderByCreatedAtDesc();
+        List<AdminApplicationResponseDTO> listApplications = applicationMapper.toAdminListResponse(applications);
+        return new AdminApplicationListResponseDTO(listApplications, listApplications.size());
     }
 
     // ==========================================
@@ -141,11 +142,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional(readOnly = true)
     public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
         EmployeeProfile employee = getEmployeeByUserId(userId);
-        List<EmployeeApplicationResponseDTO> list = applicationRepository.findEmployeeHistory(employee.getId())
-                .stream()
-                .map(applicationMapper::toEmployeeResponse)
-                .toList();
-        return new EmployeeApplicationListResponseDTO(list, list.size());
+        List<Application> applications = applicationRepository.findEmployeeHistory(employee.getId());
+        List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
+        return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
 
     // ==========================================
@@ -159,13 +158,13 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<Application> applications = applicationRepository.findByProjectId(projectId);
 
         int closedCount = 0;
-        int rejectedCount = 0;
+        int rejectedCount = 0; //no para MVP ni Sprint 3
 
         for (Application app : applications) {
             switch (app.getStatus()) {
                 case APPROVED:
                     app.setStatus(StatusApplication.CLOSED);
-                    // participationRecordService.generate(app); // el certificado no para MVP sprint2
+                    participationRecordService.createParticipationRecord(app);
                     closedCount++;
                     break;
 
@@ -187,7 +186,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return closedCount;
     }
 
-    // metodos privados para el DRY
+    // metodos privados para DRY
 
     private EmployeeProfile getEmployeeByUserId(Long userId) {
         return employeeProfileRepository.findByUserId(userId)

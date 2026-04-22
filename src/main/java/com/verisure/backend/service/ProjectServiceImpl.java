@@ -111,22 +111,21 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProjectListResponseDTO getMyProjects(Long userId) {
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
-        List<ProjectResponseDTO> projectsList = projectRepository.findByGnoId(currentGno.getId()).stream()
-                .map(projectMapper::toResponseDTO)
-                .toList();
+        List<Project> projects = projectRepository.findByGnoId(currentGno.getId());
+        List<ProjectResponseDTO> projectsList = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
 
     // ----Para Admin y Ong----/
 
     @Override
+    @Transactional(readOnly = true)
     public ProjectListResponseDTO getPendingProjects() {
-        List<ProjectResponseDTO> pendingList = projectRepository.findByStatus(StatusProject.PENDING)
-                .stream()
-                .map(projectMapper::toResponseDTO)
-                .toList();
+        List<Project> projects = projectRepository.findByStatus(StatusProject.PENDING);
+        List<ProjectResponseDTO> pendingList = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
 
@@ -134,24 +133,17 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllProjectsForAdmin() {
-        List<ProjectResponseDTO> adminProjectsList = projectRepository.findAll().stream()
-                .map(projectMapper::toResponseDTO)
-                .toList();
-        return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
+        List<Project> projects = projectRepository.findAll();
+        List<ProjectResponseDTO> projectsList = projectMapper.toResponseDTOList(projects);
+        return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllPublished() {
-
-        List<ProjectResponseDTO> publishedProjects = projectRepository.findByStatus(StatusProject.PUBLISHED)
-                .stream()
-                .map(projectMapper::toResponseDTO)
-                .toList();
-
-        return new ProjectListResponseDTO(
-                publishedProjects,
-                publishedProjects.size());
+        List<Project> projects = projectRepository.findByStatus(StatusProject.PUBLISHED);
+        List<ProjectResponseDTO> publishedProjects = projectMapper.toResponseDTOList(projects);
+        return new ProjectListResponseDTO(publishedProjects, publishedProjects.size());
     }
 
     @Override

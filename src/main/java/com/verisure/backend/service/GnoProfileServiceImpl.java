@@ -64,14 +64,9 @@ public class GnoProfileServiceImpl implements GnoProfileService {
     @Override
     @Transactional(readOnly = true)
     public GnoProfileListResponseDTO getAllGnoProfiles() {
-        List<GnoProfileResponseDTO> gnoProfiles = gnoProfileRepository.findAll()
-                .stream()
-                .map(gnoProfileMapper::toResponseDTO)
-                .toList();
-        return new GnoProfileListResponseDTO(
-            gnoProfiles,
-            gnoProfiles.size()
-        );
+        List<GnoProfile> gnos = gnoProfileRepository.findAll();
+        List<GnoProfileResponseDTO> gnoProfilesDTO = gnoProfileMapper.toResponseDTOList(gnos);
+        return new GnoProfileListResponseDTO(gnoProfilesDTO, gnoProfilesDTO.size());
     }
 
     @Override

@@ -48,4 +48,3 @@ public class ParticipationRecord {
   private OffsetDateTime createdAt;
 
 }
-  

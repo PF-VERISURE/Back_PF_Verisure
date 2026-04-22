@@ -1,5 +1,7 @@
 package com.verisure.backend.mapper;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -21,5 +23,7 @@ public interface ProjectMapper {
     @Mapping(source = "gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
     ProjectResponseDTO toResponseDTO(Project project);
+
+    List<ProjectResponseDTO> toResponseDTOList(List<Project> projects);
 
 }
