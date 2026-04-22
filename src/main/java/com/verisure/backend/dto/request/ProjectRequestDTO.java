@@ -33,7 +33,7 @@ public record ProjectRequestDTO(
     @Size(max = 500, message = "La dirección/enlace no puede exceder los 500 caracteres")
     String address,
 
-    @NotBlank(message = "La ciudad es obligatoria")
+    //@NotBlank(message = "La ciudad es obligatoria")
     @Size(max = 100, message = "La ciudad no puede exceder los 100 caracteres")
     String city,
 
