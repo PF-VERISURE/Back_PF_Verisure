@@ -2,7 +2,6 @@ package com.verisure.backend.entity;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-
 import org.hibernate.annotations.CreationTimestamp;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -48,4 +47,3 @@ public class ParticipationRecord {
   private OffsetDateTime createdAt;
 
 }
-  

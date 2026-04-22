@@ -62,10 +62,6 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = getProjectOrThrow(id);
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
 
-        if (!project.getGno().getId().equals(currentGno.getId())) {
-            throw new BadRequestException("No tienes permisos para editar este proyecto");
-        }
-
         project.setTitle(dto.title());
         project.setDescription(dto.description());
         project.setImageUrl(dto.imageUrl());
@@ -87,11 +83,6 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long id, Long userId) {
         Project project = getProjectOrThrow(id);
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
-
-        if (!project.getGno().getId().equals(currentGno.getId())) {
-            throw new BadRequestException("No tienes permisos para eliminar este proyecto");
-        }
-
         projectRepository.delete(project);
     }
 
