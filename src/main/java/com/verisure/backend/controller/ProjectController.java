@@ -75,7 +75,7 @@ public class ProjectController {
 
     @GetMapping("/published")
     public ResponseEntity<ProjectListResponseDTO> getAllPublished() {
-        return ResponseEntity.ok(projectService.getAllPublished());
+        return new ResponseEntity<>(projectService.getAllPublished(), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/status")
@@ -84,7 +84,17 @@ public class ProjectController {
             @Valid @RequestBody StatusUpdateRequestDTO statusDto,
             Authentication authentication) {
         ProjectResponseDTO response = projectService.updateStatus(id, statusDto);
-        return ResponseEntity.ok(response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<Void> toggleFavorite(
+        @PathVariable Long id, 
+        Authentication authentication) {
+    
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        projectService.toggleFavorite(id, currentUser.userId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

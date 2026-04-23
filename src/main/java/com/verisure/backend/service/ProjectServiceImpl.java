@@ -3,9 +3,11 @@ package com.verisure.backend.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
@@ -13,13 +15,22 @@ import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.entity.GnoProfile;
 import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.Sdg;
+import com.verisure.backend.entity.User;
+import com.verisure.backend.entity.UserFavorite;
 import com.verisure.backend.entity.enums.LocationType;
+import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
-import com.verisure.backend.exception.*;
+import com.verisure.backend.exception.BadRequestException;
+import com.verisure.backend.exception.ForbiddenException;
+import com.verisure.backend.exception.ResourceNotFoundException;
 import com.verisure.backend.mapper.ProjectMapper;
+import com.verisure.backend.repository.ApplicationRepository;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
+import com.verisure.backend.repository.UserFavoriteRepository;
+import com.verisure.backend.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -28,6 +39,9 @@ import lombok.RequiredArgsConstructor;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final UserFavoriteRepository userFavoriteRepository;
+    private final ApplicationRepository applicationRepository;
     private final GnoProfileRepository gnoProfileRepository;
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
@@ -53,7 +67,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setSdgs(sdgs);
 
         Project saved = projectRepository.save(project);
-        return projectMapper.toResponseDTO(saved);
+        return projectMapper.toResponseDTO(saved, 0L, 0L);
     }
 
     @Override
@@ -90,7 +104,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setSdgs(getValidatedSdgs(dto.sdgIds()));
 
-        return projectMapper.toResponseDTO(projectRepository.save(project));
+        Long favs = userFavoriteRepository.countByProjectId(project.getId());
+        Long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+
+        return projectMapper.toResponseDTO(projectRepository.save(project), favs, apps);
     }
 
     @Override
@@ -114,7 +131,11 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectListResponseDTO getMyProjects(Long userId) {
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
         List<ProjectResponseDTO> projectsList = projectRepository.findByGnoId(currentGno.getId()).stream()
-                .map(projectMapper::toResponseDTO)
+                .map(project -> {
+                    long favs = userFavoriteRepository.countByProjectId(project.getId());
+                    long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+                    return projectMapper.toResponseDTO(project, favs, apps);
+                })
                 .toList();
         return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
@@ -125,7 +146,11 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectListResponseDTO getPendingProjects() {
         List<ProjectResponseDTO> pendingList = projectRepository.findByStatus(StatusProject.PENDING)
                 .stream()
-                .map(projectMapper::toResponseDTO)
+                .map(project -> {
+                    long favs = userFavoriteRepository.countByProjectId(project.getId());
+                    long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+                    return projectMapper.toResponseDTO(project, favs, apps);
+                })
                 .toList();
         return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
@@ -135,7 +160,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllProjectsForAdmin() {
         List<ProjectResponseDTO> adminProjectsList = projectRepository.findAll().stream()
-                .map(projectMapper::toResponseDTO)
+                .map(project -> {
+                    long favs = userFavoriteRepository.countByProjectId(project.getId());
+                    long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+                    return projectMapper.toResponseDTO(project, favs, apps);
+                })
                 .toList();
         return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
     }
@@ -146,12 +175,16 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<ProjectResponseDTO> publishedProjects = projectRepository.findByStatus(StatusProject.PUBLISHED)
                 .stream()
-                .map(projectMapper::toResponseDTO)
+                .map(project -> {
+                    long favs = userFavoriteRepository.countByProjectId(project.getId());
+                    long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+                    return projectMapper.toResponseDTO(project, favs, apps);
+                })
                 .toList();
 
         return new ProjectListResponseDTO(
-                publishedProjects,
-                publishedProjects.size());
+            publishedProjects, 
+            publishedProjects.size());
     }
 
     @Override
@@ -159,7 +192,27 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = getProjectOrThrow(id);
         project.setStatus(statusDto.status());
         Project updatedProject = projectRepository.save(project);
-        return projectMapper.toResponseDTO(updatedProject);
+        long favs = userFavoriteRepository.countByProjectId(id);
+        long apps = applicationRepository.countProjectOccupancy(id, StatusApplication.APPROVED);
+        return projectMapper.toResponseDTO(updatedProject, favs, apps);
+    }
+
+    @Override
+    public void toggleFavorite(Long id, Long userId) {
+        Project project = getProjectOrThrow(id);
+        User user =  userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        userFavoriteRepository.findByUserIdAndProjectId(userId, id)
+            .ifPresentOrElse(
+                favorite -> userFavoriteRepository.delete(favorite), // Si existe, lo borra (Dislike)
+                () -> {
+                    UserFavorite favorite = new UserFavorite(); // Si no existe, lo crea (Like)
+                    favorite.setUser(user);
+                    favorite.setProject(project);
+                    userFavoriteRepository.save(favorite);
+                }
+            );
     }
 
     private String extractPublicIdFromUrl(String url) {

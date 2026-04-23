@@ -20,8 +20,9 @@ public interface ProjectService {
     //---------ADMIN-----/
     ProjectListResponseDTO getPendingProjects();
     ProjectListResponseDTO getAllProjectsForAdmin();
-    ProjectResponseDTO updateStatus(Long id, StatusUpdateRequestDTO statusDto);
+    ProjectResponseDTO updateStatus(Long id, StatusUpdateRequestDTO statusDto); 
 
     //-----EMPLOYEED-----/
     ProjectListResponseDTO getAllPublished();
+    void toggleFavorite(Long id, Long userId);
 }

@@ -18,8 +18,11 @@ public interface ProjectMapper {
     Project toEntity(ProjectRequestDTO dto);
 
     //Entity -> Response
-    @Mapping(source = "gno.organizationName", target = "gnoName")
+    @Mapping(source = "project.gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
-    ProjectResponseDTO toResponseDTO(Project project);
+    @Mapping(source = "favs", target = "totalFavorites")
+    @Mapping(source = "apps", target = "totalApplications")
+    @Mapping(source = "project.requiredVolunteers", target = "totalVolunteers")
+    ProjectResponseDTO toResponseDTO(Project project, long favs, long apps);
 
 }
