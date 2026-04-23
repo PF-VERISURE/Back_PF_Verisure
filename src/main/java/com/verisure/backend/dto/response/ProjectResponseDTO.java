@@ -22,6 +22,7 @@ public record ProjectResponseDTO(
     String gnoName,
     List<String> sdgs,
     Long totalApplications,
+    Long totalFavorites,
     Long totalVolunteers,
     OffsetDateTime createdAt
 ){}
