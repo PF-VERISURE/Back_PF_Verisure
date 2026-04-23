@@ -1,5 +1,6 @@
 package com.verisure.backend.mapper;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import com.verisure.backend.entity.Application;
@@ -17,6 +18,8 @@ public interface ApplicationMapper {
     @Mapping(source = "project.endDate", target = "endDate")
     @Mapping(source = "project.locationType", target = "locationType")
     @Mapping(source = "project.imageUrl", target = "imageUrl")
+    @Mapping(source = "project.totalHours", target = "totalHours")
+    @Mapping(target = "sdgs", expression = "java(application.getProject().getSdgs().stream().map(s -> s.getName()).toList())")
 
     EmployeeApplicationResponseDTO toEmployeeResponse(Application application);
 
@@ -31,4 +34,9 @@ public interface ApplicationMapper {
     @Mapping(source = "project.totalHours", target = "totalHours")
     
     AdminApplicationResponseDTO toAdminResponse(Application application);
+
+    List<EmployeeApplicationResponseDTO> toEmployeeListResponse(List<Application> applications);
+
+    List<AdminApplicationResponseDTO> toAdminListResponse(List<Application> applications);
+
 }

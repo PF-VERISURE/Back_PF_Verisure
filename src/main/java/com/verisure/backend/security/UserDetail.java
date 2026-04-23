@@ -2,11 +2,9 @@ package com.verisure.backend.security;
 
 import java.util.Collection;
 import java.util.List;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import com.verisure.backend.entity.User;
 
 public class UserDetail implements UserDetails {

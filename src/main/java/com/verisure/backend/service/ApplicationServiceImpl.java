@@ -29,15 +29,18 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final ProjectRepository projectRepository;
     private final EmployeeProfileRepository employeeProfileRepository;
+    private final ParticipationRecordService participationRecordService;    
     private final ApplicationMapper applicationMapper;
 
     public ApplicationServiceImpl(ApplicationRepository applicationRepository,
             ProjectRepository projectRepository,
             EmployeeProfileRepository employeeProfileRepository,
+            ParticipationRecordService participationRecordService,
             ApplicationMapper applicationMapper) {
         this.applicationRepository = applicationRepository;
         this.projectRepository = projectRepository;
         this.employeeProfileRepository = employeeProfileRepository;
+        this.participationRecordService = participationRecordService;
         this.applicationMapper = applicationMapper;
     }
 
@@ -49,13 +52,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     @Transactional(readOnly = true)
     public AdminApplicationListResponseDTO getAllApplications() {
-        List<AdminApplicationResponseDTO> list = applicationRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
-                .map(applicationMapper::toAdminResponse)
-                .toList();
-        return new AdminApplicationListResponseDTO(list, list.size());
+        List<Application> applications = applicationRepository.findAllByOrderByCreatedAtDesc();
+        List<AdminApplicationResponseDTO> listApplications = applicationMapper.toAdminListResponse(applications);
+        return new AdminApplicationListResponseDTO(listApplications, listApplications.size());
     }
-
 
     // ==========================================
     // EMPLOYEE
@@ -72,11 +72,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (project.getStatus() != StatusProject.PUBLISHED) {
             throw new BadRequestException("No puedes inscribirte: el proyecto no está publicado.");
         }
-        
-        Optional<Application> existingApplication = applicationRepository.findByProjectIdAndEmployeeId(project.getId(), employee.getId());
-        
+
+        Optional<Application> existingApplication = applicationRepository.findByProjectIdAndEmployeeId(project.getId(),
+                employee.getId());
+
         Application application;
-        
+
         if (existingApplication.isPresent()) {
             application = existingApplication.get();
             if (application.getStatus() != StatusApplication.CANCELED) {
@@ -89,8 +90,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         long currentApproved = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-        StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers()) 
-                ? StatusApplication.APPROVED 
+        StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers())
+                ? StatusApplication.APPROVED
                 : StatusApplication.WAITLISTED;
 
         application.setStatus(finalStatus);
@@ -128,7 +129,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                         nextInLine.setStatus(StatusApplication.APPROVED);
                         applicationRepository.save(nextInLine);
 
-                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent Events.
+                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent
+                        // Events.
                         System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " +
                                 nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
                     });
@@ -140,35 +142,51 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Transactional(readOnly = true)
     public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
         EmployeeProfile employee = getEmployeeByUserId(userId);
-        List<EmployeeApplicationResponseDTO> list = applicationRepository.findEmployeeHistory(employee.getId())
-                .stream()
-                .map(applicationMapper::toEmployeeResponse)
-                .toList();
-        return new EmployeeApplicationListResponseDTO(list, list.size());
+        List<Application> applications = applicationRepository.findEmployeeHistory(employee.getId());
+        List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
+        return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
-
 
     // ==========================================
     // AUTOMATIZACIÓN
     // ==========================================
 
-    // cronjob para finalizar proyectos
+    // cronjob para finalizar proyectos de todo los estados
     @Override
     @Transactional
-    public void completeApplication(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada con ID: " + applicationId));
-        
-        if (application.getStatus() != StatusApplication.APPROVED) {
-            throw new IllegalStateException("Solo las inscripciones APPROVED pueden marcarse como completadas.");
+    public int completeApplication(Long projectId) {
+        List<Application> applications = applicationRepository.findByProjectId(projectId);
+
+        int closedCount = 0;
+        int rejectedCount = 0; //no para MVP ni Sprint 3
+
+        for (Application app : applications) {
+            switch (app.getStatus()) {
+                case APPROVED:
+                    app.setStatus(StatusApplication.CLOSED);
+                    participationRecordService.createParticipationRecord(app);
+                    closedCount++;
+                    break;
+
+                case WAITLISTED:
+                case PENDING:
+                    app.setStatus(StatusApplication.REJECTED);
+                    rejectedCount++;
+                    break;
+
+                case CANCELED:
+                case REJECTED:
+                case CLOSED:
+                    break;
+            }
         }
-        application.setStatus(StatusApplication.CLOSED);
-        // participationRecordService.generate(application); //Activará el certificado todavia no programado.
-        applicationRepository.save(application);
+
+        applicationRepository.saveAll(applications);
+
+        return closedCount;
     }
 
-
-    //metodos privados para el DRY
+    // metodos privados para DRY
 
     private EmployeeProfile getEmployeeByUserId(Long userId) {
         return employeeProfileRepository.findByUserId(userId)

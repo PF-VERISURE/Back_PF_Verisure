@@ -51,8 +51,6 @@ public class GnoProfileServiceImpl implements GnoProfileService {
         return gnoProfileMapper.toResponseDTO(profile);
     }
 
-
-    // estos para admin para ver todos, buscar uno concreto y poder eliminar, falta update por el momento.
     @Override
     @Transactional(readOnly = true)
     public GnoProfileResponseDTO getGnoProfile(Long id) {
@@ -64,14 +62,9 @@ public class GnoProfileServiceImpl implements GnoProfileService {
     @Override
     @Transactional(readOnly = true)
     public GnoProfileListResponseDTO getAllGnoProfiles() {
-        List<GnoProfileResponseDTO> gnoProfiles = gnoProfileRepository.findAll()
-                .stream()
-                .map(gnoProfileMapper::toResponseDTO)
-                .toList();
-        return new GnoProfileListResponseDTO(
-            gnoProfiles,
-            gnoProfiles.size()
-        );
+        List<GnoProfile> gnos = gnoProfileRepository.findAll();
+        List<GnoProfileResponseDTO> gnoProfilesDTO = gnoProfileMapper.toResponseDTOList(gnos);
+        return new GnoProfileListResponseDTO(gnoProfilesDTO, gnoProfilesDTO.size());
     }
 
     @Override
@@ -83,8 +76,6 @@ public class GnoProfileServiceImpl implements GnoProfileService {
         userRepository.delete(user);
     }
 
-
-    // metodos privados para DRY
     
     private void validateGnoRequest(GnoCreateRequestDTO request) {
         if (userRepository.existsByEmail(request.email())) {
