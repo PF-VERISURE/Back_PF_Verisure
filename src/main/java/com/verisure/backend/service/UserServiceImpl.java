@@ -3,7 +3,6 @@ package com.verisure.backend.service;
 import com.verisure.backend.entity.User;
 import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.UserDetail;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,7 +23,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado en la base de datos"));
                 // .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado en la base de datos"));
     }
-
 
     // Es el que usa el filtro de JWT para obtener el usuario
     @Override

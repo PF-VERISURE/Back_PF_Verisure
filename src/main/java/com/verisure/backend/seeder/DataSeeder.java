@@ -8,15 +8,14 @@ import com.verisure.backend.entity.Sdg;
 import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.Role;
+import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
 import com.verisure.backend.repository.ApplicationRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
 import com.verisure.backend.repository.UserRepository;
-
 import java.time.OffsetDateTime;
 import java.util.List;
-
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -42,12 +41,8 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // 1. SEEDER DE USUARIOS Y PERFILES ASOCIADOS
+        // 1. SEEDER DE USUARIOS Y PERFILES
         if (userRepository.count() == 0) {
-
-            // ==========================================
-            // ADMINISTRADOR
-            // ==========================================
             User admin = new User();
             admin.setEmail("admin@verisure.com");
             admin.setPasswordHash(encoder.encode("admin123"));
@@ -58,15 +53,10 @@ public class DataSeeder implements CommandLineRunner {
             adminProfile.setFirstName("Super");
             adminProfile.setLastName("Admin");
             adminProfile.setDepartment("Dirección General");
-
             adminProfile.setUser(admin);
             admin.setEmployeeProfile(adminProfile);
-
             userRepository.save(admin);
 
-            // ==========================================
-            // EMPLEADOS (Simulando carga de RRHH)
-            // ==========================================
             String[] employeeNames = { "Laura", "Carlos", "Marta", "David", "Ana" };
             String[] employeeLastNames = { "Gómez", "Ruiz", "Sánchez", "López", "Martínez" };
             String[] departments = { "IT Support", "Ventas", "Marketing", "RRHH", "Finanzas" };
@@ -83,15 +73,11 @@ public class DataSeeder implements CommandLineRunner {
                 empProfile.setFirstName(employeeNames[i]);
                 empProfile.setLastName(employeeLastNames[i]);
                 empProfile.setDepartment(departments[i]);
-
                 empProfile.setUser(employee);
                 employee.setEmployeeProfile(empProfile);
                 userRepository.save(employee);
             }
 
-            // ==========================================
-            // ONGS (GNO Profiles)
-            // ==========================================
             String[] ongNames = { "Cruz Roja Verisure", "Médicos Sin Fronteras", "Save the Children" };
             String[] cifs = { "G12345678", "G87654321", "G11223344" };
             String[] emails = { "cruzroja", "msf", "savethechildren" };
@@ -110,146 +96,72 @@ public class DataSeeder implements CommandLineRunner {
                 ongProfile.setContactEmail("info@" + emails[i] + ".org");
                 ongProfile.setWebsite("https://www." + emails[i] + ".org");
                 ongProfile.setAddress("Calle Principal " + (i + 1) + ", Madrid");
-
                 ongProfile.setUser(ong);
                 ong.setGnoProfile(ongProfile);
                 userRepository.save(ong);
             }
-
-            System.out.println("✅ Administrador, Empleados y ONGs creados con éxito.");
+            System.out.println("✅ Usuarios y ONGs inicializados.");
         }
 
-        // 2. SEEDER DE ODS
+        // 2. SEEDER DE ODS 
         if (sdgRepository.count() == 0) {
             List<Sdg> sdgs = List.of(
-                    createSdg(1, "Fin de la pobreza"),
-                    createSdg(2, "Hambre cero"),
-                    createSdg(3, "Salud y bienestar"),
-                    createSdg(5, "Igualdad de género"),
-                    createSdg(6, "Agua limpia y saneamiento"),
-                    createSdg(7, "Energía asequible y no contaminante"),
-                    createSdg(9, "Industria, innovación e infraestructura"),
-                    createSdg(10, "Reducción de las desigualdades"),
-                    createSdg(11, "Ciudades y comunidades sostenibles"),
-                    createSdg(12, "Producción y consumo responsables"));
+                    createSdg(1, "Fin de la pobreza"), createSdg(2, "Hambre cero"),
+                    createSdg(3, "Salud y bienestar"), createSdg(5, "Igualdad de género"),
+                    createSdg(6, "Agua limpia y saneamiento"), createSdg(7, "Energía asequible"),
+                    createSdg(9, "Industria e innovación"), createSdg(10, "Reducción desigualdades"),
+                    createSdg(11, "Ciudades sostenibles"), createSdg(12, "Consumo responsable"));
             sdgRepository.saveAll(sdgs);
-            System.out.println("✅ Catálogo de ODS (SDGs) inicializado.");
+            System.out.println("✅ ODS inicializados.");
         }
 
-        // 3. SEEDER DE PROYECTOS
+        // 3. SEEDER DE PROYECTOS 
         if (projectRepository.count() == 0) {
             List<User> ongs = userRepository.findAll().stream()
-                    .filter(u -> u.getRole() == Role.ONG)
-                    .toList();
+                    .filter(u -> u.getRole() == Role.ONG).toList();
 
-            if (ongs.size() >= 3) {
-                // Proyecto 1: Cruz Roja - ONLINE
-                Project p1 = createProject(
-                        "Apoyo Escolar Digital",
-                        "Clases de refuerzo online para niños en riesgo de exclusión. Fabricado con % relacionado.",
-                        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b",
-                        2,
-                        LocationType.ONLINE,
-                        "https://zoom.us/j/123456789", "Madrid", "Horas de clase impartidas",
-                        OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusMonths(2), 40,
-                        List.of(1, 4));
-                p1.setGno(ongs.get(0).getGnoProfile());
-                p1.setStatus(StatusProject.PUBLISHED);
+            // Proyecto Futuro 1: Cruz Roja
+            Project p1 = createProject("Apoyo Escolar Digital", "Descripción...", "url", 2, LocationType.ONLINE, "url", "Madrid", "Horas", OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusMonths(2), 40, List.of(1, 4));
+            p1.setGno(ongs.get(0).getGnoProfile());
+            p1.setStatus(StatusProject.PUBLISHED);
 
-                // Proyecto 2: MSF - IN_PERSON
-                Project p2 = createProject(
-                        "Clasificación de Material Sanitario",
-                        "Apoyo presencial en la organización de suministros médicos de primera necesidad. Fabricado con % relacionado.",
-                        "https://images.unsplash.com/photo-1584515933487-779824d29309",
-                        1,
-                        LocationType.IN_PERSON,
-                        "Calle Solidaridad 123", "Barcelona", "Cajas organizadas",
-                        OffsetDateTime.now().plusDays(10), OffsetDateTime.now().plusMonths(1), 20,
-                        List.of(3));
-                p2.setGno(ongs.get(1).getGnoProfile());
-                p2.setStatus(StatusProject.PUBLISHED);
+            // Proyecto Futuro 2: MSF
+            Project p2 = createProject("Material Sanitario", "Descripción...", "url", 1, LocationType.IN_PERSON, "calle", "Barcelona", "Cajas", OffsetDateTime.now().plusDays(10), OffsetDateTime.now().plusMonths(1), 20, List.of(3));
+            p2.setGno(ongs.get(1).getGnoProfile());
+            p2.setStatus(StatusProject.PUBLISHED);
 
-                // Proyecto 3: Save the Children - ONLINE
-                Project p3 = createProject(
-                        "Mentoring para Jóvenes",
-                        "Programa de mentoría a distancia para el desarrollo personal y profesional juvenil. Fabricado con % relacionado.",
-                        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c",
-                        3,
-                        LocationType.ONLINE,
-                        "https://meet.google.com/abc-defg-hij", "Sevilla", "Sesiones completadas",
-                        OffsetDateTime.now().plusDays(15), OffsetDateTime.now().plusMonths(3), 60,
-                        List.of(10));
-                p3.setGno(ongs.get(2).getGnoProfile());
+            // Proyecto CADUCADO (DEBE CERRARSE)
+            Project p_caducado = createProject("Reforestación Test Cron", "Fabricado con % relacionado.", "url", 5, LocationType.IN_PERSON, "Monte", "Madrid", "Árboles", OffsetDateTime.now().minusMonths(1), OffsetDateTime.now().minusDays(2), 15, List.of(12));
+            p_caducado.setGno(ongs.get(0).getGnoProfile());
+            p_caducado.setStatus(StatusProject.PUBLISHED);
 
-                projectRepository.saveAll(List.of(p1, p2, p3));
-                System.out.println("✅ Proyectos de prueba creados y asignados a ONGs.");
-                
-                // Proyecto 4 (CADUCADO)
-                Project p4_caducado = createProject(
-                        "Reforestación Invernal (Test Cron)",
-                        "Proyecto de plantación de árboles en zonas afectadas. Fabricado con % relacionado.",
-                        "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09",
-                        2,
-                        LocationType.IN_PERSON,
-                        "Monte Abedul", "Madrid", "Árboles plantados",
-                        OffsetDateTime.now().minusDays(30),
-                        OffsetDateTime.now().minusDays(2),
-                        15,
-                        List.of(15));
-                p4_caducado.setGno(ongs.get(0).getGnoProfile());
-                p4_caducado.setStatus(StatusProject.PUBLISHED);
-                projectRepository.save(p4_caducado);
-                System.out.println("⏳ Proyecto fantasma (caducado) creado para pruebas.");
-
-            }
-        } 
-
-        // 4. SEEDER DE INSCRIPCIONES (TEST CRON JOB)
-        if (applicationRepository.count() == 0) {
-
-            Project expiredProject = projectRepository
-                    .findByStatusAndTitleContainingIgnoreCase(StatusProject.PUBLISHED, "Reforestación").get(0);
-            List<User> employees = userRepository.findAll().stream()
-                    .filter(u -> u.getRole() == Role.EMPLOYEE)
-                    .toList();
-
-            // Empleado 1: Aprobado -> Pasará a CLOSED
-            Application app1 = new Application();
-            app1.setProject(expiredProject);
-            app1.setEmployee(employees.get(0).getEmployeeProfile());
-            app1.setStatus(com.verisure.backend.entity.enums.StatusApplication.APPROVED);
-            applicationRepository.save(app1);
-
-            // Empleado 2: Aprobado -> Pasará a CLOSED
-            Application app2 = new Application();
-            app2.setProject(expiredProject);
-            app2.setEmployee(employees.get(1).getEmployeeProfile());
-            app2.setStatus(com.verisure.backend.entity.enums.StatusApplication.APPROVED);
-            applicationRepository.save(app2);
-
-            // Empleado 3: En lista de espera -> Pasará a REJECTED
-            Application app3 = new Application();
-            app3.setProject(expiredProject);
-            app3.setEmployee(employees.get(2).getEmployeeProfile());
-            app3.setStatus(com.verisure.backend.entity.enums.StatusApplication.WAITLISTED);
-            applicationRepository.save(app3);
-
-            // Empleado 4: Pendiente -> Pasará a REJECTED
-            Application app4 = new Application();
-            app4.setProject(expiredProject);
-            app4.setEmployee(employees.get(3).getEmployeeProfile());
-            app4.setStatus(com.verisure.backend.entity.enums.StatusApplication.PENDING);
-            applicationRepository.save(app4);
-
-            // Empleado 5: Cancelado -> Se quedará en CANCELED
-            Application app5 = new Application();
-            app5.setProject(expiredProject);
-            app5.setEmployee(employees.get(4).getEmployeeProfile());
-            app5.setStatus(com.verisure.backend.entity.enums.StatusApplication.CANCELED);
-            applicationRepository.save(app5);
-
-            System.out.println("✅ Inscripciones de prueba creadas (2 APPROVED, 1 WAITLISTED, 1 PENDING, 1 CANCELED).");
+            projectRepository.saveAll(List.of(p1, p2, p_caducado));
+            System.out.println("✅ Proyectos creados (incluyende el test [CRON]).");
         }
+
+        if (applicationRepository.count() == 0) {
+            Project expired = projectRepository.findByStatusAndTitleContainingIgnoreCase(StatusProject.PUBLISHED, "Reforestación").get(0);
+            Project active = projectRepository.findByStatusAndTitleContainingIgnoreCase(StatusProject.PUBLISHED, "Escolar").get(0);
+            List<User> emps = userRepository.findAll().stream().filter(u -> u.getRole() == Role.EMPLOYEE).toList();
+
+            createApp(expired, emps.get(0), StatusApplication.APPROVED);   
+            createApp(expired, emps.get(1), StatusApplication.APPROVED);
+            createApp(expired, emps.get(2), StatusApplication.WAITLISTED);
+            createApp(expired, emps.get(3), StatusApplication.PENDING);
+            createApp(expired, emps.get(4), StatusApplication.CANCELED);
+
+            createApp(active, emps.get(0), StatusApplication.APPROVED);
+
+            System.out.println("✅ Inscripciones creadas para testear todos los flujos.");
+        }
+    }
+
+    private void createApp(Project p, User u, StatusApplication s) {
+        Application app = new Application();
+        app.setProject(p);
+        app.setEmployee(u.getEmployeeProfile());
+        app.setStatus(s);
+        applicationRepository.save(app);
     }
 
     private Sdg createSdg(Integer id, String name) {
@@ -274,13 +186,9 @@ public class DataSeeder implements CommandLineRunner {
         project.setStartDate(startDate);
         project.setEndDate(endDate);
         project.setTotalHours(totalHours);
-
-        List<Sdg> sdgs = sdgRepository.findAllById(sdgIds);
-        project.setSdgs(sdgs);
-
+        project.setSdgs(sdgRepository.findAllById(sdgIds));
         return project;
     }
 }
 
-// Vamos a ir ampliando el seeder segun se vayan creando las entidades y los
-// servicios.
+// Vamos a ir ampliando el seeder segun se vayan creando las entidades y los servicios.
