@@ -130,7 +130,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         applicationRepository.save(nextInLine);
 
                         // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent
-                        // Events.
+                        // Events.NO MVP
                         System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " +
                                 nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
                     });

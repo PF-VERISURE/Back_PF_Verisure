@@ -1,10 +1,7 @@
 package com.verisure.backend.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
-
 import com.verisure.backend.dto.response.SdgListResponseDTO;
 import com.verisure.backend.dto.response.SdgResponseDTO;
 import com.verisure.backend.entity.Sdg;
