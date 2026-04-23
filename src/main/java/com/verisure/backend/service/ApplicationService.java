@@ -7,10 +7,8 @@ import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 
 public interface ApplicationService {
 
-    // ADMIN:
     AdminApplicationListResponseDTO getAllApplications();
 
-    // EMPLOYEE:
     EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId);
 
     void cancelApplication(Long applicationId, Long userId);
