@@ -1,7 +1,7 @@
 package com.verisure.backend.dto.response;
 
 import java.time.OffsetDateTime;
-
+import java.util.List;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusApplication;
 
@@ -15,7 +15,10 @@ public record EmployeeApplicationResponseDTO(
     OffsetDateTime startDate,
     OffsetDateTime endDate,
     LocationType locationType,
-    String imageUrl
+    String imageUrl,
+    Integer totalHours,
+    List<String> sdgs
 
 ) {
+    
 }

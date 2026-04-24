@@ -83,7 +83,7 @@ public class Project {
   @Column(nullable = false, length = 500)
   private String address;
   
-  @Column(nullable = false, length = 100)
+  @Column(nullable = true, length = 100)
   private String city;
 
   @Column(nullable = false, name = "impact_unit")

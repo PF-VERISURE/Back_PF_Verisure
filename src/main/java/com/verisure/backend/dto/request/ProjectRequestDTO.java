@@ -2,9 +2,7 @@ package com.verisure.backend.dto.request;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-
 import com.verisure.backend.entity.enums.LocationType;
-
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 
@@ -33,7 +31,6 @@ public record ProjectRequestDTO(
     @Size(max = 500, message = "La dirección/enlace no puede exceder los 500 caracteres")
     String address,
 
-    @NotBlank(message = "La ciudad es obligatoria")
     @Size(max = 100, message = "La ciudad no puede exceder los 100 caracteres")
     String city,
 

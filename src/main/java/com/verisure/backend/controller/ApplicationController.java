@@ -1,17 +1,23 @@
 package com.verisure.backend.controller;
 
-import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
 import com.verisure.backend.dto.response.AdminApplicationListResponseDTO;
-import com.verisure.backend.dto.response.AdminApplicationResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
-import org.springframework.security.core.Authentication;
 import com.verisure.backend.service.ApplicationService;
+
 import jakarta.validation.Valid;
 
 @RestController

@@ -8,7 +8,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
 import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.filter.JWTAuthenticationFilter;
 import com.verisure.backend.security.filter.JWTAuthorizationFilter;
@@ -56,6 +55,8 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/all").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,"/api/v1/projects/pending").hasAnyRole("ADMIN", "ONG")
                         .requestMatchers(HttpMethod.GET, "/api/v1/applications/all").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/projects/{id}/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/projects/{id}/favorite").hasRole("EMPLOYEE")                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/published").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers("/api/v1/applications/**").hasRole("EMPLOYEE")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())

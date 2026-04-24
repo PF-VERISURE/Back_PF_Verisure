@@ -29,13 +29,9 @@ public class ParticipationRecord {
   @JoinColumn(name = "application_id", unique = true, nullable = false, referencedColumnName = "id")
   private Application application;
 
-  // @NotNull(message = "Las horas registradas son obligatorias")
-  // @DecimalMin(value = "0.0", inclusive = false, message = "Las horas deben ser mayores a cero")
   @Column(nullable = false, precision = 5, scale = 2)
   private BigDecimal loggedHours;
 
-  // @NotNull(message = "La métrica de impacto es obligatoria")
-  // @DecimalMin(value = "0.0", message = "El impacto no puede ser negativo")
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal impactMetric;
 

@@ -30,19 +30,12 @@ public class EmployeeProfileServiceImpl implements EmployeeProfileService {
         return employeeProfileMapper.toResponseDTO(profile);
     }
 
-    // para el admin poder ver todos, buscar uno por id. No Delete pq esto lo
-    // gestiona RRHH.
     @Override
     @Transactional(readOnly = true)
     public EmployeeProfileListResponseDTO getAllEmployeeProfiles() {
-        List<EmployeeProfileResponseDTO> employeeProfiles = employeeProfileRepository.findAll()
-                .stream()
-                .map(employeeProfileMapper::toResponseDTO)
-                .toList();
-        return new EmployeeProfileListResponseDTO(
-                employeeProfiles,
-                employeeProfiles.size()
-        );
+        List<EmployeeProfile> employees = employeeProfileRepository.findAll();
+        List<EmployeeProfileResponseDTO> employeeProfiles = employeeProfileMapper.toResponseDTOList(employees);
+        return new EmployeeProfileListResponseDTO(employeeProfiles, employeeProfiles.size());
     }
 
     @Override

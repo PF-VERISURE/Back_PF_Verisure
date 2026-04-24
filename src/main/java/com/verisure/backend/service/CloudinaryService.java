@@ -38,4 +38,14 @@ public class CloudinaryService {
         }
         
     }
+
+    public void deleteImage(String publicId) {
+        try {
+            if (publicId != null && !publicId.isEmpty()) {
+                cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al eliminar la imagen de Cloudinary", e);
+        }
+    }
 }

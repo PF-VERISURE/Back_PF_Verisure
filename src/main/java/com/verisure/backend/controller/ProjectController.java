@@ -1,6 +1,7 @@
 package com.verisure.backend.controller;
 
 import com.verisure.backend.dto.request.ProjectRequestDTO;
+import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
@@ -31,14 +32,15 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Long id,
-            @Valid @RequestBody ProjectRequestDTO dto,
+            @Valid @RequestPart("project") ProjectRequestDTO dto,
+            @RequestPart(value = "file", required = false) MultipartFile image,
             Authentication authentication) {
 
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        ProjectResponseDTO response = projectService.updateProject(dto, id, currentUser.userId());
+        ProjectResponseDTO response = projectService.updateProject(dto, id, currentUser.userId(), image);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -69,6 +71,30 @@ public class ProjectController {
     public ResponseEntity<ProjectListResponseDTO> getAllProjectsForAdmin(Authentication authentication) {
         ProjectListResponseDTO response = projectService.getAllProjectsForAdmin();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/published")
+    public ResponseEntity<ProjectListResponseDTO> getAllPublished() {
+        return new ResponseEntity<>(projectService.getAllPublished(), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ProjectResponseDTO> updateProjectStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody StatusUpdateRequestDTO statusDto,
+            Authentication authentication) {
+        ProjectResponseDTO response = projectService.updateStatus(id, statusDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<Void> toggleFavorite(
+        @PathVariable Long id, 
+        Authentication authentication) {
+    
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        projectService.toggleFavorite(id, currentUser.userId());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

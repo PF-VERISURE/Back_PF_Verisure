@@ -1,5 +1,6 @@
 package com.verisure.backend.mapper;
 
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -10,7 +11,6 @@ import com.verisure.backend.entity.Project;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProjectMapper {
     
-    //DTO -> Entity
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "gno", ignore = true)
@@ -18,8 +18,20 @@ public interface ProjectMapper {
     Project toEntity(ProjectRequestDTO dto);
 
     //Entity -> Response
-    @Mapping(source = "gno.organizationName", target = "gnoName")
+    @Mapping(source = "project.gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
+    @Mapping(source = "favs", target = "totalFavorites")
+    @Mapping(source = "apps", target = "totalApplications")
+    @Mapping(source = "project.requiredVolunteers", target = "totalVolunteers")
+    ProjectResponseDTO toAdminResponseDTO(Project project, Long favs, Long apps);
+
+    @Mapping(source = "project.gno.organizationName", target = "gnoName")
+    @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
+    @Mapping(source = "project.requiredVolunteers", target = "totalVolunteers")
+    @Mapping(target = "totalFavorites", ignore = true)
+    @Mapping(target = "totalApplications", ignore = true)
     ProjectResponseDTO toResponseDTO(Project project);
+
+    List<ProjectResponseDTO> toResponseDTOList(List<Project> projects);
 
 }
