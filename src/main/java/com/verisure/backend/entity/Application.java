@@ -23,15 +23,14 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "applications", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"project_id", "employee_id"})
-})
+    @UniqueConstraint(columnNames = { "project_id", "employee_id" }) })
 @Data
 @NoArgsConstructor
 public class Application {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-  
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id", nullable = false, referencedColumnName = "id")
   private Project project;
@@ -39,14 +38,14 @@ public class Application {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employee_id", nullable = false, referencedColumnName = "id")
   private EmployeeProfile employee;
-  
+
   @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private ParticipationRecord participationRecord;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private StatusApplication status; 
-  
+  private StatusApplication status;
+
   @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
@@ -54,5 +53,5 @@ public class Application {
   @UpdateTimestamp
   @Column(nullable = true)
   private OffsetDateTime updatedAt;
-  
+
 }
