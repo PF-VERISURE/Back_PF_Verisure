@@ -18,8 +18,19 @@ public interface ProjectMapper {
     @Mapping(target = "sdgs", ignore = true)
     Project toEntity(ProjectRequestDTO dto);
 
-    @Mapping(source = "gno.organizationName", target = "gnoName")
+    //Entity -> Response
+    @Mapping(source = "project.gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
+    @Mapping(source = "favs", target = "totalFavorites")
+    @Mapping(source = "apps", target = "totalApplications")
+    @Mapping(source = "project.requiredVolunteers", target = "totalVolunteers")
+    ProjectResponseDTO toAdminResponseDTO(Project project, Long favs, Long apps);
+
+    @Mapping(source = "project.gno.organizationName", target = "gnoName")
+    @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
+    @Mapping(source = "project.requiredVolunteers", target = "totalVolunteers")
+    @Mapping(target = "totalFavorites", ignore = true)
+    @Mapping(target = "totalApplications", ignore = true)
     ProjectResponseDTO toResponseDTO(Project project);
 
     List<ProjectResponseDTO> toResponseDTOList(List<Project> projects);
