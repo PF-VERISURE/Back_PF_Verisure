@@ -3,6 +3,7 @@ package com.verisure.backend.security.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.verisure.backend.security.AuthenticatedUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,12 +42,16 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                     .verify(token);
 
             String email = decodedJWT.getSubject();
+            Long userId = decodedJWT.getClaim("userId").asLong();
             List<String> roles = decodedJWT.getClaim("roles").asList(String.class);
+            
             List<GrantedAuthority> authorities = roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                     .collect(Collectors.toList());
+            
+            AuthenticatedUser user = new AuthenticatedUser(userId, email);
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, authorities);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {

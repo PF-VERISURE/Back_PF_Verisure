@@ -8,9 +8,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-
-import com.verisure.backend.mapper.EmployeeProfileMapper;
-import com.verisure.backend.mapper.GnoProfileMapper;
 import com.verisure.backend.repository.UserRepository;
 import com.verisure.backend.security.filter.JWTAuthenticationFilter;
 import com.verisure.backend.security.filter.JWTAuthorizationFilter;
@@ -21,17 +18,12 @@ public class SpringConfig {
     private final CustomAuthenticationManager customAuthenticationManager;
     private final String jwtSecret;
     private final UserRepository userRepository;
-    private final GnoProfileMapper gnoProfileMapper;
-    private final EmployeeProfileMapper employeeProfileMapper;
 
     public SpringConfig(CustomAuthenticationManager customAuthenticationManager,
-            @Value("${jwt.secret}") String jwtSecret, UserRepository userRepository,
-            GnoProfileMapper gnoProfileMapper,EmployeeProfileMapper employeeProfileMapper) {
+            @Value("${jwt.secret}") String jwtSecret, UserRepository userRepository) {
         this.customAuthenticationManager = customAuthenticationManager;
         this.jwtSecret = jwtSecret;
         this.userRepository = userRepository;
-        this.gnoProfileMapper = gnoProfileMapper;
-        this.employeeProfileMapper = employeeProfileMapper;
     }
 
     @Bean
@@ -40,9 +32,7 @@ public class SpringConfig {
         JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(
             customAuthenticationManager,
             jwtSecret,
-            userRepository,
-            gnoProfileMapper,
-            employeeProfileMapper
+            userRepository
         );
 
         authenticationFilter.setFilterProcessesUrl("/api/v1/auth/login");
@@ -59,6 +49,15 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/employees/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/sdgs/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers(HttpMethod.POST,"/api/v1/projects").hasRole("ONG")
+                        .requestMatchers(HttpMethod.PUT,"/api/v1/projects/{id}").hasRole("ONG")
+                        .requestMatchers(HttpMethod.DELETE,"/api/v1/projects/{id}").hasRole("ONG")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/my-projects").hasRole("ONG")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/all").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/pending").hasAnyRole("ADMIN", "ONG")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/applications/all").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/v1/projects/{id}/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/projects/{id}/favorite").hasRole("EMPLOYEE")                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/published").hasAnyRole("ADMIN", "EMPLOYEE")
+                        .requestMatchers("/api/v1/applications/**").hasRole("EMPLOYEE")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)

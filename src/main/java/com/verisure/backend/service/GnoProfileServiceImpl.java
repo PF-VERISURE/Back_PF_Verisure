@@ -1,18 +1,17 @@
 package com.verisure.backend.service;
 
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
+import com.verisure.backend.dto.response.GnoProfileListResponseDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
 import com.verisure.backend.entity.GnoProfile;
 import com.verisure.backend.entity.User;
 import com.verisure.backend.entity.enums.Role;
 import com.verisure.backend.exception.DuplicateResourceException;
 import com.verisure.backend.exception.ResourceNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 import com.verisure.backend.mapper.GnoProfileMapper;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.UserRepository;
@@ -46,18 +45,12 @@ public class GnoProfileServiceImpl implements GnoProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public GnoProfileResponseDTO getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con email: " + email));
-        GnoProfile profile = user.getGnoProfile();
-        if (profile == null) {
-            throw new ResourceNotFoundException("Este usuario no tiene un perfil de ONG configurado");
-        }
+    public GnoProfileResponseDTO getMyProfile(Long userId) {
+        GnoProfile profile = gnoProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Este usuario no tiene un perfil de ONG"));
         return gnoProfileMapper.toResponseDTO(profile);
     }
 
-
-    // estos para admin para ver todos, buscar uno concreto y poder eliminar, falta update por el momento.
     @Override
     @Transactional(readOnly = true)
     public GnoProfileResponseDTO getGnoProfile(Long id) {
@@ -68,11 +61,10 @@ public class GnoProfileServiceImpl implements GnoProfileService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GnoProfileResponseDTO> getAllGnoProfiles() {
-        return gnoProfileRepository.findAll()
-                .stream()
-                .map(gnoProfileMapper::toResponseDTO)
-                .toList();
+    public GnoProfileListResponseDTO getAllGnoProfiles() {
+        List<GnoProfile> gnos = gnoProfileRepository.findAll();
+        List<GnoProfileResponseDTO> gnoProfilesDTO = gnoProfileMapper.toResponseDTOList(gnos);
+        return new GnoProfileListResponseDTO(gnoProfilesDTO, gnoProfilesDTO.size());
     }
 
     @Override
@@ -84,8 +76,6 @@ public class GnoProfileServiceImpl implements GnoProfileService {
         userRepository.delete(user);
     }
 
-
-    // metodos privados para DRY
     
     private void validateGnoRequest(GnoCreateRequestDTO request) {
         if (userRepository.existsByEmail(request.email())) {

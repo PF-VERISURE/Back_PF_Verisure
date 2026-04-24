@@ -1,17 +1,23 @@
 package com.verisure.backend.controller;
 
-import jakarta.validation.Valid;
-
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.verisure.backend.dto.request.GnoCreateRequestDTO;
+import com.verisure.backend.dto.response.GnoProfileListResponseDTO;
 import com.verisure.backend.dto.response.GnoProfileResponseDTO;
+import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.GnoProfileService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/gnos")
@@ -25,14 +31,14 @@ public class GnoProfileController {
 
     @GetMapping("/profile")
     public ResponseEntity<GnoProfileResponseDTO> getMyProfile(Authentication authentication) {
-        String email = authentication.getName();
-        GnoProfileResponseDTO response = gnoProfileService.getMyProfile(email);
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        GnoProfileResponseDTO response = gnoProfileService.getMyProfile(currentUser.userId());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<GnoProfileResponseDTO>> getAllGnos() {
-        List<GnoProfileResponseDTO> response = gnoProfileService.getAllGnoProfiles();
+    public ResponseEntity<GnoProfileListResponseDTO> getAllGnos() {
+        GnoProfileListResponseDTO response = gnoProfileService.getAllGnoProfiles();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
