@@ -1,9 +1,10 @@
 package com.verisure.backend.dto.response;
 
-public interface CategoryCountResponseDTO {
+public record CategoryCountResponseDTO(
+    
+    String categoryName, 
+    Long count
 
-    String getCategoryName();
-
-    Long getCount();
+) {
 
 }

@@ -3,6 +3,7 @@ package com.verisure.backend.service;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -44,8 +45,20 @@ public class DashboardServiceImp implements DashboardService {
             startDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
             endDate = OffsetDateTime.of(2100, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
         }
+        List<Object[]> rawData = projectRepository.countRegisteredProjectsRaw(startDate, endDate);
+        
+        List<CategoryCountResponseDTO> responseList = new ArrayList<>();
 
-        return projectRepository.countRegisteredProjectsByCategory(startDate, endDate);
+        for (Object[] row : rawData) {
+            String categoryName = (String) row[0];
+            Long count = ((Number) row[1]).longValue();
+
+            CategoryCountResponseDTO dto = new CategoryCountResponseDTO(categoryName, count);
+            responseList.add(dto);
+        }
+
+        return responseList;
     }
+    
 
 }

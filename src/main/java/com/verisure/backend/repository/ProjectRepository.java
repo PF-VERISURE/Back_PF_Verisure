@@ -73,13 +73,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     // Grafica donut registro de proyectos por categoria con filtro de años y meses.
     @Query("""
-                SELECT s.name AS categoryName, COUNT(p.id) AS count
+                SELECT s.name, COUNT(p.id)
                 FROM Project p
                 JOIN p.sdgs s
-                WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate
+                WHERE p.createdAt BETWEEN :startDate AND :endDate
                 GROUP BY s.name
             """)
-    List<CategoryCountResponseDTO> countRegisteredProjectsByCategory(
+    List<Object[]> countRegisteredProjectsRaw(
             @Param("startDate") OffsetDateTime startDate,
             @Param("endDate") OffsetDateTime endDate);
 
