@@ -147,35 +147,23 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllProjectsForAdmin() {
-        // List<ProjectResponseDTO> adminProjectsList = projectRepository.findAll().stream()
-        //         .map(project -> {
-        //             long favs = userFavoriteRepository.countByProjectId(project.getId());
-        //             long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-        //             return projectMapper.toResponseDTO(project, favs, apps);
-        //         })
-        //         .toList();
-        // return new ProjectListResponseDTO(adminProjectsList, adminProjectsList.size());
-        List<Project> projects = projectRepository.findAll();
-        List<ProjectResponseDTO> projectsList = projectMapper.toResponseDTOList(projects);
+        List<ProjectResponseDTO> projectsList = projectRepository.findAll().stream()
+            .map(project -> {
+                long favs = userFavoriteRepository.countByProjectId(project.getId());
+
+                long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+                
+                // Usamos el mapper con los parámetros extra
+                return projectMapper.toAdminResponseDTO(project, favs, apps);
+            })
+            .toList();
+        
         return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllPublished() {
-
-        // List<ProjectResponseDTO> publishedProjects = projectRepository.findByStatus(StatusProject.PUBLISHED)
-        //         .stream()
-        //         .map(project -> {
-        //             long favs = userFavoriteRepository.countByProjectId(project.getId());
-        //             long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-        //             return projectMapper.toResponseDTO(project, favs, apps);
-        //         })
-        //         .toList();
-
-        // return new ProjectListResponseDTO(
-        //     publishedProjects, 
-        //     publishedProjects.size());
         List<Project> projects = projectRepository.findByStatus(StatusProject.PUBLISHED);
         List<ProjectResponseDTO> publishedProjects = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(publishedProjects, publishedProjects.size());
