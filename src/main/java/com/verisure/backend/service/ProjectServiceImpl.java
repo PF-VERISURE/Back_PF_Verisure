@@ -185,9 +185,9 @@ public class ProjectServiceImpl implements ProjectService {
 
         userFavoriteRepository.findByUserIdAndProjectId(userId, id)
             .ifPresentOrElse(
-                favorite -> userFavoriteRepository.delete(favorite), // Si existe, lo borra (Dislike)
+                favorite -> userFavoriteRepository.delete(favorite),
                 () -> {
-                    UserFavorite favorite = new UserFavorite(); // Si no existe, lo crea (Like)
+                    UserFavorite favorite = new UserFavorite();
                     favorite.setUser(user);
                     favorite.setProject(project);
                     userFavoriteRepository.save(favorite);

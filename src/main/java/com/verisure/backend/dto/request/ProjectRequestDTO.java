@@ -2,9 +2,7 @@ package com.verisure.backend.dto.request;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-
 import com.verisure.backend.entity.enums.LocationType;
-
 import jakarta.validation.constraints.*;
 import org.hibernate.validator.constraints.URL;
 

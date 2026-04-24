@@ -1,7 +1,11 @@
 package com.verisure.backend.service;
 
+import java.util.List;
+
+import com.verisure.backend.dto.response.CategoryCountResponseDTO;
+
 public interface DashboardService {
 
-    // crear un metodo get para traer todo el panel de metricas que devuelva DashboardResponseDTO? otro para cada tipo de grafico indiv?
+    List<CategoryCountResponseDTO> getProjectsByCategory(Integer year, Integer month);
 
 }
