@@ -1,8 +1,7 @@
 package com.verisure.backend.entity;
 
 import java.time.OffsetDateTime;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import java.time.ZoneOffset;
 import com.verisure.backend.entity.enums.StatusApplication;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -16,6 +15,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.CascadeType;
 import lombok.Data;
@@ -46,12 +47,25 @@ public class Application {
   @Column(nullable = false)
   private StatusApplication status;
 
-  @CreationTimestamp
+  // @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
 
-  @UpdateTimestamp
+  // @UpdateTimestamp
   @Column(nullable = true)
   private OffsetDateTime updatedAt;
+  
+
+  @PrePersist
+  protected void onCreate() {
+    if (this.createdAt == null) {
+      this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
+  }
 
 }
