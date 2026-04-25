@@ -26,9 +26,18 @@ public class DashboardController {
     public ResponseEntity<List<CategoryCountResponseDTO>> getProjectsByCategory(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-            
+
         List<CategoryCountResponseDTO> response = dashboardService.getProjectsByCategory(year, month);
-        
+
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/applicationsbycategory")
+    public ResponseEntity<List<CategoryCountResponseDTO>> getApplicationsByCategory(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
+
+        List<CategoryCountResponseDTO> response = dashboardService.getApplicationsByCategory(year, month);
+        return ResponseEntity.ok(response);
     }
 }

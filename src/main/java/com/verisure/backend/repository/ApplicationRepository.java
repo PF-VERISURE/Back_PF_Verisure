@@ -1,5 +1,6 @@
 package com.verisure.backend.repository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,13 +23,43 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findAllByOrderByCreatedAtDesc();
 
-    @Query("SELECT a FROM Application a WHERE a.employee.id = :employeeId ORDER BY a.createdAt DESC")
+    @Query("""
+        SELECT a 
+        FROM Application a 
+        WHERE a.employee.id = :employeeId 
+        ORDER BY a.createdAt DESC
+    """)
     List<Application> findEmployeeHistory(@Param("employeeId") Long employeeId);
 
-    @Query("SELECT COUNT(a) FROM Application a WHERE a.project.id = :projectId AND a.status = :status")
+    @Query("""
+        SELECT COUNT(a) 
+        FROM Application a 
+        WHERE a.project.id = :projectId 
+        AND a.status = :status
+    """)
     long countProjectOccupancy(@Param("projectId") Long projectId, @Param("status") StatusApplication status);
 
-    @Query("SELECT a FROM Application a WHERE a.project.id = :projectId AND a.status = :status ORDER BY a.createdAt ASC LIMIT 1")
+    @Query("""
+        SELECT a 
+        FROM Application a 
+        WHERE a.project.id = :projectId 
+        AND a.status = :status
+        ORDER BY a.createdAt ASC 
+        LIMIT 1
+    """)
     Optional<Application> findNextInWaitlist(@Param("projectId") Long projectId, @Param("status") StatusApplication status);
+
+    @Query("""
+        SELECT s.name, COUNT(a.id)
+        FROM Application a
+        JOIN a.project p
+        JOIN p.sdgs s
+        WHERE a.createdAt BETWEEN :startDate AND :endDate
+        GROUP BY s.name
+    """)
+    List<Object[]> countApplicationsByCategoryRaw(
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
 
 }

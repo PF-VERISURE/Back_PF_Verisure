@@ -2,7 +2,7 @@ package com.verisure.backend.entity;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import org.hibernate.annotations.CreationTimestamp;
+import java.time.ZoneOffset;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "participation_records")
 @Data
 @NoArgsConstructor
-
 public class ParticipationRecord {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +38,16 @@ public class ParticipationRecord {
   @Column(name = "certificate_url")
   private String certificateUrl;
 
-  @CreationTimestamp
+  // @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
+
+
+  @PrePersist
+  protected void onCreate() {
+    if (this.createdAt == null) {
+      this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+  }
 
 }

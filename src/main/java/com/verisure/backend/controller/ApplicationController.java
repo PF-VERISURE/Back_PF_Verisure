@@ -35,6 +35,7 @@ public class ApplicationController {
     @GetMapping("/all")
     public ResponseEntity<AdminApplicationListResponseDTO> getAllApplications(Authentication authentication) {
         AdminApplicationListResponseDTO response = applicationService.getAllApplications();
+        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }  
     
