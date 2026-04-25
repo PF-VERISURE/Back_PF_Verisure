@@ -1,7 +1,7 @@
 package com.verisure.backend.entity;
 
 import java.time.OffsetDateTime;
-import org.hibernate.annotations.CreationTimestamp;
+import java.time.ZoneOffset;
 import com.verisure.backend.entity.enums.Role;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 @Data
 @NoArgsConstructor
-
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +36,11 @@ public class User {
   @Column(nullable = false)
   private Role role;
 
-  @CreationTimestamp
-  @Column(name = "created_at", nullable = false, updatable = false)
+  // @CreationTimestamp
+  @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
 
-  @Column(name = "deleted_at")
+  @Column(nullable = true)
   private OffsetDateTime deletedAt;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -48,5 +48,13 @@ public class User {
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private GnoProfile gnoProfile;
+
+
+  @PrePersist
+  protected void onCreate() {
+    if (this.createdAt == null) {
+      this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+    }
+  }
 
 }

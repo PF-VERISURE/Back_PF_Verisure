@@ -22,8 +22,8 @@ import com.verisure.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +59,7 @@ public class DataSeeder implements CommandLineRunner {
         seedSdgs();
         seedProjects();
         seedApplicationsAndRecords();
+        seedFavorites();
     }
 
     private final String[] gnoNames = {
@@ -149,14 +150,32 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
+    // private void seedSdgs() {
+    //     if (sdgRepository.count() == 0) {
+    //         List<Sdg> sdgs = List.of(
+    //             createSdg(1, "Fin de la pobreza"), createSdg(2, "Hambre cero"),
+    //             createSdg(3, "Salud y bienestar"), createSdg(5, "Igualdad de género"),
+    //             createSdg(6, "Agua limpia y saneamiento"), createSdg(7, "Energía asequible"),
+    //             createSdg(9, "Industria e innovación"), createSdg(10, "Reducción desigualdades"),
+    //             createSdg(12, "Consumo responsable"), createSdg(14, "Vida submarina")
+    //         );
+    //         sdgRepository.saveAll(sdgs);
+    //     }
+    // }
+
     private void seedSdgs() {
         if (sdgRepository.count() == 0) {
             List<Sdg> sdgs = List.of(
-                createSdg(1, "Fin de la pobreza"), createSdg(2, "Hambre cero"),
-                createSdg(3, "Salud y bienestar"), createSdg(5, "Igualdad de género"),
-                createSdg(6, "Agua limpia y saneamiento"), createSdg(7, "Energía asequible"),
-                createSdg(9, "Industria e innovación"), createSdg(10, "Reducción desigualdades"),
-                createSdg(12, "Consumo responsable"), createSdg(14, "Vida submarina")
+                createSdg(1, "Fin de la pobreza"), 
+                createSdg(2, "Hambre cero"),
+                createSdg(3, "Salud y bienestar"), 
+                createSdg(5, "Igualdad de género"),
+                createSdg(6, "Agua limpia y saneamiento"), 
+                createSdg(7, "Energía asequible y no contaminante"),
+                createSdg(9, "Ciudades y comunidades sostenibles"),  
+                createSdg(10, "Reducción de las desigualdades"),     
+                createSdg(12, "Producción y consumo responsables"),
+                createSdg(14, "Vida submarina")
             );
             sdgRepository.saveAll(sdgs);
         }
@@ -169,105 +188,144 @@ public class DataSeeder implements CommandLineRunner {
         return sdg;
     }
 
-    private record ProjectTemplate(String title, String description, String impactUnit, String imageUrl) {}
+    private record ProjectTemplate(String title, String description, String impactUnit, String imageUrl, List<Integer> sdgIds) {}
 
     private void seedProjects() {
 
         List<GnoProfile> allGnos = gnoProfileRepository.findAll();
         List<Sdg> allSdgs = sdgRepository.findAll();
-        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<ProjectTemplate> templates = List.of(
-            new ProjectTemplate("Reforestación en la Sierra de Collserola", "Únete a nuestro equipo para plantar árboles autóctonos y ayudar a recuperar el pulmón verde de la ciudad. Proporcionaremos todas las herramientas necesarias, guantes y un pequeño almuerzo a media mañana. Ideal para amantes de la naturaleza que quieran dejar una huella positiva en el medio ambiente.", "Árboles plantados", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Gran Recogida del Banco de Alimentos", "Necesitamos voluntarios dinámicos para clasificar, organizar y empaquetar los alimentos donados en nuestra nave principal. Tu ayuda es vital para garantizar que miles de familias vulnerables puedan tener un plato de comida asegurado durante esta temporada. El trabajo es físico pero sumamente gratificante.", "Kilos de comida", "https://images.unsplash.com/photo-1594708767771-a7502209ff51?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Limpieza intensiva de la Playa de la Barceloneta", "Participa en nuestra jornada de limpieza costera para proteger la fauna marina. Pasaremos la mañana recogiendo plásticos, colillas y residuos de la arena y las rocas. Terminaremos la jornada con un breve taller de concienciación sobre el impacto de los microplásticos en los océanos.", "Kilos de plástico", "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc5?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Mentoring y Apoyo Escolar para Jóvenes", "Buscamos profesionales dispuestos a dedicar unas horas a ayudar a jóvenes en riesgo de exclusión social con sus tareas escolares. Especialmente buscamos apoyo en matemáticas, ciencias e inglés. Serás un modelo a seguir y ayudarás a combatir el abandono escolar temprano.", "Estudiantes apoyados", "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Rescate y Cuidado en Refugio Animal", "Nuestro refugio está al máximo de su capacidad. Ven a ayudarnos a pasear a los perros, limpiar las instalaciones, socializar con los gatos y darles el cariño que necesitan mientras esperan ser adoptados. Una oportunidad perfecta para desconectar del estrés corporativo.", "Animales atendidos", "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Alfabetización Digital para la Tercera Edad", "Ayuda a reducir la brecha digital enseñando a personas mayores a usar un smartphone, hacer videollamadas con sus familiares, pedir citas médicas online o identificar fraudes por internet. Un proyecto de gran impacto humano que requiere paciencia y empatía.", "Personas formadas", "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Construcción de Huertos Urbanos Sostenibles", "Transformaremos un espacio abandonado del barrio en un huerto comunitario sostenible. Aprenderemos técnicas de agricultura ecológica, instalaremos sistemas de riego por goteo y prepararemos los semilleros de temporada. ¡Ven con ropa que se pueda manchar!", "Metros cuadrados recuperados", "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Campaña de Sensibilización y Donación de Sangre", "Colabora con nuestro equipo médico en la campaña de donación. Tus funciones incluirán la recepción de donantes, entrega de refrigerios post-donación y difusión de información en los alrededores. Tu tiempo literalmente ayuda a salvar vidas.", "Donantes atendidos", "https://images.unsplash.com/photo-1615461066159-fea0960485d5?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Acompañamiento Telefónico contra la Soledad", "Proyecto 100% online/remoto. Dedica un par de horas a conversar por teléfono o videollamada con personas mayores que viven solas. Un gesto tan sencillo como escuchar y charlar sobre su día puede tener un impacto inmenso en su bienestar emocional.", "Horas de acompañamiento", "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Recogida y Clasificación de Ropa de Abrigo", "Con la llegada del invierno, organizamos una campaña masiva de recogida de ropa térmica, mantas y calzado. Necesitamos manos para clasificar las donaciones por talla y género, y preparar los kits que serán distribuidos entre personas sin hogar.", "Kits preparados", "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80")
-        );
+        new ProjectTemplate("Reforestación en la Sierra de Collserola", "Únete a nuestro equipo para plantar árboles autóctonos...", "Árboles plantados", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80", List.of(12, 3)),
+        new ProjectTemplate("Gran Recogida del Banco de Alimentos", "Necesitamos voluntarios dinámicos para clasificar...", "Kilos de comida", "https://images.unsplash.com/photo-1594708767771-a7502209ff51?w=800&q=80", List.of(2, 1, 10)),
+        new ProjectTemplate("Limpieza intensiva de la Playa de la Barceloneta", "Participa en nuestra jornada de limpieza costera...", "Kilos de plástico", "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc5?w=800&q=80", List.of(14, 12)),
+        new ProjectTemplate("Mentoring y Apoyo Escolar para Jóvenes", "Buscamos profesionales dispuestos a dedicar unas horas...", "Estudiantes apoyados", "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=80", List.of(10, 1)),
+        new ProjectTemplate("Rescate y Cuidado en Refugio Animal", "Nuestro refugio está al máximo de su capacidad...", "Animales atendidos", "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&q=80", List.of(12)),
+        new ProjectTemplate("Alfabetización Digital para la Tercera Edad", "Ayuda a reducir la brecha digital enseñando...", "Personas formadas", "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80", List.of(10, 9)),
+        new ProjectTemplate("Construcción de Huertos Urbanos Sostenibles", "Transformaremos un espacio abandonado del barrio...", "Metros cuadrados recuperados", "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80", List.of(2, 12, 3)),
+        new ProjectTemplate("Campaña de Sensibilización y Donación de Sangre", "Colabora con nuestro equipo médico en la campaña...", "Donantes atendidos", "https://images.unsplash.com/photo-1615461066159-fea0960485d5?w=800&q=80", List.of(3)),
+        new ProjectTemplate("Acompañamiento Telefónico contra la Soledad", "Proyecto 100% online/remoto. Dedica un par de horas...", "Horas de acompañamiento", "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?w=800&q=80", List.of(3, 10)),
+        new ProjectTemplate("Recogida y Clasificación de Ropa de Abrigo", "Con la llegada del invierno, organizamos una campaña...", "Kits preparados", "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Reparación de Equipos Informáticos para Escuelas", "Buscamos perfiles técnicos para revisar...", "Equipos restaurados", "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&q=80", List.of(9, 12, 10)),
+        new ProjectTemplate("Taller de Empleabilidad para Personas Refugiadas", "Acompaña a personas recién llegadas en su proceso...", "Personas asesoradas", "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Rescate de Excedentes Agrícolas en el Maresme", "Únete a nuestra cuadrilla para recolectar frutas...", "Kilos rescatados", "https://images.unsplash.com/photo-1615486171448-4fd9b0051821?w=800&q=80", List.of(2, 12)),
+        new ProjectTemplate("Renovación y Pintura en Planta de Pediatría", "Necesitamos personas creativas y con energía...", "Metros cuadrados pintados", "https://images.unsplash.com/photo-1583468982228-19f19164aee2?w=800&q=80", List.of(3)),
+        new ProjectTemplate("Traducción Legal Pro Bono para Inmigrantes", "Iniciativa 100% remota para personas bilingües...", "Documentos traducidos", "https://images.unsplash.com/photo-1451226428352-cf66bf8a0317?w=800&q=80", List.of(10)),
+        new ProjectTemplate("Mantenimiento y Señalización de Senderos", "Jornada intensiva en la montaña para limpiar...", "Kilómetros acondicionados", "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80", List.of(12, 3)),
+        new ProjectTemplate("Apoyo en Cocina y Servicio en Comedor Social", "Colabora con el equipo de cocina preparando...", "Comidas servidas", "https://images.unsplash.com/photo-1591189863430-ab8a528ae44b?w=800&q=80", List.of(2, 1)),
+        new ProjectTemplate("Confección de Sacos de Dormir de Emergencia", "Taller grupal donde utilizaremos restos de telas...", "Sacos confeccionados", "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=800&q=80", List.of(1, 12)),
+        new ProjectTemplate("Censo y Observación de Aves Migratorias", "Acompaña a nuestros biólogos en la jornada...", "Aves censadas", "https://images.unsplash.com/photo-1555169062-013468b47731?w=800&q=80", List.of(12, 14)),
+        new ProjectTemplate("Hackathon Solidario para ONGs Locales", "Evento de fin de semana dirigido a desarrolladores...", "Plataformas entregadas", "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80", List.of(9)),
+        new ProjectTemplate("Dinámicas de Teatro para Diversidad Funcional", "Participa como voluntario de apoyo en nuestro taller...", "Sesiones realizadas", "https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&q=80", List.of(10, 3)),
+        new ProjectTemplate("Campaña de Restauración de Juguetes", "Durante las semanas previas a la Navidad, necesitamos...", "Juguetes preparados", "https://images.unsplash.com/photo-1560856218-0da41ac1c6ea?w=800&q=80", List.of(12, 10)),
+        new ProjectTemplate("Asesoría Legal para Prevención de Desahucios", "Buscamos profesionales del derecho dispuestos...", "Familias asesoradas", "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Sesiones de Mindfulness para Supervivientes", "Si eres instructor/a certificado, dona una hora...", "Sesiones impartidas", "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80", List.of(3, 5)),
+        new ProjectTemplate("Taller de Carpintería: Cajas Nido para Aves", "Aprenderemos a ensamblar cajas nido y refugios...", "Cajas construidas", "https://images.unsplash.com/photo-1534237710431-e2fc698436d0?w=800&q=80", List.of(12)),
+        new ProjectTemplate("Acompañamiento Musical en Residencias", "¿Tocas algún instrumento o cantas? Ven a compartir...", "Horas de concierto", "https://images.unsplash.com/photo-1444392061266-993ebfb12284?w=800&q=80", List.of(3, 10)), 
+        new ProjectTemplate("Limpieza y Recuperación del Cauce del Río", "Jornada medioambiental enfocada en la retirada...", "Kilos de residuos", "https://images.unsplash.com/photo-1518558997970-4f114c5770c0?w=800&q=80", List.of(6, 14, 12)),
+        new ProjectTemplate("Torneo de Fútbol Inclusivo", "Necesitamos árbitros, encargados de marcador...", "Partidos arbitrados", "https://images.unsplash.com/photo-1518605368461-1e1e38ddf594?w=800&q=80", List.of(3, 10)),
+        new ProjectTemplate("Educación Financiera para Familias", "Imparte talleres prácticos sobre cómo interpretar...", "Familias formadas", "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Muralismo Comunitario para la Integración", "Transformaremos un muro gris y degradado...", "Metros de mural", "https://images.unsplash.com/photo-1561582299-b1d5bfcb161c?w=800&q=80", List.of(10, 9))
+    );
 
-        String[] addresses = {"Gran Vía de les Corts Catalanes 585", "Paseo de la Castellana 15", "Avinguda del Paral·lel 71", "Calle de Alcalá 120", "Carrer de Balmes 22", "Avenida de las Ciencias s/n"};
-        String[] cities = {"Barcelona", "Madrid", "Valencia", "Sevilla", "Bilbao"};
-        
+        String[] addresses = {"Gran Vía de les Corts Catalanes 585", "Paseo de la Castellana 15", "Avinguda del Paral·lel 71", "Calle de Alcalá 120", "Carrer de Balmes 22", "Avenida de las Ciencias s/n","Calle de la Paz 123","Avenida de la Constitución 456","Calle de la Libertad 789","Avenida de la Independencia 101"};
+        String[] cities = {"Barcelona", "Madrid", "Valencia", "Sevilla", "Bilbao", "Zaragoza","Palma de Mallorca","Malaga"};
         LocationType[] locationTypes = LocationType.values(); 
 
-        int projectCounter = 0;
+        List<Integer> timelineYearsAgo = new ArrayList<>();
+        for(int i=0; i<4; i++) timelineYearsAgo.add(5);
+        for(int i=0; i<8; i++) timelineYearsAgo.add(4);
+        for(int i=0; i<12; i++) timelineYearsAgo.add(3);
+        for(int i=0; i<16; i++) timelineYearsAgo.add(2);
+        for(int i=0; i<20; i++) timelineYearsAgo.add(1);
+        for(int i=0; i<20; i++) timelineYearsAgo.add(0);
 
-        for (GnoProfile gno : allGnos) {
+        List<ProjectTemplate> shuffledTemplates = new ArrayList<>(templates);
+        Collections.shuffle(shuffledTemplates, random);
 
-            List<ProjectTemplate> shuffledTemplates = new ArrayList<>(templates);
-            Collections.shuffle(shuffledTemplates, random);
+        int yearZeroCounter = 0;
 
-            for (int i = 0; i < 5; i++) {
-                ProjectTemplate template = shuffledTemplates.get(i);
-                Project project = new Project();
-                project.setGno(gno);
-                
-                project.setTitle(template.title());
-                project.setDescription(template.description());
-                project.setRequiredVolunteers(random.nextInt(15) + 5);
-                project.setImpactUnit(template.impactUnit());
-                project.setImageUrl(template.imageUrl());
-                project.setTotalHours(random.nextInt(6) + 2);
+        for (int i = 0; i < timelineYearsAgo.size(); i++) {
+            int yearsAgo = timelineYearsAgo.get(i);
+        
+            int availableGnosPool = 10 - (yearsAgo * 2); 
+            if (availableGnosPool < 2) availableGnosPool = 2;
+            GnoProfile gno = allGnos.get(random.nextInt(availableGnosPool));
 
-                LocationType randomLoc = locationTypes[random.nextInt(locationTypes.length)];
-                project.setLocationType(randomLoc);
+            ProjectTemplate template = shuffledTemplates.get(i % shuffledTemplates.size());
+            Project project = new Project();
+            project.setGno(gno);
+            project.setTitle(template.title());
+            project.setDescription(template.description());
+            project.setRequiredVolunteers(random.nextInt(15) + 5);
+            project.setImpactUnit(template.impactUnit());
+            project.setImageUrl(template.imageUrl());
+            project.setTotalHours(random.nextInt(8) + 2);
 
-                if (randomLoc == LocationType.ONLINE) {
-                    project.setAddress("https://meet.google.com/solidaridad-" + random.nextInt(9999));
-                    project.setCity(null); 
-                } else {
-                    project.setAddress(addresses[random.nextInt(addresses.length)]);
-                    project.setCity(cities[random.nextInt(cities.length)]);
-                }
+            LocationType randomLoc = locationTypes[random.nextInt(locationTypes.length)];
+            project.setLocationType(randomLoc);
+            if (randomLoc == LocationType.ONLINE) {
+                project.setAddress("https://meet.google.com/sala-" + random.nextInt(9999));
+                project.setCity(null);
+            } else {
+                project.setAddress(addresses[random.nextInt(addresses.length)]);
+                project.setCity(cities[random.nextInt(cities.length)]);
+            }
 
-                int numSdgs = random.nextInt(3) + 1;
-                for (int j = 0; j < numSdgs; j++) {
-                    Sdg randomSdg = allSdgs.get(random.nextInt(allSdgs.size()));
-                    if (!project.getSdgs().contains(randomSdg)) {
-                        project.getSdgs().add(randomSdg);
-                    }
-                }
+            int numSdgs = random.nextInt(3) + 1;
+            for (Integer sdgId : template.sdgIds()) {
+                allSdgs.stream()
+                       .filter(s -> s.getId().equals(sdgId))
+                       .findFirst()
+                       .ifPresent(sdg -> project.getSdgs().add(sdg));
+            }
 
-                if (i == 0) {
-                    project.setStartDate(now.minusYears(3).minusMonths(2));
-                    project.setEndDate(now.minusYears(3));
+            if (yearsAgo > 0) {
+                int randomMonth = random.nextInt(11) + 1;
+                project.setStartDate(now.minusYears(yearsAgo).withMonth(randomMonth).withDayOfMonth(random.nextInt(20) + 1));
+                project.setEndDate(project.getStartDate().plusDays(random.nextInt(5) + 1));
+                project.setStatus(random.nextInt(10) > 8 ? StatusProject.CANCELED : StatusProject.COMPLETED);
+
+            } else {
+
+                if (yearZeroCounter < 5) {
+                    project.setStartDate(now.minusMonths(random.nextInt(3) + 1));
+                    project.setEndDate(project.getStartDate().plusDays(3));
                     project.setStatus(StatusProject.COMPLETED);
-                } else if (i == 1) {
-                    project.setStartDate(now.minusYears(1).minusMonths(1));
-                    project.setEndDate(now.minusYears(1));
-                    project.setStatus(StatusProject.COMPLETED);
-                } else if (i == 2) {
-                    project.setStartDate(now.minusMonths(4));
-                    project.setEndDate(now.minusMonths(3));
-                    project.setStatus(StatusProject.CANCELED);
-                } else if (i == 3) {
-                    project.setStartDate(now.plusDays(15));
-                    project.setEndDate(now.plusMonths(1));
+                } else if (yearZeroCounter < 10) {
+                    project.setStartDate(now.minusDays(random.nextInt(5) + 1));
+                    project.setEndDate(now.plusDays(15)); 
+                    project.setStatus(StatusProject.PUBLISHED);
+                } else if (yearZeroCounter < 15) {
+                    project.setStartDate(now.plusMonths(1));
+                    project.setEndDate(now.plusMonths(1).plusDays(3));
                     project.setStatus(StatusProject.PUBLISHED);
                 } else {
                     project.setStartDate(now.plusMonths(2));
-                    project.setEndDate(now.plusMonths(3));
+                    project.setEndDate(now.plusMonths(2).plusDays(5));
                     project.setStatus(StatusProject.PENDING);
                 }
-
-                projectRepository.save(project);
-                projectCounter++;
+                yearZeroCounter++;
             }
+
+            project.setCreatedAt(project.getStartDate().minusDays(30));
+
+            projectRepository.save(project);
         }
     }
 
     private void seedApplicationsAndRecords() {
-
         List<Project> allProjects = projectRepository.findAll();
         List<EmployeeProfile> allEmployees = employeeProfileRepository.findAll();
 
         for (Project project : allProjects) {
-            int applicantsCount = project.getRequiredVolunteers() + random.nextInt(8) - 2;
+            
+            if (project.getStatus() == StatusProject.PENDING) {
+                continue;
+            }
+
+            int applicantsCount = project.getRequiredVolunteers() + random.nextInt(8) - 1;
             if (applicantsCount < 2) applicantsCount = 2;
             if (applicantsCount > allEmployees.size()) applicantsCount = allEmployees.size();
 
@@ -280,40 +338,74 @@ public class DataSeeder implements CommandLineRunner {
                 app.setProject(project);
                 app.setEmployee(employee);
 
-                boolean shouldCreateRecord = false;
+                int applyDelay = random.nextInt(28) + 1;
+                app.setCreatedAt(project.getCreatedAt().plusDays(applyDelay));
 
-                if (project.getStatus() == StatusProject.COMPLETED) {
-                    if (i < project.getRequiredVolunteers()) {
+                boolean inQuota = i < project.getRequiredVolunteers();
+
+                if (project.getStatus() == StatusProject.CANCELED) {
+                    app.setStatus(StatusApplication.CANCELED);
+                
+                } else if (project.getStatus() == StatusProject.COMPLETED) {
+
+                    if (inQuota) {
                         app.setStatus(StatusApplication.CLOSED);
-                        shouldCreateRecord = true; 
+                        
+                        Application savedApp = applicationRepository.save(app);
+                        
+                        ParticipationRecord record = new ParticipationRecord();
+                        record.setApplication(savedApp);
+                        record.setLoggedHours(java.math.BigDecimal.valueOf(project.getTotalHours()));
+                        record.setImpactMetric(java.math.BigDecimal.ZERO);
+                        
+                        record.setCreatedAt(project.getEndDate().plusDays(1));
+                        
+                        participationRecordRepository.save(record);
+                        continue;
+
                     } else {
                         app.setStatus(StatusApplication.REJECTED);
                     }
+
                 } else if (project.getStatus() == StatusProject.PUBLISHED) {
-                    if (i < project.getRequiredVolunteers()) {
+                    if (inQuota) {
                         app.setStatus(StatusApplication.APPROVED);
                     } else {
                         app.setStatus(StatusApplication.WAITLISTED);
                     }
-                } else if (project.getStatus() == StatusProject.CANCELED) {
-                    app.setStatus(StatusApplication.CANCELED);
-                } else {
-                    app.setStatus(StatusApplication.PENDING);
                 }
 
-                Application savedApp = applicationRepository.save(app);
+                applicationRepository.save(app);
+            }
+        }
+    }
 
-                if (shouldCreateRecord) {
-                    ParticipationRecord record = new ParticipationRecord();
-                    record.setApplication(savedApp);
-                    record.setLoggedHours(BigDecimal.valueOf(project.getTotalHours()));
-                    record.setImpactMetric(BigDecimal.ZERO);
-                    
-                    participationRecordRepository.save(record);
-                }
+    private void seedFavorites() {
+        List<Project> allProjects = projectRepository.findAll();
+        List<EmployeeProfile> allEmployees = employeeProfileRepository.findAll();
+
+        for (Project project : allProjects) {
+
+            int likesCount = random.nextInt(20); 
+            if (likesCount > allEmployees.size()) likesCount = allEmployees.size();
+
+            List<EmployeeProfile> shuffledEmployees = new ArrayList<>(allEmployees);
+            Collections.shuffle(shuffledEmployees, random);
+
+            for (int i = 0; i < likesCount; i++) {
+                User user = shuffledEmployees.get(i).getUser();
+                
+                com.verisure.backend.entity.UserFavorite favorite = new com.verisure.backend.entity.UserFavorite();
+                favorite.setUser(user);
+                favorite.setProject(project);
+
+                int daysAfterCreation = random.nextInt(10) + 1;
+                favorite.setCreatedAt(project.getCreatedAt().plusDays(daysAfterCreation));
+
+                userFavoriteRepository.save(favorite);
             }
         }
     }
 }
 
-// Vamos a ir ampliando el seeder segun se vayan creando las entidades y los servicios.
+// Seeder creado para la demo con un historico de 5 años y con tendencia de evolucion incremental.

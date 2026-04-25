@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusProject;
@@ -71,15 +70,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Conteo por ONG y estado
     long countByGnoIdAndStatus(Long gnoId, StatusProject status);
 
-    // Grafica donut registro de proyectos por categoria con filtro de años y meses.
+    // Grafica 1: donut registro de proyectos por categoria con filtro de año o mes.
     @Query("""
-                SELECT s.name AS categoryName, COUNT(p.id) AS count
+                SELECT s.name, COUNT(p.id)
                 FROM Project p
                 JOIN p.sdgs s
-                WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate
+                WHERE p.startDate BETWEEN :startDate AND :endDate
                 GROUP BY s.name
             """)
-    List<CategoryCountResponseDTO> countRegisteredProjectsByCategory(
+    List<Object[]> countProjectsByCategoryRaw(
             @Param("startDate") OffsetDateTime startDate,
             @Param("endDate") OffsetDateTime endDate);
 
