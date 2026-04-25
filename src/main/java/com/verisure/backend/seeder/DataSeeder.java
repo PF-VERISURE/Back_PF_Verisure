@@ -150,14 +150,32 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
+    // private void seedSdgs() {
+    //     if (sdgRepository.count() == 0) {
+    //         List<Sdg> sdgs = List.of(
+    //             createSdg(1, "Fin de la pobreza"), createSdg(2, "Hambre cero"),
+    //             createSdg(3, "Salud y bienestar"), createSdg(5, "Igualdad de género"),
+    //             createSdg(6, "Agua limpia y saneamiento"), createSdg(7, "Energía asequible"),
+    //             createSdg(9, "Industria e innovación"), createSdg(10, "Reducción desigualdades"),
+    //             createSdg(12, "Consumo responsable"), createSdg(14, "Vida submarina")
+    //         );
+    //         sdgRepository.saveAll(sdgs);
+    //     }
+    // }
+
     private void seedSdgs() {
         if (sdgRepository.count() == 0) {
             List<Sdg> sdgs = List.of(
-                createSdg(1, "Fin de la pobreza"), createSdg(2, "Hambre cero"),
-                createSdg(3, "Salud y bienestar"), createSdg(5, "Igualdad de género"),
-                createSdg(6, "Agua limpia y saneamiento"), createSdg(7, "Energía asequible"),
-                createSdg(9, "Industria e innovación"), createSdg(10, "Reducción desigualdades"),
-                createSdg(12, "Consumo responsable"), createSdg(14, "Vida submarina")
+                createSdg(1, "Fin de la pobreza"), 
+                createSdg(2, "Hambre cero"),
+                createSdg(3, "Salud y bienestar"), 
+                createSdg(5, "Igualdad de género"),
+                createSdg(6, "Agua limpia y saneamiento"), 
+                createSdg(7, "Energía asequible y no contaminante"),
+                createSdg(9, "Ciudades y comunidades sostenibles"),  
+                createSdg(10, "Reducción de las desigualdades"),     
+                createSdg(12, "Producción y consumo responsables"),
+                createSdg(14, "Vida submarina")
             );
             sdgRepository.saveAll(sdgs);
         }
@@ -170,7 +188,7 @@ public class DataSeeder implements CommandLineRunner {
         return sdg;
     }
 
-    private record ProjectTemplate(String title, String description, String impactUnit, String imageUrl) {}
+    private record ProjectTemplate(String title, String description, String impactUnit, String imageUrl, List<Integer> sdgIds) {}
 
     private void seedProjects() {
 
@@ -179,38 +197,37 @@ public class DataSeeder implements CommandLineRunner {
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
 
         List<ProjectTemplate> templates = List.of(
-            new ProjectTemplate("Reforestación en la Sierra de Collserola", "Únete a nuestro equipo para plantar árboles autóctonos y ayudar a recuperar el pulmón verde de la ciudad. Proporcionaremos todas las herramientas necesarias, guantes y un pequeño almuerzo a media mañana. Ideal para amantes de la naturaleza que quieran dejar una huella positiva en el medio ambiente.", "Árboles plantados", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Gran Recogida del Banco de Alimentos", "Necesitamos voluntarios dinámicos para clasificar, organizar y empaquetar los alimentos donados en nuestra nave principal. Tu ayuda es vital para garantizar que miles de familias vulnerables puedan tener un plato de comida asegurado durante esta temporada. El trabajo es físico pero sumamente gratificante.", "Kilos de comida", "https://images.unsplash.com/photo-1594708767771-a7502209ff51?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Limpieza intensiva de la Playa de la Barceloneta", "Participa en nuestra jornada de limpieza costera para proteger la fauna marina. Pasaremos la mañana recogiendo plásticos, colillas y residuos de la arena y las rocas. Terminaremos la jornada con un breve taller de concienciación sobre el impacto de los microplásticos en los océanos.", "Kilos de plástico", "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc5?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Mentoring y Apoyo Escolar para Jóvenes", "Buscamos profesionales dispuestos a dedicar unas horas a ayudar a jóvenes en riesgo de exclusión social con sus tareas escolares. Especialmente buscamos apoyo en matemáticas, ciencias e inglés. Serás un modelo a seguir y ayudarás a combatir el abandono escolar temprano.", "Estudiantes apoyados", "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Rescate y Cuidado en Refugio Animal", "Nuestro refugio está al máximo de su capacidad. Ven a ayudarnos a pasear a los perros, limpiar las instalaciones, socializar con los gatos y darles el cariño que necesitan mientras esperan ser adoptados. Una oportunidad perfecta para desconectar del estrés corporativo.", "Animales atendidos", "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Alfabetización Digital para la Tercera Edad", "Ayuda a reducir la brecha digital enseñando a personas mayores a usar un smartphone, hacer videollamadas con sus familiares, pedir citas médicas online o identificar fraudes por internet. Un proyecto de gran impacto humano que requiere paciencia y empatía.", "Personas formadas", "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Construcción de Huertos Urbanos Sostenibles", "Transformaremos un espacio abandonado del barrio en un huerto comunitario sostenible. Aprenderemos técnicas de agricultura ecológica, instalaremos sistemas de riego por goteo y prepararemos los semilleros de temporada. ¡Ven con ropa que se pueda manchar!", "Metros cuadrados recuperados", "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Campaña de Sensibilización y Donación de Sangre", "Colabora con nuestro equipo médico en la campaña de donación. Tus funciones incluirán la recepción de donantes, entrega de refrigerios post-donación y difusión de información en los alrededores. Tu tiempo literalmente ayuda a salvar vidas.", "Donantes atendidos", "https://images.unsplash.com/photo-1615461066159-fea0960485d5?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Acompañamiento Telefónico contra la Soledad", "Proyecto 100% online/remoto. Dedica un par de horas a conversar por teléfono o videollamada con personas mayores que viven solas. Un gesto tan sencillo como escuchar y charlar sobre su día puede tener un impacto inmenso en su bienestar emocional.", "Horas de acompañamiento", "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Recogida y Clasificación de Ropa de Abrigo", "Con la llegada del invierno, organizamos una campaña masiva de recogida de ropa térmica, mantas y calzado. Necesitamos manos para clasificar las donaciones por talla y género, y preparar los kits que serán distribuidos entre personas sin hogar.", "Kits preparados", "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Reparación de Equipos Informáticos para Escuelas", "Buscamos perfiles técnicos para revisar, formatear y reparar ordenadores donados por empresas. Estos equipos serán destinados a escuelas públicas con escasez de recursos y a familias vulnerables para reducir la brecha digital. No es necesario ser un experto, solo tener conocimientos básicos y ganas de ayudar.", "Equipos restaurados", "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Taller de Empleabilidad para Personas Refugiadas", "Acompaña a personas recién llegadas en su proceso de inserción sociolaboral. Las sesiones consistirán en ayudarles a redactar su currículum adaptado al mercado local y realizar simulacros de entrevistas de trabajo. Tu experiencia profesional puede ser la llave que les abra las puertas a una nueva vida.", "Personas asesoradas", "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Rescate de Excedentes Agrícolas en el Maresme", "Únete a nuestra cuadrilla para recolectar frutas y verduras que, por razones estéticas, no van a ser comercializadas pero están en perfecto estado. Todo lo recolectado se entregará directamente a comedores sociales esa misma tarde. Una forma excelente de combatir el desperdicio alimentario haciendo ejercicio al aire libre.", "Kilos rescatados", "https://images.unsplash.com/photo-1615486171448-4fd9b0051821?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Renovación y Pintura en Planta de Pediatría", "Necesitamos personas creativas y con energía para llenar de color los pasillos y salas de espera del área infantil del hospital. Crearemos murales temáticos amables que ayuden a reducir la ansiedad de los más pequeños durante sus ingresos. Proporcionamos toda la pintura, brochas y material de protección.", "Metros cuadrados pintados", "https://images.unsplash.com/photo-1583468982228-19f19164aee2?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Traducción Legal Pro Bono para Inmigrantes", "Iniciativa 100% remota para personas bilingües (Inglés, Francés o Árabe a Español). Ayudarás a traducir documentación oficial, expedientes de asilo e información de derechos básicos para personas migrantes. Un trabajo de escritorio que tiene un impacto directo y vital en la regularización de estas familias.", "Documentos traducidos", "https://images.unsplash.com/photo-1451226428352-cf66bf8a0317?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Mantenimiento y Señalización de Senderos Naturales", "Jornada intensiva en la montaña para limpiar de maleza los caminos principales y restaurar la señalización de madera deteriorada. Esta labor es fundamental para prevenir incendios forestales en verano y proteger la biodiversidad de la zona. Se requiere buena condición física y calzado de montaña adecuado.", "Kilómetros acondicionados", "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Apoyo en Cocina y Servicio en Comedor Social", "Colabora con el equipo de cocina preparando los ingredientes, sirviendo los platos calientes y ayudando en la recogida y limpieza del salón. Es un turno de alta intensidad donde se sirven más de 300 comidas en apenas dos horas. Vivirás de primera mano la importancia de la solidaridad de proximidad.", "Comidas servidas", "https://images.unsplash.com/photo-1591189863430-ab8a528ae44b?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Confección de Sacos de Dormir de Emergencia", "Taller grupal donde utilizaremos restos de telas de fábricas locales y aislantes térmicos para coser sacos de dormir de emergencia. Estos sacos serán repartidos durante las rutas nocturnas de atención a personas sin hogar. No es imprescindible saber coser a máquina, también necesitamos manos para cortar y medir.", "Sacos confeccionados", "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Censo y Observación de Aves Migratorias", "Acompaña a nuestros biólogos en la jornada de observación de humedales para registrar las poblaciones de aves de paso. Los datos recogidos servirán para estudios de impacto del cambio climático en las rutas migratorias europeas. Trae tus propios prismáticos si tienes, ¡y mucha paciencia para estar en silencio!", "Aves censadas", "https://images.unsplash.com/photo-1555169062-013468b47731?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Hackathon Solidario para ONGs Locales", "Evento de fin de semana dirigido a desarrolladores, diseñadores y gestores de proyectos. Trabajaremos en equipos ágiles para crear o mejorar las páginas web y sistemas de gestión de pequeñas asociaciones de barrio que no pueden permitirse perfiles técnicos. Habrá pizza, café infinito y mucho código con propósito.", "Plataformas entregadas", "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Dinámicas de Teatro para Diversidad Funcional", "Participa como voluntario de apoyo en nuestro taller de expresión corporal y teatro inclusivo. Ayudarás a los monitores a guiar los ejercicios, fomentando la autoconfianza y las habilidades sociales de los participantes. Prepárate para reír, improvisar y perder la vergüenza en un ambiente seguro y familiar.", "Sesiones realizadas", "https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Campaña de Restauración de Juguetes", "Durante las semanas previas a la Navidad, necesitamos ayuda para revisar, limpiar, poner pilas y empaquetar los juguetes donados. Nuestro objetivo es que cada paquete parezca nuevo y llegue en perfectas condiciones a familias con dificultades económicas. Un proyecto entrañable que devuelve la ilusión a los más pequeños.", "Juguetes preparados", "https://images.unsplash.com/photo-1560856218-0da41ac1c6ea?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Asesoría Legal para Prevención de Desahucios", "Buscamos profesionales del derecho dispuestos a ofrecer orientación inicial gratuita a familias que se enfrentan a procesos de ejecución hipotecaria o cortes de suministros. Les ayudaremos a entender los documentos judiciales y a solicitar la asistencia jurídica gratuita. Empatía y rigor legal al servicio de los más vulnerables.", "Familias asesoradas", "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Sesiones de Mindfulness para Supervivientes", "Si eres instructor/a certificado, dona una hora de tu tiempo para guiar una sesión de relajación y yoga suave. El grupo está formado por mujeres que han superado situaciones de violencia de género y buscan reconectar con su cuerpo en un espacio seguro. Se valorará experiencia previa en metodologías sensibles al trauma.", "Sesiones impartidas", "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Taller de Carpintería: Cajas Nido para Aves", "Aprenderemos a ensamblar cajas nido y refugios para murciélagos utilizando madera certificada. Estos refugios se instalarán posteriormente en parques urbanos para fomentar el control biológico de plagas de mosquitos de forma natural. Una actividad manual, divertida y perfecta para ensuciarse las manos por una buena causa.", "Cajas construidas", "https://images.unsplash.com/photo-1534237710431-e2fc698436d0?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Acompañamiento Musical en Residencias", "¿Tocas algún instrumento o cantas? Ven a compartir tu talento musical durante la tarde del domingo con los residentes del centro geriátrico. La música en directo es una herramienta terapéutica increíble que despierta recuerdos, fomenta la interacción y rompe la monotonía institucional. ¡Se aceptan peticiones de boleros!", "Horas de concierto", "https://images.unsplash.com/photo-1444392061266-993ebfb12284?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Limpieza y Recuperación del Cauce del Río", "Jornada medioambiental enfocada en la retirada de residuos voluminosos y especies vegetales invasoras de las orillas del río. Es un trabajo duro y húmedo, pero vital para permitir que la flora y fauna autóctona recupere su espacio natural. Se proveerán botas de agua, guantes gruesos y herramientas de desbroce.", "Kilos de residuos", "https://images.unsplash.com/photo-1518558997970-4f114c5770c0?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Organización de Torneo de Fútbol Inclusivo", "Necesitamos árbitros, encargados de marcador, fotógrafos y animadores para nuestro torneo de fin de semana. Equipos formados por jóvenes de distintos orígenes socioeconómicos competirán en un ambiente de respeto y compañerismo. El deporte es la mejor excusa para romper barreras invisibles en nuestro distrito.", "Partidos arbitrados", "https://images.unsplash.com/photo-1518605368461-1e1e38ddf594?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Educación Financiera para Familias", "Imparte talleres prácticos sobre cómo interpretar facturas de la luz, crear un presupuesto familiar básico o entender los microcréditos para evitar el sobreendeudamiento. Estos conocimientos son fundamentales para que las personas en riesgo de exclusión tomen el control de su economía. Se requiere empatía y capacidad pedagógica.", "Familias formadas", "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80"),
-            new ProjectTemplate("Muralismo Comunitario para la Integración", "Transformaremos un muro gris y degradado del barrio en una obra de arte colectiva. No hace falta ser un artista experto; los vecinos y voluntarios pintaremos juntos un diseño pre-trazado que celebra la diversidad cultural de la zona. Trae ropa cómoda que no te importe manchar de pintura y ganas de conocer a la comunidad.", "Metros de mural", "https://images.unsplash.com/photo-1499803270242-467f70b77134?auto=format&fit=crop&w=1000&q=80")
-            
-        );
+        new ProjectTemplate("Reforestación en la Sierra de Collserola", "Únete a nuestro equipo para plantar árboles autóctonos...", "Árboles plantados", "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80", List.of(12, 3)),
+        new ProjectTemplate("Gran Recogida del Banco de Alimentos", "Necesitamos voluntarios dinámicos para clasificar...", "Kilos de comida", "https://images.unsplash.com/photo-1594708767771-a7502209ff51?w=800&q=80", List.of(2, 1, 10)),
+        new ProjectTemplate("Limpieza intensiva de la Playa de la Barceloneta", "Participa en nuestra jornada de limpieza costera...", "Kilos de plástico", "https://images.unsplash.com/photo-1618477461853-cf6ed80fbfc5?w=800&q=80", List.of(14, 12)),
+        new ProjectTemplate("Mentoring y Apoyo Escolar para Jóvenes", "Buscamos profesionales dispuestos a dedicar unas horas...", "Estudiantes apoyados", "https://images.unsplash.com/photo-1577896851231-70ef18881754?w=800&q=80", List.of(10, 1)),
+        new ProjectTemplate("Rescate y Cuidado en Refugio Animal", "Nuestro refugio está al máximo de su capacidad...", "Animales atendidos", "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&q=80", List.of(12)),
+        new ProjectTemplate("Alfabetización Digital para la Tercera Edad", "Ayuda a reducir la brecha digital enseñando...", "Personas formadas", "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&q=80", List.of(10, 9)),
+        new ProjectTemplate("Construcción de Huertos Urbanos Sostenibles", "Transformaremos un espacio abandonado del barrio...", "Metros cuadrados recuperados", "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80", List.of(2, 12, 3)),
+        new ProjectTemplate("Campaña de Sensibilización y Donación de Sangre", "Colabora con nuestro equipo médico en la campaña...", "Donantes atendidos", "https://images.unsplash.com/photo-1615461066159-fea0960485d5?w=800&q=80", List.of(3)),
+        new ProjectTemplate("Acompañamiento Telefónico contra la Soledad", "Proyecto 100% online/remoto. Dedica un par de horas...", "Horas de acompañamiento", "https://images.unsplash.com/photo-1516383740770-fbcc5ccbece0?w=800&q=80", List.of(3, 10)),
+        new ProjectTemplate("Recogida y Clasificación de Ropa de Abrigo", "Con la llegada del invierno, organizamos una campaña...", "Kits preparados", "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Reparación de Equipos Informáticos para Escuelas", "Buscamos perfiles técnicos para revisar...", "Equipos restaurados", "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=800&q=80", List.of(9, 12, 10)),
+        new ProjectTemplate("Taller de Empleabilidad para Personas Refugiadas", "Acompaña a personas recién llegadas en su proceso...", "Personas asesoradas", "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Rescate de Excedentes Agrícolas en el Maresme", "Únete a nuestra cuadrilla para recolectar frutas...", "Kilos rescatados", "https://images.unsplash.com/photo-1615486171448-4fd9b0051821?w=800&q=80", List.of(2, 12)),
+        new ProjectTemplate("Renovación y Pintura en Planta de Pediatría", "Necesitamos personas creativas y con energía...", "Metros cuadrados pintados", "https://images.unsplash.com/photo-1583468982228-19f19164aee2?w=800&q=80", List.of(3)),
+        new ProjectTemplate("Traducción Legal Pro Bono para Inmigrantes", "Iniciativa 100% remota para personas bilingües...", "Documentos traducidos", "https://images.unsplash.com/photo-1451226428352-cf66bf8a0317?w=800&q=80", List.of(10)),
+        new ProjectTemplate("Mantenimiento y Señalización de Senderos", "Jornada intensiva en la montaña para limpiar...", "Kilómetros acondicionados", "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80", List.of(12, 3)),
+        new ProjectTemplate("Apoyo en Cocina y Servicio en Comedor Social", "Colabora con el equipo de cocina preparando...", "Comidas servidas", "https://images.unsplash.com/photo-1591189863430-ab8a528ae44b?w=800&q=80", List.of(2, 1)),
+        new ProjectTemplate("Confección de Sacos de Dormir de Emergencia", "Taller grupal donde utilizaremos restos de telas...", "Sacos confeccionados", "https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=800&q=80", List.of(1, 12)),
+        new ProjectTemplate("Censo y Observación de Aves Migratorias", "Acompaña a nuestros biólogos en la jornada...", "Aves censadas", "https://images.unsplash.com/photo-1555169062-013468b47731?w=800&q=80", List.of(12, 14)),
+        new ProjectTemplate("Hackathon Solidario para ONGs Locales", "Evento de fin de semana dirigido a desarrolladores...", "Plataformas entregadas", "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80", List.of(9)),
+        new ProjectTemplate("Dinámicas de Teatro para Diversidad Funcional", "Participa como voluntario de apoyo en nuestro taller...", "Sesiones realizadas", "https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&q=80", List.of(10, 3)),
+        new ProjectTemplate("Campaña de Restauración de Juguetes", "Durante las semanas previas a la Navidad, necesitamos...", "Juguetes preparados", "https://images.unsplash.com/photo-1560856218-0da41ac1c6ea?w=800&q=80", List.of(12, 10)),
+        new ProjectTemplate("Asesoría Legal para Prevención de Desahucios", "Buscamos profesionales del derecho dispuestos...", "Familias asesoradas", "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Sesiones de Mindfulness para Supervivientes", "Si eres instructor/a certificado, dona una hora...", "Sesiones impartidas", "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80", List.of(3, 5)),
+        new ProjectTemplate("Taller de Carpintería: Cajas Nido para Aves", "Aprenderemos a ensamblar cajas nido y refugios...", "Cajas construidas", "https://images.unsplash.com/photo-1534237710431-e2fc698436d0?w=800&q=80", List.of(12)),
+        new ProjectTemplate("Acompañamiento Musical en Residencias", "¿Tocas algún instrumento o cantas? Ven a compartir...", "Horas de concierto", "https://images.unsplash.com/photo-1444392061266-993ebfb12284?w=800&q=80", List.of(3, 10)), 
+        new ProjectTemplate("Limpieza y Recuperación del Cauce del Río", "Jornada medioambiental enfocada en la retirada...", "Kilos de residuos", "https://images.unsplash.com/photo-1518558997970-4f114c5770c0?w=800&q=80", List.of(6, 14, 12)),
+        new ProjectTemplate("Torneo de Fútbol Inclusivo", "Necesitamos árbitros, encargados de marcador...", "Partidos arbitrados", "https://images.unsplash.com/photo-1518605368461-1e1e38ddf594?w=800&q=80", List.of(3, 10)),
+        new ProjectTemplate("Educación Financiera para Familias", "Imparte talleres prácticos sobre cómo interpretar...", "Familias formadas", "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80", List.of(1, 10)),
+        new ProjectTemplate("Muralismo Comunitario para la Integración", "Transformaremos un muro gris y degradado...", "Metros de mural", "https://images.unsplash.com/photo-1561582299-b1d5bfcb161c?w=800&q=80", List.of(10, 9))
+    );
 
         String[] addresses = {"Gran Vía de les Corts Catalanes 585", "Paseo de la Castellana 15", "Avinguda del Paral·lel 71", "Calle de Alcalá 120", "Carrer de Balmes 22", "Avenida de las Ciencias s/n","Calle de la Paz 123","Avenida de la Constitución 456","Calle de la Libertad 789","Avenida de la Independencia 101"};
         String[] cities = {"Barcelona", "Madrid", "Valencia", "Sevilla", "Bilbao", "Zaragoza","Palma de Mallorca","Malaga"};
@@ -257,9 +274,11 @@ public class DataSeeder implements CommandLineRunner {
             }
 
             int numSdgs = random.nextInt(3) + 1;
-            for (int j = 0; j < numSdgs; j++) {
-                Sdg randomSdg = allSdgs.get(random.nextInt(allSdgs.size()));
-                if (!project.getSdgs().contains(randomSdg)) project.getSdgs().add(randomSdg);
+            for (Integer sdgId : template.sdgIds()) {
+                allSdgs.stream()
+                       .filter(s -> s.getId().equals(sdgId))
+                       .findFirst()
+                       .ifPresent(sdg -> project.getSdgs().add(sdg));
             }
 
             if (yearsAgo > 0) {
