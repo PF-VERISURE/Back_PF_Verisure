@@ -8,4 +8,6 @@ public interface DashboardService {
 
     List<CategoryCountResponseDTO> getProjectsByCategory(Integer year, Integer month);
 
+    List<CategoryCountResponseDTO> getApplicationsByCategory(Integer year, Integer month);
+
 }
