@@ -29,36 +29,47 @@ public class DashboardServiceImp implements DashboardService {
 
     @Override
     public List<CategoryCountResponseDTO> getProjectsByCategory(Integer year, Integer month) {
-        OffsetDateTime startDate;
-        OffsetDateTime endDate;
 
-        if (year != null) {
-            if (month != null) {
-                YearMonth yearMonth = YearMonth.of(year, month);
-                startDate = yearMonth.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC);
-                endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
-            } else {
-                startDate = OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-                endDate = OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
-            }
-        } else {
-            startDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-            endDate = OffsetDateTime.of(2100, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
+        OffsetDateTime[] dateRange = calculateDateRange(year, month);
+        List<Object[]> rawData = projectRepository.countRegisteredProjectsRaw(dateRange[0], dateRange[1]);
+        return mapToCategoryCountDTOs(rawData);
+    }
+    
+
+    private OffsetDateTime[] calculateDateRange(Integer year, Integer month) {
+
+        if (year == null) {
+            return new OffsetDateTime[]{
+                OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+                OffsetDateTime.of(2100, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC)
+            };
         }
-        List<Object[]> rawData = projectRepository.countRegisteredProjectsRaw(startDate, endDate);
-        
-        List<CategoryCountResponseDTO> responseList = new ArrayList<>();
 
+        if (month != null) {
+            YearMonth yearMonth = YearMonth.of(year, month);
+            return new OffsetDateTime[]{
+                yearMonth.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC),
+                yearMonth.atEndOfMonth().atTime(23, 59, 59).atOffset(ZoneOffset.UTC)
+            };
+        }
+
+        return new OffsetDateTime[]{
+            OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
+            OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC)
+        };
+    }
+
+    private List<CategoryCountResponseDTO> mapToCategoryCountDTOs(List<Object[]> rawData) {
+        List<CategoryCountResponseDTO> responseList = new ArrayList<>();
+        
         for (Object[] row : rawData) {
             String categoryName = (String) row[0];
             Long count = ((Number) row[1]).longValue();
-
-            CategoryCountResponseDTO dto = new CategoryCountResponseDTO(categoryName, count);
-            responseList.add(dto);
+            
+            responseList.add(new CategoryCountResponseDTO(categoryName, count));
         }
-
+        
         return responseList;
     }
-    
 
 }

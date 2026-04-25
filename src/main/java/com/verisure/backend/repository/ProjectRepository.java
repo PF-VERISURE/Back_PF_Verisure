@@ -71,12 +71,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     // Conteo por ONG y estado
     long countByGnoIdAndStatus(Long gnoId, StatusProject status);
 
-    // Grafica donut registro de proyectos por categoria con filtro de años y meses.
+    // Grafica 1: donut registro de proyectos por categoria con filtro de año o mes.
     @Query("""
                 SELECT s.name, COUNT(p.id)
                 FROM Project p
                 JOIN p.sdgs s
-                WHERE p.createdAt BETWEEN :startDate AND :endDate
+                WHERE p.startDate BETWEEN :startDate AND :endDate
                 GROUP BY s.name
             """)
     List<Object[]> countRegisteredProjectsRaw(
