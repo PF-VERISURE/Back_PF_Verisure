@@ -44,29 +44,6 @@ public class DashboardServiceImp implements DashboardService {
     }
 
 
-    private OffsetDateTime[] calculateDateRange(Integer year, Integer month) {
-
-        if (year == null) {
-            return new OffsetDateTime[] {
-                    OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-                    OffsetDateTime.of(2100, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC)
-            };
-        }
-
-        if (month != null) {
-            YearMonth yearMonth = YearMonth.of(year, month);
-            return new OffsetDateTime[] {
-                    yearMonth.atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC),
-                    yearMonth.atEndOfMonth().atTime(23, 59, 59).atOffset(ZoneOffset.UTC)
-            };
-        }
-
-        return new OffsetDateTime[] {
-                OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-                OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC)
-        };
-    }
-
     private List<CategoryCountResponseDTO> mapToCategoryCountDTOs(List<Object[]> rawData) {
         List<CategoryCountResponseDTO> responseList = new ArrayList<>();
 
@@ -78,6 +55,56 @@ public class DashboardServiceImp implements DashboardService {
         }
 
         return responseList;
+    }
+
+    private OffsetDateTime[] calculateDateRange(Integer year, Integer month) {
+        
+        OffsetDateTime startDate;
+        OffsetDateTime endDate;
+
+        if (year == null) {
+            startDate = getHistoricalStartDate();
+            endDate = getHistoricalEndDate();
+        } else if (month != null) {
+            startDate = getMonthStartDate(year, month);
+            endDate = getMonthEndDate(year, month);
+        } else {
+            startDate = getYearStartDate(year);
+            endDate = getYearEndDate(year);
+        }
+
+        return applyTodayRestriction(startDate, endDate);
+    }
+
+    private OffsetDateTime getHistoricalStartDate() {
+        return OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime getHistoricalEndDate() {
+        return OffsetDateTime.of(2100, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime getYearStartDate(Integer year) {
+        return OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime getYearEndDate(Integer year) {
+        return OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime getMonthStartDate(Integer year, Integer month) {
+        return YearMonth.of(year, month).atDay(1).atStartOfDay().atOffset(ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime getMonthEndDate(Integer year, Integer month) {
+        return YearMonth.of(year, month).atEndOfMonth().atTime(23, 59, 59).atOffset(ZoneOffset.UTC);
+    }
+
+    private OffsetDateTime[] applyTodayRestriction(OffsetDateTime start, OffsetDateTime end) {
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        OffsetDateTime finalEndDate = end.isAfter(now) ? now : end;
+        
+        return new OffsetDateTime[] { start, finalEndDate };
     }
 
 }
