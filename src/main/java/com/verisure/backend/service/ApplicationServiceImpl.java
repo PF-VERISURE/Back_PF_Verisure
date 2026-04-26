@@ -134,7 +134,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
         return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
-
     @Override
     @Transactional
     public Integer completeApplication(Long projectId) {
