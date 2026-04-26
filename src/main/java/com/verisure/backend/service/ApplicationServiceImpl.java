@@ -89,7 +89,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             application.setEmployee(employee);
         }
 
-        long currentApproved = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
+        long currentApproved = applicationRepository.countByProjectIdAndStatus(project.getId(), StatusApplication.APPROVED);
         StatusApplication finalStatus = (currentApproved < project.getRequiredVolunteers())
                 ? StatusApplication.APPROVED
                 : StatusApplication.WAITLISTED;
@@ -138,11 +138,19 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     // ver sus inscripciones
+    // @Override
+    // @Transactional(readOnly = true)
+    // public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
+    //     EmployeeProfile employee = getEmployeeByUserId(userId);
+    //     List<Application> applications = applicationRepository.findEmployeeHistory(employee.getId());
+    //     List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
+    //     return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
+    // }
     @Override
     @Transactional(readOnly = true)
     public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
         EmployeeProfile employee = getEmployeeByUserId(userId);
-        List<Application> applications = applicationRepository.findEmployeeHistory(employee.getId());
+        List<Application> applications = applicationRepository.findByEmployeeIdOrderByCreatedAtDesc(employee.getId());
         List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
         return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
@@ -154,7 +162,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     // cronjob para finalizar proyectos de todo los estados
     @Override
     @Transactional
-    public int completeApplication(Long projectId) {
+    public Integer completeApplication(Long projectId) {
         List<Application> applications = applicationRepository.findByProjectId(projectId);
 
         int closedCount = 0;

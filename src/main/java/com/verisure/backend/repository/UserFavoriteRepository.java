@@ -8,6 +8,5 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
 
     Optional<UserFavorite> findByUserIdAndProjectId(Long userId, Long projectId);
     
-    // Cuenta el total de "Likes" o interesados
-    long countByProjectId(Long projectId);
+    //Long countByProjectId(Long projectId);
 }
