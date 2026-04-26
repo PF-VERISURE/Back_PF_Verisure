@@ -92,4 +92,43 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                 FROM Project p
         """)
         List<ProjectAdminProjection> findAllWithCounts(@Param("status") StatusApplication status);
+
+        // Para la tarjeta PROYECTOS EN CURSO: Cuenta proyectos activos (PENDING, APPROVED) 
+        @Query("""
+                SELECT COUNT(p) 
+                FROM Project p 
+                WHERE p.status IN :statuses 
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long countProjectsByStatusesAndDateRange(
+                @Param("statuses") List<StatusProject> statuses, 
+                @Param("startDate") OffsetDateTime startDate, 
+                @Param("endDate") OffsetDateTime endDate
+        );
+
+        // Para el referencial de GNOs: Cuántas GNOs distintas tienen proyectos activos
+        @Query("""
+                SELECT COUNT(DISTINCT p.gno.id) 
+                FROM Project p 
+                WHERE p.status IN :statuses 
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long countDistinctGnosByProjectStatusesAndDateRange(
+                @Param("statuses") List<StatusProject> statuses, 
+                @Param("startDate") OffsetDateTime startDate, 
+                @Param("endDate") OffsetDateTime endDate
+        );
+
+        // Para el referencial de DEMANDA (WAITLISTED): Suma las plazas totales requeridas
+        @Query("""
+                SELECT COALESCE(SUM(p.requiredVolunteers), 0) 
+                FROM Project p 
+                WHERE p.status IN :statuses 
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long sumRequiredVolunteersByStatusesAndDateRange(
+                @Param("statuses") List<StatusProject> statuses, 
+                @Param("startDate") OffsetDateTime startDate, 
+                @Param("endDate") OffsetDateTime endDate
+        );
 }

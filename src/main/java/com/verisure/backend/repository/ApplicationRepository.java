@@ -3,6 +3,8 @@ package com.verisure.backend.repository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -79,4 +81,47 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
         @Param("endDate") OffsetDateTime endDate
     );
 
+    // Para la tarjeta VOLUNTARIOS ACTIVOS: Cuenta IDs de empleados únicos que estén aprobados VolunteersKpiResponseDTO
+    @Query("""
+        SELECT COUNT(DISTINCT a.employee.id) 
+        FROM Application a 
+        WHERE a.status IN :statuses 
+        AND a.createdAt BETWEEN :startDate AND :endDate
+    """)
+    Long countDistinctVolunteersByStatusesAndDateRange(
+        @Param("statuses") List<StatusApplication> statuses, 
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
+
+    // Cuenta el total de solicitudes exitosas (APPROVED o CLOSED), contar el "volumen bruto" de solicitudes exitosas para poder dividirlo entre los Likes y sacar el porcentaje de conversión. ConversionKpiResponseDTO
+    @Query("""
+        SELECT COUNT(a) 
+        FROM Application a 
+        WHERE a.status IN :statuses 
+        AND a.createdAt BETWEEN :startDate AND :endDate
+    """)
+    Long countApplicationsByStatusesAndDateRange(
+        @Param("statuses") List<StatusApplication> statuses, 
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
+
+    // Agrupa por el nombre del SDG, cuenta cuántas aplicaciones (APPROVED/CLOSED) tiene, y ordena para que el más popular quede primero.
+    @Query("""
+        SELECT s.name 
+        FROM Application a 
+        JOIN a.project p 
+        JOIN p.sdgs s 
+        WHERE a.status IN :statuses 
+        AND a.createdAt BETWEEN :startDate AND :endDate 
+        GROUP BY s.name 
+        ORDER BY COUNT(a.id) DESC
+        LIMIT 1
+    """)
+    Optional<String> findTopSdgNameByStatusesAndDateRange(
+        @Param("statuses") List<StatusApplication> statuses, 
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
 }
