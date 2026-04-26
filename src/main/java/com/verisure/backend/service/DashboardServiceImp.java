@@ -6,13 +6,12 @@ import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
-
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.ConversionKpiResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
 import com.verisure.backend.dto.response.HoursKpiResponseDTO;
+import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 import com.verisure.backend.dto.response.ProjectsKpiResponseDTO;
 import com.verisure.backend.dto.response.TopCategoryKpiResponseDTO;
 import com.verisure.backend.dto.response.VolunteersKpiResponseDTO;
@@ -35,7 +34,8 @@ public class DashboardServiceImp implements DashboardService {
     private final UserFavoriteRepository userFavoriteRepository;
 
     public DashboardServiceImp(ProjectRepository projectRepository, ApplicationRepository applicationRepository,
-            ParticipationRecordRepository participationRecordRepository, EmployeeProfileRepository employeeProfileRepository,
+            ParticipationRecordRepository participationRecordRepository,
+            EmployeeProfileRepository employeeProfileRepository,
             UserFavoriteRepository userFavoriteRepository) {
         this.projectRepository = projectRepository;
         this.applicationRepository = applicationRepository;
@@ -53,16 +53,36 @@ public class DashboardServiceImp implements DashboardService {
     }
 
     @Override
-    public List<CategoryCountResponseDTO> getApplicationsByCategory(Integer year, Integer month) {
+    public ParticipationFunnelResponseDTO getParticipationFunnel(Integer year, Integer month) {
+        OffsetDateTime[] range = calculateDateRange(year, month);
 
-        OffsetDateTime[] dateRange = calculateDateRange(year, month);
-        List<Object[]> rawData = applicationRepository.countApplicationsByCategoryRaw(dateRange[0], dateRange[1]);
-        return mapToCategoryCountDTOs(rawData);
+        long enrolled = applicationRepository.countApplicationsByStatusesAndDateRange(
+                List.of(StatusApplication.APPROVED, StatusApplication.CLOSED),
+                range[0], range[1]);
+
+        long waitlist = applicationRepository.countApplicationsByStatusesAndDateRange(
+                List.of(StatusApplication.WAITLISTED),
+                range[0], range[1]);
+
+        long likes = userFavoriteRepository.countFavoritesByDateRange(range[0], range[1]);
+
+        return new ParticipationFunnelResponseDTO(enrolled, waitlist, likes);
     }
+
+    // @Override
+    // public List<CategoryCountResponseDTO> getApplicationsByCategory(Integer year,
+    // Integer month) {
+
+    // OffsetDateTime[] dateRange = calculateDateRange(year, month);
+    // List<Object[]> rawData =
+    // applicationRepository.countApplicationsByCategoryRaw(dateRange[0],
+    // dateRange[1]);
+    // return mapToCategoryCountDTOs(rawData);
+    // }
 
     @Override
     public DashboardKpiResponseDTO getKpiDashboard(Integer year, Integer month) {
-        
+
         OffsetDateTime[] currentRange = calculateDateRange(year, month);
         OffsetDateTime startDate = currentRange[0];
         OffsetDateTime endDate = currentRange[1];
@@ -71,7 +91,7 @@ public class DashboardServiceImp implements DashboardService {
         OffsetDateTime lastYearEnd = endDate.minusYears(1);
 
         List<StatusApplication> activeAppStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
-        List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED); 
+        List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED);
 
         BigDecimal currentHoursBd = participationRecordRepository.sumTotalHoursByDateRange(startDate, endDate);
         BigDecimal lastYearHoursBd = participationRecordRepository.sumTotalHoursByDateRange(lastYearStart, lastYearEnd);
@@ -79,43 +99,41 @@ public class DashboardServiceImp implements DashboardService {
         long lastYearHours = lastYearHoursBd.longValue();
         String yoyTrend = calculateYoY(currentHours, lastYearHours);
 
-        
-        long activeVolunteers = applicationRepository.countDistinctVolunteersByStatusesAndDateRange(activeAppStatuses, startDate, endDate);
-        long totalEmployees = employeeProfileRepository.count(); // ¡Gracias Spring Data!
+        long activeVolunteers = applicationRepository.countDistinctVolunteersByStatusesAndDateRange(activeAppStatuses,
+                startDate, endDate);
+        long totalEmployees = employeeProfileRepository.count();
         String workforcePct = calculatePercentage(activeVolunteers, totalEmployees) + "% de la plantilla elegible";
 
-        
-        String topCategoryName = applicationRepository.findTopSdgNameByStatusesAndDateRange(activeAppStatuses, startDate, endDate)
+        String topCategoryName = applicationRepository
+                .findTopSdgNameByStatusesAndDateRange(activeAppStatuses, startDate, endDate)
                 .orElse("Sin datos suficientes");
 
-        
-        long activeProjects = projectRepository.countProjectsByStatusesAndDateRange(activeProjStatuses, startDate, endDate);
-        long collaboratingGnos = projectRepository.countDistinctGnosByProjectStatusesAndDateRange(activeProjStatuses, startDate, endDate);
+        long activeProjects = projectRepository.countProjectsByStatusesAndDateRange(activeProjStatuses, startDate,
+                endDate);
+        long collaboratingGnos = projectRepository.countDistinctGnosByProjectStatusesAndDateRange(activeProjStatuses,
+                startDate, endDate);
         String gnosText = collaboratingGnos + " GNOs colaboradoras";
 
-        
         long likes = userFavoriteRepository.countFavoritesByDateRange(startDate, endDate);
-        long enrolled = applicationRepository.countApplicationsByStatusesAndDateRange(activeAppStatuses, startDate, endDate);
+        long enrolled = applicationRepository.countApplicationsByStatusesAndDateRange(activeAppStatuses, startDate,
+                endDate);
         String conversionRate = "Tasa de conversión " + calculatePercentage(enrolled, likes) + "%";
 
-        long waitlisted = applicationRepository.countApplicationsByStatusesAndDateRange(List.of(StatusApplication.WAITLISTED), startDate, endDate);
-        long requiredPlazas = projectRepository.sumRequiredVolunteersByStatusesAndDateRange(activeProjStatuses, startDate, endDate);
-        String demandText = "Demanda no cubierta — +" + calculatePercentage(waitlisted, requiredPlazas) + "% sobre plazas";
+        long waitlisted = applicationRepository
+                .countApplicationsByStatusesAndDateRange(List.of(StatusApplication.WAITLISTED), startDate, endDate);
+        long requiredPlazas = projectRepository.sumRequiredVolunteersByStatusesAndDateRange(activeProjStatuses,
+                startDate, endDate);
+        String demandText = "Demanda no cubierta — +" + calculatePercentage(waitlisted, requiredPlazas)
+                + "% sobre plazas";
 
-
-        
         return new DashboardKpiResponseDTO(
                 new HoursKpiResponseDTO(currentHours, yoyTrend),
                 new VolunteersKpiResponseDTO(activeVolunteers, workforcePct),
                 new TopCategoryKpiResponseDTO(topCategoryName),
                 new ProjectsKpiResponseDTO(activeProjects, gnosText),
                 new ConversionKpiResponseDTO(likes, enrolled, conversionRate),
-                new WaitlistKpiResponseDTO(waitlisted, demandText)
-        );
+                new WaitlistKpiResponseDTO(waitlisted, demandText));
     }
-
-
-
 
     private List<CategoryCountResponseDTO> mapToCategoryCountDTOs(List<Object[]> rawData) {
         List<CategoryCountResponseDTO> responseList = new ArrayList<>();
@@ -131,7 +149,7 @@ public class DashboardServiceImp implements DashboardService {
     }
 
     private OffsetDateTime[] calculateDateRange(Integer year, Integer month) {
-        
+
         OffsetDateTime startDate;
         OffsetDateTime endDate;
 
@@ -176,7 +194,7 @@ public class DashboardServiceImp implements DashboardService {
     private OffsetDateTime[] applyTodayRestriction(OffsetDateTime start, OffsetDateTime end) {
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
         OffsetDateTime finalEndDate = end.isAfter(now) ? now : end;
-        
+
         return new OffsetDateTime[] { start, finalEndDate };
     }
 
@@ -186,7 +204,7 @@ public class DashboardServiceImp implements DashboardService {
         }
         long diff = current - previous;
         long percentage = (diff * 100) / previous;
-        
+
         String sign = percentage > 0 ? "+" : "";
         return sign + percentage + "% YoY";
     }

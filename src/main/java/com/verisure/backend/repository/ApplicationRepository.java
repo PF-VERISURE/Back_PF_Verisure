@@ -66,20 +66,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     """)
     Optional<Application> findNextInWaitlist(@Param("projectId") Long projectId, @Param("status") StatusApplication status);
 
-    //query para obtener la cantidad de aplicaciones por categoria del SDG
-    // para la grafica del DONUT numero 2
-    @Query("""
-        SELECT s.name, COUNT(a.id)
-        FROM Application a
-        JOIN a.project p
-        JOIN p.sdgs s
-        WHERE a.createdAt BETWEEN :startDate AND :endDate
-        GROUP BY s.name
-    """)
-    List<Object[]> countApplicationsByCategoryRaw(
-        @Param("startDate") OffsetDateTime startDate, 
-        @Param("endDate") OffsetDateTime endDate
-    );
+    //query para obtener la cantidad de aplicaciones por categoria del SDG para la grafica del DONUT numero 2 ANTIGUO
+    // @Query("""
+    //     SELECT s.name, COUNT(a.id)
+    //     FROM Application a
+    //     JOIN a.project p
+    //     JOIN p.sdgs s
+    //     WHERE a.createdAt BETWEEN :startDate AND :endDate
+    //     GROUP BY s.name
+    // """)
+    // List<Object[]> countApplicationsByCategoryRaw(
+    //     @Param("startDate") OffsetDateTime startDate, 
+    //     @Param("endDate") OffsetDateTime endDate
+    // );
 
     // Para la tarjeta VOLUNTARIOS ACTIVOS: Cuenta IDs de empleados únicos que estén aprobados VolunteersKpiResponseDTO
     @Query("""
