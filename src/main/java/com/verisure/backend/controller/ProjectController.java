@@ -4,6 +4,7 @@ import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
 import com.verisure.backend.dto.response.ProjectResponseDTO;
+import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.ProjectService;
 import jakarta.validation.Valid;
@@ -74,8 +75,12 @@ public class ProjectController {
     }
 
     @GetMapping("/published")
-    public ResponseEntity<ProjectListResponseDTO> getAllPublished() {
-        return new ResponseEntity<>(projectService.getAllPublished(), HttpStatus.OK);
+    public ResponseEntity<ProjectListResponseDTO> getAllPublished(
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) LocationType locationType,
+            @RequestParam(required = false) String title) {
+        ProjectListResponseDTO response = projectService.getAllPublished(city, locationType, title);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}/status")

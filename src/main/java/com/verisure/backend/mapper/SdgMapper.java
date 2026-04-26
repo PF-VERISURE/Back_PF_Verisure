@@ -8,7 +8,7 @@ import com.verisure.backend.dto.response.SdgResponseDTO;
 @Mapper(componentModel = "spring")
 public interface SdgMapper {
 
-    SdgResponseDTO toSdgResponse(Sdg sdg);
+    SdgResponseDTO toSdgResponseDTO(Sdg sdg);
 
     List<SdgResponseDTO> toSdgListResponse(List<Sdg> sdgs);
 
