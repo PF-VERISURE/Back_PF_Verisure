@@ -37,7 +37,7 @@ public class UserFavorite {
   private Project project;
   
   // @CreationTimestamp
-  @Column(nullable = false, updatable = false)
+  @Column(nullable = false)
   private OffsetDateTime createdAt;
   
 
