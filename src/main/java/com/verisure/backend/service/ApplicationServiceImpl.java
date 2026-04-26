@@ -44,11 +44,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         this.applicationMapper = applicationMapper;
     }
 
-    // ==========================================
-    // ADMIN
-    // ==========================================
-
-    // ver todas las inscripciones orderby desc
     @Override
     @Transactional(readOnly = true)
     public AdminApplicationListResponseDTO getAllApplications() {
@@ -57,11 +52,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new AdminApplicationListResponseDTO(listApplications, listApplications.size());
     }
 
-    // ==========================================
-    // EMPLOYEE
-    // ==========================================
 
-    // inscribirse a un proyecto
     @Override
     @Transactional
     public EmployeeApplicationResponseDTO applyToProject(ApplicationRequestDTO request, Long userId) {
@@ -100,7 +91,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return applicationMapper.toEmployeeResponse(saved);
     }
 
-    // cancelar inscripción
     @Override
     @Transactional
     public void cancelApplication(Long applicationId, Long userId) {
@@ -129,23 +119,13 @@ public class ApplicationServiceImpl implements ApplicationService {
                         nextInLine.setStatus(StatusApplication.APPROVED);
                         applicationRepository.save(nextInLine);
 
-                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent
-                        // Events.NO MVP
+                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent Events. NO MVP
                         System.out.println("✅ Promoción FIFO ejecutada: El empleado ID " +
                                 nextInLine.getEmployee().getEmployeeId() + " ha conseguido plaza.");
                     });
         }
     }
 
-    // ver sus inscripciones
-    // @Override
-    // @Transactional(readOnly = true)
-    // public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
-    //     EmployeeProfile employee = getEmployeeByUserId(userId);
-    //     List<Application> applications = applicationRepository.findEmployeeHistory(employee.getId());
-    //     List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
-    //     return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
-    // }
     @Override
     @Transactional(readOnly = true)
     public EmployeeApplicationListResponseDTO getMyApplications(Long userId) {
@@ -154,12 +134,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
         return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
-
-    // ==========================================
-    // AUTOMATIZACIÓN
-    // ==========================================
-
-    // cronjob para finalizar proyectos de todo los estados
+    
     @Override
     @Transactional
     public Integer completeApplication(Long projectId) {
@@ -194,7 +169,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return closedCount;
     }
 
-    // metodos privados para DRY
 
     private EmployeeProfile getEmployeeByUserId(Long userId) {
         return employeeProfileRepository.findByUserId(userId)
