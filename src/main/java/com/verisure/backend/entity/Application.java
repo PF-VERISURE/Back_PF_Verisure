@@ -48,7 +48,7 @@ public class Application {
   private StatusApplication status;
 
   // @CreationTimestamp
-  @Column(nullable = false, updatable = false)
+  @Column(nullable = false)
   private OffsetDateTime createdAt;
 
   // @UpdateTimestamp
