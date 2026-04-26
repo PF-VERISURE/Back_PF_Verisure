@@ -15,6 +15,6 @@ public interface ApplicationService {
 
     EmployeeApplicationListResponseDTO getMyApplications(Long userId);
 
-    int completeApplication(Long applicationId);
+    Integer completeApplication(Long applicationId);
 
 }

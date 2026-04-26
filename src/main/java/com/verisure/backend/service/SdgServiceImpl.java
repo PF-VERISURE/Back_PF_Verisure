@@ -2,6 +2,7 @@ package com.verisure.backend.service;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.verisure.backend.dto.response.SdgListResponseDTO;
 import com.verisure.backend.dto.response.SdgResponseDTO;
 import com.verisure.backend.entity.Sdg;
@@ -21,13 +22,14 @@ public class SdgServiceImpl implements SdgService {
     }   
 
     @Override
+    @Transactional(readOnly = true)
     public SdgResponseDTO getById(Integer id) {
         return sdgRepository.findById(id)
-                .map(sdg -> new SdgResponseDTO(sdg.getId(), sdg.getName()))
+                .map(sdgMapper::toSdgResponseDTO)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró el ODS con el ID: " + id));
     }
-
     @Override
+    @Transactional(readOnly = true)
     public SdgListResponseDTO getAllSdgs() {
         List<Sdg> sdgs = sdgRepository.findAll();
         List<SdgResponseDTO> sdgsList = sdgMapper.toSdgListResponse(sdgs);
