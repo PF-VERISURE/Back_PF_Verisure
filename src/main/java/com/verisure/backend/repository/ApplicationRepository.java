@@ -3,8 +3,6 @@ package com.verisure.backend.repository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -106,7 +104,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
         @Param("endDate") OffsetDateTime endDate
     );
 
-    // NUEVO: Cuenta voluntarios únicos basados en la fecha en la que terminó el proyecto
+    // Cuenta voluntarios únicos basados en la fecha en la que terminó el proyecto
     @Query("""
         SELECT COUNT(DISTINCT a.employee) 
         FROM Application a 
@@ -136,4 +134,24 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
         @Param("startDate") OffsetDateTime startDate, 
         @Param("endDate") OffsetDateTime endDate
     );
+
+    // Agrupa por ONG, suma horas registradas y voluntarios únicos para el gráfico de contribución por ONG GnoContributionResponseDTO
+    @Query("""
+        SELECT p.gno.organizationName, 
+               COALESCE(SUM(pr.loggedHours), 0), 
+               COUNT(DISTINCT a.employee)
+        FROM Application a
+        LEFT JOIN a.participationRecord pr
+        JOIN a.project p
+        WHERE a.status IN :statuses
+        AND p.endDate BETWEEN :startDate AND :endDate
+        GROUP BY p.gno.organizationName
+        ORDER BY COALESCE(SUM(pr.loggedHours), 0) DESC
+    """)
+    List<Object[]> getGnoContributionsRaw(
+            @Param("statuses") List<StatusApplication> statuses,
+            @Param("startDate") OffsetDateTime startDate,
+            @Param("endDate") OffsetDateTime endDate
+    );
+
 }

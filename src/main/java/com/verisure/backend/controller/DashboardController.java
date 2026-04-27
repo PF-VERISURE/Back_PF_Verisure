@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
+import com.verisure.backend.dto.response.GnoContributionResponseDTO;
 import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 import com.verisure.backend.dto.response.YearlyComparisonResponseDTO;
@@ -72,6 +73,14 @@ public class DashboardController {
     public ResponseEntity<List<YearlyComparisonResponseDTO>> getYearlyComparison(
             @RequestParam(required = false) Integer year) {
         List<YearlyComparisonResponseDTO> response = dashboardService.getYearlyComparison(year);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/gnocontributions")
+    public ResponseEntity<List<GnoContributionResponseDTO>> getGnoContributions(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
+        List<GnoContributionResponseDTO> response = dashboardService.getGnoContributions(year, month);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

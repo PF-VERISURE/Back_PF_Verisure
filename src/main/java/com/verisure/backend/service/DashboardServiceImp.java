@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.ConversionKpiResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
+import com.verisure.backend.dto.response.GnoContributionResponseDTO;
 import com.verisure.backend.dto.response.HoursKpiResponseDTO;
 import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
@@ -152,6 +153,25 @@ public class DashboardServiceImp implements DashboardService {
         }
 
         return comparison;
+    }
+
+    @Override
+    public List<GnoContributionResponseDTO> getGnoContributions(Integer year, Integer month) {
+        OffsetDateTime[] range = calculateDateRange(year, month);
+        List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
+
+        List<Object[]> rawData = applicationRepository.getGnoContributionsRaw(activeStatuses, range[0], range[1]);
+        
+        List<GnoContributionResponseDTO> result = new ArrayList<>();
+        for (Object[] row : rawData) {
+            String gnoName = (String) row[0];
+            Long hours = ((Number) row[1]).longValue();
+            Long volunteers = ((Number) row[2]).longValue();
+            
+            result.add(new GnoContributionResponseDTO(gnoName, hours, volunteers));
+        }
+        
+        return result;
     }
 
 
