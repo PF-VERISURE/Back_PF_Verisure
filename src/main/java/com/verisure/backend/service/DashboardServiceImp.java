@@ -11,6 +11,7 @@ import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.ConversionKpiResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
 import com.verisure.backend.dto.response.HoursKpiResponseDTO;
+import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 import com.verisure.backend.dto.response.ProjectsKpiResponseDTO;
 import com.verisure.backend.dto.response.TopCategoryKpiResponseDTO;
@@ -82,70 +83,138 @@ public class DashboardServiceImp implements DashboardService {
 
     @Override
     public DashboardKpiResponseDTO getKpiDashboard(Integer year, Integer month) {
-
         OffsetDateTime[] currentRange = calculateDateRange(year, month);
         OffsetDateTime startDate = currentRange[0];
         OffsetDateTime endDate = currentRange[1];
 
-        OffsetDateTime lastYearStart = startDate.minusYears(1);
-        OffsetDateTime lastYearEnd = endDate.minusYears(1);
-
         List<StatusApplication> activeAppStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
         List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED);
 
+        return new DashboardKpiResponseDTO(
+                buildHoursKpi(startDate, endDate),
+                buildVolunteersKpi(activeAppStatuses, startDate, endDate),
+                buildTopCategoryKpi(activeAppStatuses, startDate, endDate),
+                buildProjectsKpi(activeProjStatuses, startDate, endDate),
+                buildConversionKpi(activeAppStatuses, startDate, endDate),
+                buildWaitlistKpi(activeProjStatuses, startDate, endDate));
+    }
+
+    @Override
+    public List<MonthlyEvolutionResponseDTO> getMonthlyEvolution(Integer year) {
+
+        int targetYear = (year != null) ? year : OffsetDateTime.now(ZoneOffset.UTC).getYear();
+
+        List<MonthlyEvolutionResponseDTO> evolution = new ArrayList<>();
+        List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
+        String[] monthNames = { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
+
+        for (int i = 1; i <= 12; i++) {
+            OffsetDateTime[] range = calculateDateRange(targetYear, i);
+            OffsetDateTime startOfMonth = range[0];
+            OffsetDateTime endOfMonth = range[1];
+
+            BigDecimal hoursBd = participationRecordRepository.sumTotalHoursByProjectEndDate(startOfMonth, endOfMonth);
+            long hours = hoursBd.longValue();
+
+            long volunteers = applicationRepository.countDistinctVolunteersByProjectEndDate(
+                    activeStatuses, startOfMonth, endOfMonth);
+
+            evolution.add(new MonthlyEvolutionResponseDTO(monthNames[i - 1], hours, volunteers));
+        }
+        return evolution;
+    }
+
+    private HoursKpiResponseDTO buildHoursKpi(OffsetDateTime startDate, OffsetDateTime endDate) {
+        OffsetDateTime lastYearStart = startDate.minusYears(1);
+        OffsetDateTime lastYearEnd = endDate.minusYears(1);
+
         BigDecimal currentHoursBd = participationRecordRepository.sumTotalHoursByDateRange(startDate, endDate);
         BigDecimal lastYearHoursBd = participationRecordRepository.sumTotalHoursByDateRange(lastYearStart, lastYearEnd);
+
         long currentHours = currentHoursBd.longValue();
         long lastYearHours = lastYearHoursBd.longValue();
         String yoyTrend = calculateYoY(currentHours, lastYearHours);
 
-        long activeVolunteers = applicationRepository.countDistinctVolunteersByStatusesAndDateRange(activeAppStatuses,
-                startDate, endDate);
+        return new HoursKpiResponseDTO(currentHours, yoyTrend);
+    }
+
+    private VolunteersKpiResponseDTO buildVolunteersKpi(List<StatusApplication> statuses, OffsetDateTime startDate,
+            OffsetDateTime endDate) {
+        long activeVolunteers = applicationRepository.countDistinctVolunteersByStatusesAndDateRange(statuses, startDate,
+                endDate);
         long totalEmployees = employeeProfileRepository.count();
         String workforcePct = calculatePercentage(activeVolunteers, totalEmployees) + "% de la plantilla elegible";
 
+        return new VolunteersKpiResponseDTO(activeVolunteers, workforcePct);
+    }
+
+    private TopCategoryKpiResponseDTO buildTopCategoryKpi(List<StatusApplication> statuses, OffsetDateTime startDate,
+            OffsetDateTime endDate) {
         String topCategoryName = applicationRepository
-                .findTopSdgNameByStatusesAndDateRange(activeAppStatuses, startDate, endDate)
+                .findTopSdgNameByStatusesAndDateRange(statuses, startDate, endDate)
                 .orElse("Sin datos suficientes");
 
-        long activeProjects = projectRepository.countProjectsByStatusesAndDateRange(activeProjStatuses, startDate,
+        return new TopCategoryKpiResponseDTO(topCategoryName);
+    }
+
+    private ProjectsKpiResponseDTO buildProjectsKpi(List<StatusProject> statuses, OffsetDateTime startDate,
+            OffsetDateTime endDate) {
+        long activeProjects = projectRepository.countProjectsByStatusesAndDateRange(statuses, startDate, endDate);
+        long collaboratingGnos = projectRepository.countDistinctGnosByProjectStatusesAndDateRange(statuses, startDate,
                 endDate);
-        long collaboratingGnos = projectRepository.countDistinctGnosByProjectStatusesAndDateRange(activeProjStatuses,
-                startDate, endDate);
         String gnosText = collaboratingGnos + " GNOs colaboradoras";
 
+        return new ProjectsKpiResponseDTO(activeProjects, gnosText);
+    }
+
+    private ConversionKpiResponseDTO buildConversionKpi(List<StatusApplication> statuses, OffsetDateTime startDate,
+            OffsetDateTime endDate) {
         long likes = userFavoriteRepository.countFavoritesByDateRange(startDate, endDate);
-        long enrolled = applicationRepository.countApplicationsByStatusesAndDateRange(activeAppStatuses, startDate,
-                endDate);
+        long enrolled = applicationRepository.countApplicationsByStatusesAndDateRange(statuses, startDate, endDate);
         String conversionRate = "Tasa de conversión " + calculatePercentage(enrolled, likes) + "%";
 
+        return new ConversionKpiResponseDTO(likes, enrolled, conversionRate);
+    }
+
+    private WaitlistKpiResponseDTO buildWaitlistKpi(List<StatusProject> projStatuses, OffsetDateTime startDate,
+            OffsetDateTime endDate) {
         long waitlisted = applicationRepository
                 .countApplicationsByStatusesAndDateRange(List.of(StatusApplication.WAITLISTED), startDate, endDate);
-        long requiredPlazas = projectRepository.sumRequiredVolunteersByStatusesAndDateRange(activeProjStatuses,
-                startDate, endDate);
+        long requiredPlazas = projectRepository.sumRequiredVolunteersByStatusesAndDateRange(projStatuses, startDate,
+                endDate);
         String demandText = "Demanda no cubierta — +" + calculatePercentage(waitlisted, requiredPlazas)
                 + "% sobre plazas";
 
-        return new DashboardKpiResponseDTO(
-                new HoursKpiResponseDTO(currentHours, yoyTrend),
-                new VolunteersKpiResponseDTO(activeVolunteers, workforcePct),
-                new TopCategoryKpiResponseDTO(topCategoryName),
-                new ProjectsKpiResponseDTO(activeProjects, gnosText),
-                new ConversionKpiResponseDTO(likes, enrolled, conversionRate),
-                new WaitlistKpiResponseDTO(waitlisted, demandText));
+        return new WaitlistKpiResponseDTO(waitlisted, demandText);
     }
 
     private List<CategoryCountResponseDTO> mapToCategoryCountDTOs(List<Object[]> rawData) {
         List<CategoryCountResponseDTO> responseList = new ArrayList<>();
-
         for (Object[] row : rawData) {
             String categoryName = (String) row[0];
             Long count = ((Number) row[1]).longValue();
 
             responseList.add(new CategoryCountResponseDTO(categoryName, count));
         }
-
         return responseList;
+    }
+
+    private String calculateYoY(long current, long previous) {
+        if (previous == 0) {
+            return current > 0 ? "+100% YoY" : "0% YoY";
+        }
+        long diff = current - previous;
+        long percentage = (diff * 100) / previous;
+
+        String sign = percentage > 0 ? "+" : "";
+        return sign + percentage + "% YoY";
+    }
+
+    private long calculatePercentage(long part, long total) {
+        if (total == 0) {
+            return 0;
+        }
+        return (part * 100) / total;
     }
 
     private OffsetDateTime[] calculateDateRange(Integer year, Integer month) {
@@ -196,24 +265,6 @@ public class DashboardServiceImp implements DashboardService {
         OffsetDateTime finalEndDate = end.isAfter(now) ? now : end;
 
         return new OffsetDateTime[] { start, finalEndDate };
-    }
-
-    private String calculateYoY(long current, long previous) {
-        if (previous == 0) {
-            return current > 0 ? "+100% YoY" : "0% YoY";
-        }
-        long diff = current - previous;
-        long percentage = (diff * 100) / previous;
-
-        String sign = percentage > 0 ? "+" : "";
-        return sign + percentage + "% YoY";
-    }
-
-    private long calculatePercentage(long part, long total) {
-        if (total == 0) {
-            return 0;
-        }
-        return (part * 100) / total;
     }
 
 }
