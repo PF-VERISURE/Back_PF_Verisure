@@ -17,6 +17,7 @@ import com.verisure.backend.dto.response.ProjectsKpiResponseDTO;
 import com.verisure.backend.dto.response.TopCategoryKpiResponseDTO;
 import com.verisure.backend.dto.response.VolunteersKpiResponseDTO;
 import com.verisure.backend.dto.response.WaitlistKpiResponseDTO;
+import com.verisure.backend.dto.response.YearlyComparisonResponseDTO;
 import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
 import com.verisure.backend.repository.ApplicationRepository;
@@ -123,6 +124,37 @@ public class DashboardServiceImp implements DashboardService {
         }
         return evolution;
     }
+
+    @Override
+    public List<YearlyComparisonResponseDTO> getYearlyComparison(Integer year) {
+        int targetYear = (year != null) ? year : OffsetDateTime.now(ZoneOffset.UTC).getYear();
+        
+        List<YearlyComparisonResponseDTO> comparison = new ArrayList<>();
+        List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
+        List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED);
+
+        for (int y = targetYear - 4; y <= targetYear; y++) {
+            
+            OffsetDateTime startOfYear = getYearStartDate(y);
+            OffsetDateTime endOfYear = getYearEndDate(y);
+            OffsetDateTime[] range = applyTodayRestriction(startOfYear, endOfYear);
+            OffsetDateTime start = range[0];
+            OffsetDateTime end = range[1];
+
+            BigDecimal hoursBd = participationRecordRepository.sumTotalHoursByProjectEndDate(start, end);
+            long hours = hoursBd.longValue();
+
+            long volunteers = applicationRepository.countDistinctVolunteersByProjectEndDate(activeStatuses, start, end);
+
+            long projects = projectRepository.countProjectsByEndDate(activeProjStatuses, start, end);
+
+            comparison.add(new YearlyComparisonResponseDTO(y, hours, volunteers, projects));
+        }
+
+        return comparison;
+    }
+
+
 
     private HoursKpiResponseDTO buildHoursKpi(OffsetDateTime startDate, OffsetDateTime endDate) {
         OffsetDateTime lastYearStart = startDate.minusYears(1);

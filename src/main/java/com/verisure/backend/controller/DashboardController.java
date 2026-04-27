@@ -11,6 +11,7 @@ import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
 import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
+import com.verisure.backend.dto.response.YearlyComparisonResponseDTO;
 import com.verisure.backend.service.DashboardService;
 
 @RestController
@@ -48,21 +49,29 @@ public class DashboardController {
     public ResponseEntity<ParticipationFunnelResponseDTO> getParticipationFunnel(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-        return ResponseEntity.ok(dashboardService.getParticipationFunnel(year, month));
+        ParticipationFunnelResponseDTO response = dashboardService.getParticipationFunnel(year, month);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/kpis")
     public ResponseEntity<DashboardKpiResponseDTO> getKpisDashboard(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-        DashboardKpiResponseDTO kpiData = dashboardService.getKpiDashboard(year, month);
-        return ResponseEntity.ok(kpiData);
+        DashboardKpiResponseDTO response = dashboardService.getKpiDashboard(year, month);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/monthlyevolution")
     public ResponseEntity<List<MonthlyEvolutionResponseDTO>> getMonthlyEvolution(
             @RequestParam(required = false) Integer year) {
-        return ResponseEntity.ok(dashboardService.getMonthlyEvolution(year));
+        List<MonthlyEvolutionResponseDTO> response = dashboardService.getMonthlyEvolution(year);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/yearlycomparison")
+    public ResponseEntity<List<YearlyComparisonResponseDTO>> getYearlyComparison(
+            @RequestParam(required = false) Integer year) {
+        List<YearlyComparisonResponseDTO> response = dashboardService.getYearlyComparison(year);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
