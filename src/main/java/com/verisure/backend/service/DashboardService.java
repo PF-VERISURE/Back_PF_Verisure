@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
+import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 
 public interface DashboardService {
@@ -15,4 +16,6 @@ public interface DashboardService {
     DashboardKpiResponseDTO getKpiDashboard(Integer year, Integer month);
 
     ParticipationFunnelResponseDTO getParticipationFunnel(Integer year, Integer month);
+
+    List<MonthlyEvolutionResponseDTO> getMonthlyEvolution(Integer year);
 }

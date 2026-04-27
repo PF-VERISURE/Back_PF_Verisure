@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
+import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 import com.verisure.backend.service.DashboardService;
 
@@ -57,4 +58,11 @@ public class DashboardController {
         DashboardKpiResponseDTO kpiData = dashboardService.getKpiDashboard(year, month);
         return ResponseEntity.ok(kpiData);
     }
+
+    @GetMapping("/monthlyevolution")
+    public ResponseEntity<List<MonthlyEvolutionResponseDTO>> getMonthlyEvolution(
+            @RequestParam(required = false) Integer year) {
+        return ResponseEntity.ok(dashboardService.getMonthlyEvolution(year));
+    }
+
 }

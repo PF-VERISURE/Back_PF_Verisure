@@ -22,4 +22,15 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
         @Param("endDate") OffsetDateTime endDate
     );
 
+    // NUEVO: Suma de horas basadas en la fecha en la que terminó el proyecto
+    @Query("""
+        SELECT COALESCE(SUM(p.loggedHours), 0) 
+        FROM ParticipationRecord p 
+        WHERE p.application.project.endDate BETWEEN :startDate AND :endDate
+    """)
+    BigDecimal sumTotalHoursByProjectEndDate(
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
+
 }

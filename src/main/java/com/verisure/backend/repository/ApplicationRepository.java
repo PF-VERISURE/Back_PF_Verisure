@@ -106,6 +106,19 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
         @Param("endDate") OffsetDateTime endDate
     );
 
+    // NUEVO: Cuenta voluntarios únicos basados en la fecha en la que terminó el proyecto
+    @Query("""
+        SELECT COUNT(DISTINCT a.employee) 
+        FROM Application a 
+        WHERE a.status IN :statuses 
+        AND a.project.endDate BETWEEN :startDate AND :endDate
+    """)
+    Long countDistinctVolunteersByProjectEndDate(
+        @Param("statuses") List<StatusApplication> statuses, 
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
+
     // Agrupa por el nombre del SDG, cuenta cuántas aplicaciones (APPROVED/CLOSED) tiene, y ordena para que el más popular quede primero.
     @Query("""
         SELECT s.name 
