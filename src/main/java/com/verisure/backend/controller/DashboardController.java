@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
+import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
 import com.verisure.backend.service.DashboardService;
 
 @RestController
@@ -31,20 +32,28 @@ public class DashboardController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/applicationsbycategory")
-    public ResponseEntity<List<CategoryCountResponseDTO>> getApplicationsByCategory(
+    // @GetMapping("/applicationsbycategory")
+    // public ResponseEntity<List<CategoryCountResponseDTO>>
+    // getApplicationsByCategory(
+    // @RequestParam(required = false) Integer year,
+    // @RequestParam(required = false) Integer month) {
+
+    // List<CategoryCountResponseDTO> response =
+    // dashboardService.getApplicationsByCategory(year, month);
+    // return ResponseEntity.ok(response);
+    // }
+
+    @GetMapping("/participationfunnel")
+    public ResponseEntity<ParticipationFunnelResponseDTO> getParticipationFunnel(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month) {
-
-        List<CategoryCountResponseDTO> response = dashboardService.getApplicationsByCategory(year, month);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(dashboardService.getParticipationFunnel(year, month));
     }
 
     @GetMapping("/kpis")
-    public ResponseEntity<DashboardKpiResponseDTO> getDashboardKpis(
+    public ResponseEntity<DashboardKpiResponseDTO> getKpisDashboard(
             @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month
-    ) {
+            @RequestParam(required = false) Integer month) {
         DashboardKpiResponseDTO kpiData = dashboardService.getKpiDashboard(year, month);
         return ResponseEntity.ok(kpiData);
     }
