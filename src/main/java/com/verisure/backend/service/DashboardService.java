@@ -6,6 +6,7 @@ import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
 import com.verisure.backend.dto.response.MonthlyEvolutionResponseDTO;
 import com.verisure.backend.dto.response.ParticipationFunnelResponseDTO;
+import com.verisure.backend.dto.response.YearlyComparisonResponseDTO;
 
 public interface DashboardService {
 
@@ -18,4 +19,6 @@ public interface DashboardService {
     ParticipationFunnelResponseDTO getParticipationFunnel(Integer year, Integer month);
 
     List<MonthlyEvolutionResponseDTO> getMonthlyEvolution(Integer year);
+    
+    List<YearlyComparisonResponseDTO> getYearlyComparison(Integer year);
 }
