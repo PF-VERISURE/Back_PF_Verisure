@@ -2,6 +2,8 @@ package com.verisure.backend.repository;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +13,7 @@ import com.verisure.backend.entity.ParticipationRecord;
 @Repository
 public interface ParticipationRecordRepository extends JpaRepository<ParticipationRecord, Long> {
 
-    //query para obtener el total de horas participadas en un rango de fechas:
+    // obtener el total de horas participadas en un rango de fechas:
     @Query("""
         SELECT COALESCE(SUM(p.loggedHours), 0) 
         FROM ParticipationRecord p 
@@ -22,7 +24,7 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
         @Param("endDate") OffsetDateTime endDate
     );
 
-    // NUEVO: Suma de horas basadas en la fecha en la que terminó el proyecto
+    // suma de horas basadas en la fecha en la que terminó el proyecto
     @Query("""
         SELECT COALESCE(SUM(p.loggedHours), 0) 
         FROM ParticipationRecord p 
@@ -32,5 +34,41 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
         @Param("startDate") OffsetDateTime startDate, 
         @Param("endDate") OffsetDateTime endDate
     );
+
+    // obtener un certificado por id
+    @Query("""
+        SELECT pr.id,
+               a.employee.firstName, 
+               a.employee.lastName,
+               p.title,
+               p.gno.organizationName,
+               pr.loggedHours,
+               p.endDate,
+               s.name
+        FROM ParticipationRecord pr
+        JOIN pr.application a
+        JOIN a.project p
+        LEFT JOIN p.sdgs s
+        WHERE pr.id = :participationId AND a.employee.user.id = :userId
+    """)
+    List<Object[]> findRawCertificateById(@Param("participationId") Long participationId, @Param("userId") Long userId);
+
+    // obtener todos los certificados de un usuario
+    @Query("""
+        SELECT pr.id,
+               a.employee.firstName, 
+               a.employee.lastName,
+               p.title,
+               p.gno.organizationName,
+               pr.loggedHours,
+               p.endDate,
+               s.name
+        FROM ParticipationRecord pr
+        JOIN pr.application a
+        JOIN a.project p
+        LEFT JOIN p.sdgs s
+        WHERE a.employee.user.id = :userId
+    """)
+    List<Object[]> findRawCertificatesByUserId(@Param("userId") Long userId);
 
 }
