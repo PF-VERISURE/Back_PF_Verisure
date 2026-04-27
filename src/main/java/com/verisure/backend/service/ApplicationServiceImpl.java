@@ -141,7 +141,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<Application> applications = applicationRepository.findByProjectId(projectId);
 
         int closedCount = 0;
-        int rejectedCount = 0; //no para MVP ni Sprint 3
 
         for (Application app : applications) {
             switch (app.getStatus()) {
@@ -154,7 +153,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 case WAITLISTED:
                 case PENDING:
                     app.setStatus(StatusApplication.REJECTED);
-                    rejectedCount++;
                     break;
 
                 case CANCELED:
