@@ -1,5 +1,7 @@
 package com.verisure.backend.service;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -73,7 +75,8 @@ public class GnoProfileServiceImpl implements GnoProfileService {
         GnoProfile profile = gnoProfileRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la ONG con el ID: " + id));
         User user = profile.getUser();
-        userRepository.delete(user);
+        user.setDeletedAt(OffsetDateTime.now(ZoneOffset.UTC));
+        userRepository.save(user);
     }
 
     

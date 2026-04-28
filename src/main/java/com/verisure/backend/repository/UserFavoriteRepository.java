@@ -1,13 +1,24 @@
 package com.verisure.backend.repository;
 
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 import com.verisure.backend.entity.UserFavorite;
 
 public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long>{
 
     Optional<UserFavorite> findByUserIdAndProjectId(Long userId, Long projectId);
-    
-    // Cuenta el total de "Likes" o interesados
-    long countByProjectId(Long projectId);
+  
+    @Query("""
+        SELECT COUNT(u) 
+        FROM UserFavorite u 
+        WHERE u.createdAt BETWEEN :startDate AND :endDate
+    """)
+    Long countFavoritesByDateRange(
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
 }

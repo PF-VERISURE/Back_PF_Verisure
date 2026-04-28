@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.verisure.backend.dto.request.ApplicationRequestDTO;
 import com.verisure.backend.dto.response.AdminApplicationListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationListResponseDTO;
 import com.verisure.backend.dto.response.EmployeeApplicationResponseDTO;
 import com.verisure.backend.security.AuthenticatedUser;
 import com.verisure.backend.service.ApplicationService;
-
 import jakarta.validation.Valid;
 
 @RestController
@@ -30,15 +28,12 @@ public class ApplicationController {
         this.applicationService = applicationService;
     }
 
-    // ADMIN endpoints.
-    
     @GetMapping("/all")
     public ResponseEntity<AdminApplicationListResponseDTO> getAllApplications(Authentication authentication) {
         AdminApplicationListResponseDTO response = applicationService.getAllApplications();
+        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }  
-    
-    // EMPLOYEE endpoints.
 
     @PostMapping
     public ResponseEntity<EmployeeApplicationResponseDTO> applyToProject(@Valid @RequestBody ApplicationRequestDTO request,

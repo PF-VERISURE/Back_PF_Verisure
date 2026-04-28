@@ -11,8 +11,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.verisure.backend.dto.request.LoginRequestDTO;
 import com.verisure.backend.dto.response.EmployeeLoginResponseDTO;
+import com.verisure.backend.dto.response.ErrorResponseDTO;
 import com.verisure.backend.dto.response.GnoLoginResponseDTO;
 import com.verisure.backend.dto.response.UserAuthResponseDTO;
 import com.verisure.backend.entity.User;
@@ -45,17 +48,30 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     credentials.password()
             );
             return customAuthenticationManager.authenticate(authentication);
-        } catch (Exception e) {
+        } catch (AuthenticationException e) {
+            throw e;
+        } catch (IOException e) {
             throw new RuntimeException("Error al leer las credenciales del login", e);
         }
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("Error de autenticacion: " + failed.getMessage());
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(401,"Usuario o contraseña incorrecta");
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule()); 
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        response.getWriter().write(mapper.writeValueAsString(errorResponse));
         response.getWriter().flush();
     }
+
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {

@@ -21,7 +21,7 @@ public class CloudinaryService {
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new InvalidImageException("El archivo debe ser una imagen (JPG, PNG, etc.)");
+            throw new InvalidImageException("El archivo debe ser una imagen (JPG, PNG, WEBP)");
         }
         
         if (file.getSize() > 10 * 1024 * 1024) {

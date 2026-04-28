@@ -3,11 +3,9 @@ package com.verisure.backend.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.verisure.backend.dto.request.ProjectRequestDTO;
 import com.verisure.backend.dto.request.StatusUpdateRequestDTO;
 import com.verisure.backend.dto.response.ProjectListResponseDTO;
@@ -20,17 +18,16 @@ import com.verisure.backend.entity.UserFavorite;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.entity.projection.ProjectAdminProjection;
 import com.verisure.backend.exception.BadRequestException;
 import com.verisure.backend.exception.ForbiddenException;
 import com.verisure.backend.exception.ResourceNotFoundException;
 import com.verisure.backend.mapper.ProjectMapper;
-import com.verisure.backend.repository.ApplicationRepository;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
 import com.verisure.backend.repository.UserFavoriteRepository;
 import com.verisure.backend.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,13 +38,11 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final UserFavoriteRepository userFavoriteRepository;
-    private final ApplicationRepository applicationRepository;
     private final GnoProfileRepository gnoProfileRepository;
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
     private final CloudinaryService cloudinaryService;
 
-    // -------Para ONG----/
     @Override
     public ProjectResponseDTO createProject(ProjectRequestDTO dto, Long userId, MultipartFile image) {
         validateProjectDates(dto.startDate(), dto.endDate());
@@ -101,7 +96,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.setStartDate(dto.startDate());
         project.setEndDate(dto.endDate());
         project.setTotalHours(dto.totalHours());
-
         project.setSdgs(getValidatedSdgs(dto.sdgIds()));
 
         return projectMapper.toResponseDTO(projectRepository.save(project));
@@ -128,34 +122,29 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getMyProjects(Long userId) {
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
-        List<Project> projects = projectRepository.findByGnoId(currentGno.getId());
+        List<Project> projects = projectRepository.findByGnoIdOrderByCreatedAtDesc(currentGno.getId());
         List<ProjectResponseDTO> projectsList = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
 
-    // ----Para Admin y Ong----/
-
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getPendingProjects() {
-        List<Project> projects = projectRepository.findByStatus(StatusProject.PENDING);
+        List<Project> projects = projectRepository.findByStatusOrderByCreatedAtAsc(StatusProject.PENDING);
         List<ProjectResponseDTO> pendingList = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(pendingList, pendingList.size());
     }
 
-    // ---Admin
     @Override
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getAllProjectsForAdmin() {
-        List<ProjectResponseDTO> projectsList = projectRepository.findAll().stream()
-            .map(project -> {
-                long favs = userFavoriteRepository.countByProjectId(project.getId());
-
-                long apps = applicationRepository.countProjectOccupancy(project.getId(), StatusApplication.APPROVED);
-                
-                // Usamos el mapper con los parámetros extra
-                return projectMapper.toAdminResponseDTO(project, favs, apps);
-            })
+        List<ProjectAdminProjection> projections = projectRepository.findAllWithCounts(StatusApplication.APPROVED);
+        List<ProjectResponseDTO> projectsList = projections.stream()
+            .map(proj -> projectMapper.toAdminResponseDTO(
+                proj.getProject(), 
+                proj.getFavCount(), 
+                proj.getAppCount()
+            ))
             .toList();
         
         return new ProjectListResponseDTO(projectsList, projectsList.size());
@@ -163,8 +152,22 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional(readOnly = true)
-    public ProjectListResponseDTO getAllPublished() {
-        List<Project> projects = projectRepository.findByStatus(StatusProject.PUBLISHED);
+    public ProjectListResponseDTO getAllPublished(String city, LocationType locationType, String title) {
+        List<Project> projects;
+        
+        if (title != null && !title.trim().isEmpty()) {
+            projects = projectRepository.findByStatusAndTitleContainingIgnoreCase(StatusProject.PUBLISHED, title);
+        } 
+        else if (city != null && !city.trim().isEmpty()) {
+            projects = projectRepository.findByStatusAndCity(StatusProject.PUBLISHED, city);
+        } 
+        else if (locationType != null) {
+            projects = projectRepository.findByStatusAndLocationType(StatusProject.PUBLISHED, locationType);
+        } 
+        else {
+            projects = projectRepository.findByStatus(StatusProject.PUBLISHED);
+        }
+
         List<ProjectResponseDTO> publishedProjects = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(publishedProjects, publishedProjects.size());
     }
@@ -195,14 +198,13 @@ public class ProjectServiceImpl implements ProjectService {
             );
     }
 
+    
     private String extractPublicIdFromUrl(String url) {
         if (url == null)
             return null;
         String publicId = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
         return "projects/" + publicId;
     }
-
-    // metodos privados para DRY y validacion
 
     private GnoProfile getGnoProfileOrThrow(Long userId) {
         return gnoProfileRepository.findByUserId(userId)

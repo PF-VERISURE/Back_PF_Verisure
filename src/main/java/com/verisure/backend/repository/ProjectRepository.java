@@ -2,85 +2,108 @@ package com.verisure.backend.repository;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.enums.LocationType;
+import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.entity.projection.ProjectAdminProjection;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    // -----------Perfil ONG (crea)-----------/
+        List<Project> findByGnoId(Long gnoId);
 
-    // Obtener todos los proyectos de una ONG
-    List<Project> findByGnoId(Long gnoId);
+        List<Project> findByGnoIdOrderByCreatedAtDesc(Long gnoId);
 
-    // Validar que un proyecto pertenece a una ONG (seguridad)
-    boolean existsByIdAndGnoId(Long projectId, Long gnoId);
+        List<Project> findByStatus(StatusProject status);
 
-    // Obtener proyecto por id + ONG (para edición segura)
-    Optional<Project> findByIdAndGnoId(Long projectId, Long gnoId);
+        List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);
 
-    // --------Perfil ADMIN (valida y publica)--------/
+        List<Project> findByStatusAndCity(StatusProject status, String city);
 
-    // Obtener proyectos por estado
-    List<Project> findByStatus(StatusProject status);
+        List<Project> findByStatusAndLocationType(StatusProject status, LocationType locationType);
 
-    // Obtener proyectos pendientes
-    List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);
+        List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);
 
-    // Contar proyectos por estado (dashboard admin)
-    long countProjectsByStatus(StatusProject status);
+        List<Project> findByStatusAndEndDateBefore(StatusProject status, OffsetDateTime date);
 
-    // --------------Perfil EMPLEADO----------------/
-
-    // Filtros básicos
-    List<Project> findByStatusAndCity(StatusProject status, String city);
-
-    List<Project> findByStatusAndLocationType(
-            StatusProject status,
-            LocationType locationType);
-
-    // Búsqueda por título (tipo catálogo)
-    List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);
-
-    // ------------------Optimización------
-
-    // Traer proyecto con SDGs (evitar Lazy problems)
-    @Query("""
-                SELECT DISTINCT p FROM Project p
-                LEFT JOIN FETCH p.sdgs
-                WHERE p.id = :id
-            """)
-
-    Optional<Project> findByIdWithSdgs(Long id);
-
-    // Para el filtrado del Cron Job
-    List<Project> findByStatusAndEndDateBefore(StatusProject status, OffsetDateTime date);
-
-    // -------------Métricas-------------/
-
-    // Conteo total por ONG
-    long countByGnoId(Long gnoId);
-
-    // Conteo por ONG y estado
-    long countByGnoIdAndStatus(Long gnoId, StatusProject status);
-
-    // Grafica donut registro de proyectos por categoria con filtro de años y meses.
-    @Query("""
-                SELECT s.name AS categoryName, COUNT(p.id) AS count
+        @Query("""
+                SELECT s.name, COUNT(p.id)
                 FROM Project p
                 JOIN p.sdgs s
-                WHERE p.createdAt >= :startDate AND p.createdAt <= :endDate
+                WHERE p.startDate BETWEEN :startDate AND :endDate
                 GROUP BY s.name
-            """)
-    List<CategoryCountResponseDTO> countRegisteredProjectsByCategory(
-            @Param("startDate") OffsetDateTime startDate,
-            @Param("endDate") OffsetDateTime endDate);
+        """)
+        List<Object[]> countProjectsByCategoryRaw(
+                        @Param("startDate") OffsetDateTime startDate,
+                        @Param("endDate") OffsetDateTime endDate);
 
+        @Query("""
+                SELECT p AS project,
+                        (SELECT COUNT(uf) FROM UserFavorite uf WHERE uf.project.id = p.id) AS favCount,
+                        (SELECT COUNT(a) FROM Application a WHERE a.project.id = p.id AND a.status = :status) AS appCount
+                FROM Project p
+        """)
+        List<ProjectAdminProjection> findAllWithCounts(@Param("status") StatusApplication status);
+
+        @Query("""
+                SELECT COUNT(p)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long countProjectsByStatusesAndDateRange(
+                        @Param("statuses") List<StatusProject> statuses,
+                        @Param("startDate") OffsetDateTime startDate,
+                        @Param("endDate") OffsetDateTime endDate);
+
+        @Query("""
+                SELECT COUNT(DISTINCT p.gno.id)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long countDistinctGnosByProjectStatusesAndDateRange(
+                        @Param("statuses") List<StatusProject> statuses,
+                        @Param("startDate") OffsetDateTime startDate,
+                        @Param("endDate") OffsetDateTime endDate);
+
+        @Query("""
+                SELECT COALESCE(SUM(p.requiredVolunteers), 0)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.createdAt BETWEEN :startDate AND :endDate
+        """)
+        Long sumRequiredVolunteersByStatusesAndDateRange(
+                        @Param("statuses") List<StatusProject> statuses,
+                        @Param("startDate") OffsetDateTime startDate,
+                        @Param("endDate") OffsetDateTime endDate);
+
+        @Query("""
+                SELECT COUNT(p.id)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.endDate BETWEEN :startDate AND :endDate
+        """)
+        Long countProjectsByEndDate(
+                        @Param("statuses") List<StatusProject> statuses,
+                        @Param("startDate") OffsetDateTime startDate,
+                        @Param("endDate") OffsetDateTime endDate);
+
+        @Query("""
+                SELECT YEAR(p.endDate), COUNT(p.id)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.endDate BETWEEN :startDate AND :endDate
+                GROUP BY YEAR(p.endDate)
+        """)
+        List<Object[]> countProjectsByYearRaw(
+                @Param("statuses") List<StatusProject> statuses, 
+                @Param("startDate") OffsetDateTime startDate, 
+                @Param("endDate") OffsetDateTime endDate
+        );
 }

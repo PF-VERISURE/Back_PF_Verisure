@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "employee_profiles")
 @Data
 @NoArgsConstructor
-
 public class EmployeeProfile {
 
   @Id

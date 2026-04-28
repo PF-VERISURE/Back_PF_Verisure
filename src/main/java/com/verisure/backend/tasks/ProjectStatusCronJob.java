@@ -20,9 +20,6 @@ public class ProjectStatusCronJob {
     private final ProjectRepository projectRepository;
     private final ApplicationService applicationService;
 
-    // cron =[Segundos] [Minutos] [Horas] [Día del mes] [Mes] [Día de la semana]
-    //@Scheduled(cron = "*/10 * * * * *", zone = "Europe/Madrid") //Pruebas para ver la funcionalidad.
-
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Madrid")
     @Transactional
     public void executeNightlyProjectClosure() {
