@@ -50,6 +50,7 @@ public class ParticipationRecordServiceImpl implements ParticipationRecordServic
         return mapRawDataToCertificates(rawData);
     }
 
+    
     private List<CertificateResponseDTO> mapRawDataToCertificates(List<Object[]> rawData) {
         Map<Long, CertificateResponseDTO> certificateMap = new LinkedHashMap<>();
 

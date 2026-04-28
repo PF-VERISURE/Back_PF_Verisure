@@ -120,8 +120,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .ifPresent(nextInLine -> {
                         nextInLine.setStatus(StatusApplication.APPROVED);
                         applicationRepository.save(nextInLine);
-
-                        // Aquí iría un servicio de notificaciones, averiguar bien SSE Server-Sent Events.NO MVP
                     });
         }
     }
@@ -134,6 +132,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<EmployeeApplicationResponseDTO> listApplications = applicationMapper.toEmployeeListResponse(applications);
         return new EmployeeApplicationListResponseDTO(listApplications, listApplications.size());
     }
+
     @Override
     @Transactional
     public Integer completeApplication(Long projectId) {
@@ -150,7 +149,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                     break;
 
                 case WAITLISTED:
-                case PENDING:
                     app.setStatus(StatusApplication.REJECTED);
                     break;
 

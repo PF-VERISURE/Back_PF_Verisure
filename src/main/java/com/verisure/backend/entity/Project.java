@@ -49,7 +49,6 @@ public class Project {
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<UserFavorite> favorites = new ArrayList<>();
 
-  // las tablas intermedias N:M
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "projects_sdgs", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "sdg_id"))
 
@@ -96,14 +95,13 @@ public class Project {
   @Column(nullable = false)
   private OffsetDateTime endDate;
 
-  // @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
 
-  // @UpdateTimestamp
   @Column(nullable = true)
   private OffsetDateTime updatedAt;
 
+  
   @PrePersist
   protected void onCreate() {
     if (this.createdAt == null) {

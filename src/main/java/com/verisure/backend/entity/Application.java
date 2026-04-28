@@ -47,14 +47,11 @@ public class Application {
   @Column(nullable = false)
   private StatusApplication status;
 
-  // @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
 
-  // @UpdateTimestamp
   @Column(nullable = true)
   private OffsetDateTime updatedAt;
-  
 
   @PrePersist
   protected void onCreate() {

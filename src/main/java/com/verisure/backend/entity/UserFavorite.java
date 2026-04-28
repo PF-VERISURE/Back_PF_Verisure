@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(
@@ -30,13 +31,14 @@ public class UserFavorite {
   
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
+  @ToString.Exclude
   private User user;
   
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id", nullable = false)
+  @ToString.Exclude
   private Project project;
   
-  // @CreationTimestamp
   @Column(nullable = false)
   private OffsetDateTime createdAt;
   

@@ -3,7 +3,6 @@ package com.verisure.backend.repository;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +12,6 @@ import com.verisure.backend.entity.ParticipationRecord;
 @Repository
 public interface ParticipationRecordRepository extends JpaRepository<ParticipationRecord, Long> {
 
-    // obtener el total de horas participadas en un rango de fechas:
     @Query("""
         SELECT COALESCE(SUM(p.loggedHours), 0) 
         FROM ParticipationRecord p 
@@ -24,18 +22,17 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
         @Param("endDate") OffsetDateTime endDate
     );
 
-    // suma de horas basadas en la fecha en la que terminó el proyecto
     @Query("""
-        SELECT COALESCE(SUM(p.loggedHours), 0) 
-        FROM ParticipationRecord p 
+        SELECT MONTH(p.application.project.endDate), COALESCE(SUM(p.loggedHours), 0)
+        FROM ParticipationRecord p
         WHERE p.application.project.endDate BETWEEN :startDate AND :endDate
+        GROUP BY MONTH(p.application.project.endDate)
     """)
-    BigDecimal sumTotalHoursByProjectEndDate(
+    List<Object[]> sumTotalHoursByMonthRaw(
         @Param("startDate") OffsetDateTime startDate, 
         @Param("endDate") OffsetDateTime endDate
     );
 
-    // obtener un certificado por id
     @Query("""
         SELECT pr.id,
                a.employee.firstName, 
@@ -53,7 +50,6 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
     """)
     List<Object[]> findRawCertificateById(@Param("participationId") Long participationId, @Param("userId") Long userId);
 
-    // obtener todos los certificados de un usuario
     @Query("""
         SELECT pr.id,
                a.employee.firstName, 
@@ -70,5 +66,16 @@ public interface ParticipationRecordRepository extends JpaRepository<Participati
         WHERE a.employee.user.id = :userId
     """)
     List<Object[]> findRawCertificatesByUserId(@Param("userId") Long userId);
+
+    @Query("""
+        SELECT YEAR(p.application.project.endDate), COALESCE(SUM(p.loggedHours), 0)
+        FROM ParticipationRecord p
+        WHERE p.application.project.endDate BETWEEN :startDate AND :endDate
+        GROUP BY YEAR(p.application.project.endDate)
+    """)
+    List<Object[]> sumTotalHoursByYearRaw(
+        @Param("startDate") OffsetDateTime startDate, 
+        @Param("endDate") OffsetDateTime endDate
+    );
 
 }

@@ -8,8 +8,6 @@ import com.verisure.backend.entity.GnoProfile;
 @Repository
 public interface GnoProfileRepository extends JpaRepository<GnoProfile, Long> {
 
-    // Optional<GnoProfile> findByCif(String cif);
-    
     Optional<GnoProfile> findByUserId(Long userId);
     
     boolean existsByCif(String cif);

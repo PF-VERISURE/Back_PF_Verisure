@@ -15,71 +15,20 @@ import com.verisure.backend.repository.projection.ProjectAdminProjection;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-        // que me traiga todos los proyectos de una ONG
-        // @Query("SELECT p FROM Project p WHERE p.gnoId = :gnoId")
         List<Project> findByGnoId(Long gnoId);
 
-        // validar que un proyecto pertenece a una ONG
-        // @Query("SELECT COUNT(p) > 0 FROM Project p WHERE p.id = :projectId AND
-        // p.gnoId = :gnoId")
-        // boolean existsByIdAndGnoId(Long projectId, Long gnoId);
-
-        // obtener proyecto por id + ONG
-        // @Query("SELECT p FROM Project p WHERE p.id = :projectId AND p.gnoId =
-        // :gnoId")
-        // Optional<Project> findByIdAndGnoId(Long projectId, Long gnoId);
-
-        // obtener todos los proyectos por estado
-        // @Query("SELECT p FROM Project p WHERE p.status = :status")
         List<Project> findByStatus(StatusProject status);
 
-        // obtener todos los proyectos por estado ordenados por fecha de creación
-        // @Query("SELECT p FROM Project p WHERE p.status = :status ORDER BY p.createdAt
-        // ASC")
         List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);
 
-        // contar proyectos por estado
-        // @Query("SELECT COUNT(p) FROM Project p WHERE p.status = :status")
-        // long countProjectsByStatus(StatusProject status);
-
-        // obtener todos los proyectos por estado y ciudad
-        // @Query("SELECT p FROM Project p WHERE p.status = :status AND p.city = :city")
         List<Project> findByStatusAndCity(StatusProject status, String city);
 
-        // obtener todos los proyectos por estado y tipo de ubicación
-        // @Query("SELECT p FROM Project p WHERE p.status = :status AND p.locationType =
-        // :locationType")
         List<Project> findByStatusAndLocationType(StatusProject status, LocationType locationType);
 
-        // obtener todos los proyectos por estado y título
-        // @Query("SELECT p FROM Project p WHERE p.status = :status AND p.title LIKE
-        // %:title%")
         List<Project> findByStatusAndTitleContainingIgnoreCase(StatusProject status, String title);
 
-        // obtener proyecto por id con sus SDG
-        // @Query("""
-        // SELECT DISTINCT p FROM Project p
-        // LEFT JOIN FETCH p.sdgs
-        // WHERE p.id = :id
-        // """)
-        // Optional<Project> findByIdWithSdgs(Long id);
-
-        // obtener todos los proyectos por estado y fecha de finalización
-        // @Query("SELECT p FROM Project p WHERE p.status = :status AND p.endDate <
-        // :date")
         List<Project> findByStatusAndEndDateBefore(StatusProject status, OffsetDateTime date);
 
-        // contar proyectos por ONG
-        // @Query("SELECT COUNT(p) FROM Project p WHERE p.gnoId = :gnoId")
-        // long countByGnoId(Long gnoId);
-
-        // contar proyectos por ONG y estado
-        // @Query("SELECT COUNT(p) FROM Project p WHERE p.gnoId = :gnoId AND p.status =
-        // :status")
-        // long countByGnoIdAndStatus(Long gnoId, StatusProject status);
-
-        // contar proyectos por categoría
-        // para la grafica del DONUT umero 1
         @Query("""
                 SELECT s.name, COUNT(p.id)
                 FROM Project p
@@ -91,8 +40,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                         @Param("startDate") OffsetDateTime startDate,
                         @Param("endDate") OffsetDateTime endDate);
 
-        // consultas anidadas que usan proyecciones para obtener los proyectos con sus
-        // conteos de favoritos y aplicaciones evitando el problema de n+1
         @Query("""
                 SELECT p AS project,
                         (SELECT COUNT(uf) FROM UserFavorite uf WHERE uf.project.id = p.id) AS favCount,
@@ -101,8 +48,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         """)
         List<ProjectAdminProjection> findAllWithCounts(@Param("status") StatusApplication status);
 
-        // Para la tarjeta PROYECTOS EN CURSO: Cuenta proyectos activos (PENDING,
-        // APPROVED)
         @Query("""
                 SELECT COUNT(p)
                 FROM Project p
@@ -114,7 +59,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                         @Param("startDate") OffsetDateTime startDate,
                         @Param("endDate") OffsetDateTime endDate);
 
-        // Para el referencial de GNOs: Cuántas GNOs distintas tienen proyectos activos
         @Query("""
                 SELECT COUNT(DISTINCT p.gno.id)
                 FROM Project p
@@ -126,8 +70,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                         @Param("startDate") OffsetDateTime startDate,
                         @Param("endDate") OffsetDateTime endDate);
 
-        // Para el referencial de DEMANDA (WAITLISTED): Suma las plazas totales
-        // requeridas
         @Query("""
                 SELECT COALESCE(SUM(p.requiredVolunteers), 0)
                 FROM Project p
@@ -149,4 +91,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                         @Param("statuses") List<StatusProject> statuses,
                         @Param("startDate") OffsetDateTime startDate,
                         @Param("endDate") OffsetDateTime endDate);
+
+        @Query("""
+                SELECT YEAR(p.endDate), COUNT(p.id)
+                FROM Project p
+                WHERE p.status IN :statuses
+                AND p.endDate BETWEEN :startDate AND :endDate
+                GROUP BY YEAR(p.endDate)
+        """)
+        List<Object[]> countProjectsByYearRaw(
+                @Param("statuses") List<StatusProject> statuses, 
+                @Param("startDate") OffsetDateTime startDate, 
+                @Param("endDate") OffsetDateTime endDate
+        );
 }

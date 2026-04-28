@@ -11,10 +11,7 @@ import com.verisure.backend.entity.UserFavorite;
 public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long>{
 
     Optional<UserFavorite> findByUserIdAndProjectId(Long userId, Long projectId);
-    
-    //Long countByProjectId(Long projectId);
-
-    // Metodo para el dashboard:Contar likes en un rango de fechas para calcular la conversion
+  
     @Query("""
         SELECT COUNT(u) 
         FROM UserFavorite u 

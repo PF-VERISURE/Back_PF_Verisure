@@ -35,10 +35,6 @@ public class ParticipationRecord {
   @Column(nullable = false, precision = 10, scale = 2)
   private BigDecimal impactMetric;
 
-  @Column(name = "certificate_url")
-  private String certificateUrl;
-
-  // @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
 
