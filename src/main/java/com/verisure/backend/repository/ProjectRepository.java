@@ -10,7 +10,7 @@ import com.verisure.backend.entity.Project;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
-import com.verisure.backend.repository.projection.ProjectAdminProjection;
+import com.verisure.backend.entity.projection.ProjectAdminProjection;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {

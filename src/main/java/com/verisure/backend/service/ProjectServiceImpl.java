@@ -18,6 +18,7 @@ import com.verisure.backend.entity.UserFavorite;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.entity.projection.ProjectAdminProjection;
 import com.verisure.backend.exception.BadRequestException;
 import com.verisure.backend.exception.ForbiddenException;
 import com.verisure.backend.exception.ResourceNotFoundException;
@@ -27,8 +28,6 @@ import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
 import com.verisure.backend.repository.UserFavoriteRepository;
 import com.verisure.backend.repository.UserRepository;
-import com.verisure.backend.repository.projection.ProjectAdminProjection;
-
 import lombok.RequiredArgsConstructor;
 
 @Service

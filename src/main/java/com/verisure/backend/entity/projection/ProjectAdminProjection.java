@@ -1,4 +1,4 @@
-package com.verisure.backend.repository.projection;
+package com.verisure.backend.entity.projection;
 
 import com.verisure.backend.entity.Project;
 
