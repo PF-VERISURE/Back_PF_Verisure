@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "sdgs")
@@ -24,6 +25,7 @@ public class Sdg {
   private String name;
 
   @ManyToMany(mappedBy = "sdgs", fetch = FetchType.LAZY)
+  @ToString.Exclude
   private List<Project> projects = new ArrayList<>();
   
 }

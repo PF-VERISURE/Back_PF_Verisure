@@ -5,8 +5,13 @@ import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.verisure.backend.dto.response.CategoryCountResponseDTO;
 import com.verisure.backend.dto.response.ConversionKpiResponseDTO;
 import com.verisure.backend.dto.response.DashboardKpiResponseDTO;
@@ -28,6 +33,7 @@ import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.UserFavoriteRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class DashboardServiceImp implements DashboardService {
 
     private final ProjectRepository projectRepository;
@@ -72,17 +78,6 @@ public class DashboardServiceImp implements DashboardService {
         return new ParticipationFunnelResponseDTO(enrolled, waitlist, likes);
     }
 
-    // @Override
-    // public List<CategoryCountResponseDTO> getApplicationsByCategory(Integer year,
-    // Integer month) {
-
-    // OffsetDateTime[] dateRange = calculateDateRange(year, month);
-    // List<Object[]> rawData =
-    // applicationRepository.countApplicationsByCategoryRaw(dateRange[0],
-    // dateRange[1]);
-    // return mapToCategoryCountDTOs(rawData);
-    // }
-
     @Override
     public DashboardKpiResponseDTO getKpiDashboard(Integer year, Integer month) {
         OffsetDateTime[] currentRange = calculateDateRange(year, month);
@@ -103,53 +98,89 @@ public class DashboardServiceImp implements DashboardService {
 
     @Override
     public List<MonthlyEvolutionResponseDTO> getMonthlyEvolution(Integer year) {
-
         int targetYear = (year != null) ? year : OffsetDateTime.now(ZoneOffset.UTC).getYear();
 
-        List<MonthlyEvolutionResponseDTO> evolution = new ArrayList<>();
+        OffsetDateTime startOfYear = getYearStartDate(targetYear);
+        OffsetDateTime endOfYear = getYearEndDate(targetYear);
+
         List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
+        List<Object[]> hoursRaw = participationRecordRepository.sumTotalHoursByMonthRaw(startOfYear, endOfYear);
+        List<Object[]> volunteersRaw = applicationRepository.countDistinctVolunteersByMonthRaw(activeStatuses,
+                startOfYear, endOfYear);
+
+        long[] hoursByMonth = new long[13];
+        long[] volunteersByMonth = new long[13];
+
+        for (Object[] row : hoursRaw) {
+            int month = ((Number) row[0]).intValue();
+            long hours = ((Number) row[1]).longValue();
+            hoursByMonth[month] = hours;
+        }
+
+        for (Object[] row : volunteersRaw) {
+            int month = ((Number) row[0]).intValue();
+            long volunteers = ((Number) row[1]).longValue();
+            volunteersByMonth[month] = volunteers;
+        }
+
+        List<MonthlyEvolutionResponseDTO> evolution = new ArrayList<>();
         String[] monthNames = { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" };
 
         for (int i = 1; i <= 12; i++) {
-            OffsetDateTime[] range = calculateDateRange(targetYear, i);
-            OffsetDateTime startOfMonth = range[0];
-            OffsetDateTime endOfMonth = range[1];
-
-            BigDecimal hoursBd = participationRecordRepository.sumTotalHoursByProjectEndDate(startOfMonth, endOfMonth);
-            long hours = hoursBd.longValue();
-
-            long volunteers = applicationRepository.countDistinctVolunteersByProjectEndDate(
-                    activeStatuses, startOfMonth, endOfMonth);
-
-            evolution.add(new MonthlyEvolutionResponseDTO(monthNames[i - 1], hours, volunteers));
+            evolution.add(new MonthlyEvolutionResponseDTO(monthNames[i - 1],
+                    hoursByMonth[i], volunteersByMonth[i]));
         }
+
         return evolution;
     }
 
     @Override
     public List<YearlyComparisonResponseDTO> getYearlyComparison(Integer year) {
         int targetYear = (year != null) ? year : OffsetDateTime.now(ZoneOffset.UTC).getYear();
-        
+        int startYear = targetYear - 4;
+
+        OffsetDateTime startOfPeriod = getYearStartDate(startYear);
+        OffsetDateTime endOfPeriod = getYearEndDate(targetYear);
+        OffsetDateTime[] restrictedRange = applyTodayRestriction(startOfPeriod,
+                endOfPeriod);
+        OffsetDateTime finalStart = restrictedRange[0];
+        OffsetDateTime finalEnd = restrictedRange[1];
+
+        List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED,
+                StatusApplication.CLOSED);
+        List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED,
+                StatusProject.COMPLETED);
+
+        List<Object[]> hoursRaw = participationRecordRepository.sumTotalHoursByYearRaw(finalStart, finalEnd);
+        List<Object[]> volunteersRaw = applicationRepository.countDistinctVolunteersByYearRaw(activeStatuses,
+                finalStart, finalEnd);
+        List<Object[]> projectsRaw = projectRepository.countProjectsByYearRaw(activeProjStatuses, finalStart,
+                finalEnd);
+
+        Map<Integer, Long> hoursByYear = new HashMap<>();
+        Map<Integer, Long> volunteersByYear = new HashMap<>();
+        Map<Integer, Long> projectsByYear = new HashMap<>();
+
+        for (Object[] row : hoursRaw) {
+            hoursByYear.put(((Number) row[0]).intValue(), ((Number) row[1]).longValue());
+        }
+        for (Object[] row : volunteersRaw) {
+            volunteersByYear.put(((Number) row[0]).intValue(), ((Number) row[1]).longValue());
+        }
+        for (Object[] row : projectsRaw) {
+            projectsByYear.put(((Number) row[0]).intValue(), ((Number) row[1]).longValue());
+        }
+
         List<YearlyComparisonResponseDTO> comparison = new ArrayList<>();
-        List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
-        List<StatusProject> activeProjStatuses = List.of(StatusProject.PUBLISHED);
 
-        for (int y = targetYear - 4; y <= targetYear; y++) {
-            
-            OffsetDateTime startOfYear = getYearStartDate(y);
-            OffsetDateTime endOfYear = getYearEndDate(y);
-            OffsetDateTime[] range = applyTodayRestriction(startOfYear, endOfYear);
-            OffsetDateTime start = range[0];
-            OffsetDateTime end = range[1];
+        for (int y = startYear; y <= targetYear; y++) {
 
-            BigDecimal hoursBd = participationRecordRepository.sumTotalHoursByProjectEndDate(start, end);
-            long hours = hoursBd.longValue();
+            long hours = hoursByYear.getOrDefault(y, 0L);
+            long volunteers = volunteersByYear.getOrDefault(y, 0L);
+            long projects = projectsByYear.getOrDefault(y, 0L);
 
-            long volunteers = applicationRepository.countDistinctVolunteersByProjectEndDate(activeStatuses, start, end);
-
-            long projects = projectRepository.countProjectsByEndDate(activeProjStatuses, start, end);
-
-            comparison.add(new YearlyComparisonResponseDTO(y, hours, volunteers, projects));
+            comparison.add(new YearlyComparisonResponseDTO(y, hours, volunteers,
+                    projects));
         }
 
         return comparison;
@@ -161,20 +192,18 @@ public class DashboardServiceImp implements DashboardService {
         List<StatusApplication> activeStatuses = List.of(StatusApplication.APPROVED, StatusApplication.CLOSED);
 
         List<Object[]> rawData = applicationRepository.getGnoContributionsRaw(activeStatuses, range[0], range[1]);
-        
+
         List<GnoContributionResponseDTO> result = new ArrayList<>();
         for (Object[] row : rawData) {
             String gnoName = (String) row[0];
             Long hours = ((Number) row[1]).longValue();
             Long volunteers = ((Number) row[2]).longValue();
-            
+
             result.add(new GnoContributionResponseDTO(gnoName, hours, volunteers));
         }
-        
+
         return result;
     }
-
-
 
     private HoursKpiResponseDTO buildHoursKpi(OffsetDateTime startDate, OffsetDateTime endDate) {
         OffsetDateTime lastYearStart = startDate.minusYears(1);

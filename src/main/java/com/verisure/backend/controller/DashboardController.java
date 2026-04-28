@@ -35,17 +35,6 @@ public class DashboardController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // @GetMapping("/applicationsbycategory")
-    // public ResponseEntity<List<CategoryCountResponseDTO>>
-    // getApplicationsByCategory(
-    // @RequestParam(required = false) Integer year,
-    // @RequestParam(required = false) Integer month) {
-
-    // List<CategoryCountResponseDTO> response =
-    // dashboardService.getApplicationsByCategory(year, month);
-    // return ResponseEntity.ok(response);
-    // }
-
     @GetMapping("/participationfunnel")
     public ResponseEntity<ParticipationFunnelResponseDTO> getParticipationFunnel(
             @RequestParam(required = false) Integer year,

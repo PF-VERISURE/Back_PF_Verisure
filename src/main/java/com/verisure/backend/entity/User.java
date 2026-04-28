@@ -16,6 +16,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "users")
@@ -36,7 +37,6 @@ public class User {
   @Column(nullable = false)
   private Role role;
 
-  // @CreationTimestamp
   @Column(nullable = false, updatable = false)
   private OffsetDateTime createdAt;
 
@@ -44,9 +44,11 @@ public class User {
   private OffsetDateTime deletedAt;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
   private EmployeeProfile employeeProfile;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
   private GnoProfile gnoProfile;
 
 

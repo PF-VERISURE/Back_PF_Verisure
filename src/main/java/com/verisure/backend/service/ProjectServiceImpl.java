@@ -18,18 +18,16 @@ import com.verisure.backend.entity.UserFavorite;
 import com.verisure.backend.entity.enums.LocationType;
 import com.verisure.backend.entity.enums.StatusApplication;
 import com.verisure.backend.entity.enums.StatusProject;
+import com.verisure.backend.entity.projection.ProjectAdminProjection;
 import com.verisure.backend.exception.BadRequestException;
 import com.verisure.backend.exception.ForbiddenException;
 import com.verisure.backend.exception.ResourceNotFoundException;
 import com.verisure.backend.mapper.ProjectMapper;
-import com.verisure.backend.repository.ApplicationRepository;
 import com.verisure.backend.repository.GnoProfileRepository;
 import com.verisure.backend.repository.ProjectRepository;
 import com.verisure.backend.repository.SdgRepository;
 import com.verisure.backend.repository.UserFavoriteRepository;
 import com.verisure.backend.repository.UserRepository;
-import com.verisure.backend.repository.projection.ProjectAdminProjection;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,7 +38,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final UserFavoriteRepository userFavoriteRepository;
-    private final ApplicationRepository applicationRepository;
     private final GnoProfileRepository gnoProfileRepository;
     private final SdgRepository sdgRepository;
     private final ProjectMapper projectMapper;
@@ -125,7 +122,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional(readOnly = true)
     public ProjectListResponseDTO getMyProjects(Long userId) {
         GnoProfile currentGno = getGnoProfileOrThrow(userId);
-        List<Project> projects = projectRepository.findByGnoId(currentGno.getId());
+        List<Project> projects = projectRepository.findByGnoIdOrderByCreatedAtDesc(currentGno.getId());
         List<ProjectResponseDTO> projectsList = projectMapper.toResponseDTOList(projects);
         return new ProjectListResponseDTO(projectsList, projectsList.size());
     }
