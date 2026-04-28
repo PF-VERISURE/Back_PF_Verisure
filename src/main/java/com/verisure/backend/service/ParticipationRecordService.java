@@ -1,7 +1,6 @@
 package com.verisure.backend.service;
 
 import java.util.List;
-
 import com.verisure.backend.dto.response.CertificateResponseDTO;
 import com.verisure.backend.entity.Application;
 
