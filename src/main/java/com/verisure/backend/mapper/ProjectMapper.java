@@ -17,7 +17,6 @@ public interface ProjectMapper {
     @Mapping(target = "sdgs", ignore = true)
     Project toEntity(ProjectRequestDTO dto);
 
-    //Entity -> Response
     @Mapping(source = "project.gno.organizationName", target = "gnoName")
     @Mapping(target = "sdgs", expression = "java(project.getSdgs().stream().map(s -> s.getName()).toList())")
     @Mapping(source = "favs", target = "totalFavorites")
