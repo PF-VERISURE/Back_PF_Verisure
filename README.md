@@ -29,13 +29,13 @@ Tres mundos. Un ecosistema. Impacto real.
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
-│   👤 VOLUNTARIO          🏢 ONG              🛡️ ADMIN          │
+│    👤 VOLUNTARIO          🏢 ONG               🛡️ ADMIN         │
 │                                                                 │
 │  Explora proyectos   Publica proyectos    Supervisa todo        │
 │  Aplica y participa  Gestiona equipos     Aprueba proyectos     │
 │  Obtén certificados  Mide tu impacto      Genera métricas       │
 │                                                                 │
-│         ↕️                 ↕️                  ↕️              │
+│           ↕️                   ↕️                   ↕️         │
 │                                                                 │
 │  ────────────── API REST (Spring Boot + JWT) ──────────────     │
 │                                                                 │
@@ -72,8 +72,9 @@ Tres mundos. Un ecosistema. Impacto real.
 El núcleo de nuestra aplicación está diseñado sobre una base de datos relacional (MySQL) estructurada para garantizar la integridad, escalabilidad y el manejo seguro de los datos (implementando borrados lógicos o *Soft Deletes* donde es necesario).
 
 <div align="center">
-  <img <img width="264![U<img width="1889" height="1181" alt="ER_Verisure(1)" src="https://github.com/user-attachments/assets/efe44a1c-43b2-40d0-b27b-2f4ed3ed701e"/>
+  <img width="2816" height="1536" alt="ER_PF_Verisure" src="https://github.com/user-attachments/assets/665f5227-c4b3-457a-b854-cdc320145bbe" />
 </div>
+
 
 ---
 
