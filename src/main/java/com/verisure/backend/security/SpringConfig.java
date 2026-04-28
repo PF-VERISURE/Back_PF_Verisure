@@ -58,6 +58,8 @@ public class SpringConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/projects/{id}/status").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/projects/{id}/favorite").hasRole("EMPLOYEE")                        .requestMatchers(HttpMethod.GET,"/api/v1/projects/published").hasAnyRole("ADMIN", "EMPLOYEE")
                         .requestMatchers("/api/v1/applications/**").hasRole("EMPLOYEE")
+                        .requestMatchers("/api/v1/dashboard/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/participation/**").hasRole("EMPLOYEE")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
                 .addFilter(authenticationFilter)

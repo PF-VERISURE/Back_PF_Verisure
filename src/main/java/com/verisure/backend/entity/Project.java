@@ -25,6 +25,7 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "projects")
@@ -37,21 +38,25 @@ public class Project {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "gno_id", nullable = false, referencedColumnName = "id")
+  @ToString.Exclude
   private GnoProfile gno;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "admin_id", referencedColumnName = "id")
+  @ToString.Exclude
   private User admin;
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
   private List<Application> applications = new ArrayList<>();
 
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
   private List<UserFavorite> favorites = new ArrayList<>();
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "projects_sdgs", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "sdg_id"))
-
+  @ToString.Exclude
   private List<Sdg> sdgs = new ArrayList<>();
 
   @Column(nullable = false, length = 150)

@@ -21,6 +21,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.CascadeType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "applications", uniqueConstraints = {
@@ -34,13 +35,16 @@ public class Application {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "project_id", nullable = false, referencedColumnName = "id")
+  @ToString.Exclude
   private Project project;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "employee_id", nullable = false, referencedColumnName = "id")
+  @ToString.Exclude
   private EmployeeProfile employee;
 
   @OneToOne(mappedBy = "application", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ToString.Exclude
   private ParticipationRecord participationRecord;
 
   @Enumerated(EnumType.STRING)

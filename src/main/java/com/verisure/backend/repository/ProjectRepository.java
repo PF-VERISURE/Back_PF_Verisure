@@ -17,6 +17,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
         List<Project> findByGnoId(Long gnoId);
 
+        List<Project> findByGnoIdOrderByCreatedAtDesc(Long gnoId);
+
         List<Project> findByStatus(StatusProject status);
 
         List<Project> findByStatusOrderByCreatedAtAsc(StatusProject status);

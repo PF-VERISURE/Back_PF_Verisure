@@ -15,6 +15,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "participation_records")
@@ -27,6 +28,7 @@ public class ParticipationRecord {
   
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "application_id", unique = true, nullable = false, referencedColumnName = "id")
+  @ToString.Exclude
   private Application application;
 
   @Column(nullable = false, precision = 5, scale = 2)
