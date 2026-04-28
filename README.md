@@ -23,16 +23,6 @@
 
 > *El núcleo lógico y base de datos que da vida a la plataforma de voluntariado corporativo. Una API RESTful segura, rápida y robusta que conecta empleados de Verisure con ONGs que necesitan su talento y tiempo.*
 
----
-
-## 💻 Proyecto Full Stack
-
-Este repositorio contiene exclusivamente el **Motor Backend**. Para que la plataforma funcione completamente, debe conectarse con el cliente.
-
-* **Repositorio Front-end:** [Verisure Volunteering Client](https://github.com/PF-VERISURE/Front_PF_Verisure)
-
----
-
 
 Tres mundos. Un ecosistema. Impacto real.
 
@@ -287,6 +277,15 @@ mvn clean install
 # 4. Inicia el servidor de Spring Boot
 mvn spring-boot:run
 ```
+---
+
+## 💻 Proyecto Full Stack
+
+Este repositorio contiene exclusivamente el **Motor Backend**. Para que la plataforma funcione completamente, debe conectarse con el cliente.
+
+* **Repositorio Front-end:** [Verisure Volunteering Client](https://github.com/PF-VERISURE/Front_PF_Verisure)
+
+---
 
 > ⚠️ Asegúrate de tener el servidor MySQL encendido antes de ejecutar el paso 4. La API se levantará en `http://localhost:8080`
 
