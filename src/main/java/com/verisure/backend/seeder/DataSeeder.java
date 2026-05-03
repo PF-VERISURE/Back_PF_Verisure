@@ -213,7 +213,36 @@ public class DataSeeder implements CommandLineRunner {
         new ProjectTemplate("Limpieza y Recuperación del Cauce del Río", "Jornada medioambiental enfocada en la retirada de residuos del cauce del río y sus alrededores. Tu ayuda será fundamental para proteger el ecosistema y mejorar el entorno natural.", "Kilos de residuos", "https://images.unsplash.com/photo-1675725594644-ed8d00bc6887?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", List.of(6, 14, 12)),
         new ProjectTemplate("Torneo de Fútbol Inclusivo", "Necesitamos árbitros, encargados de marcador y apoyo logístico para que el torneo sea un éxito. No se requiere experiencia previa, solo ganas de ayudar y un poco de habilidad con el deporte.", "Partidos arbitrados", "https://images.unsplash.com/photo-1570498839593-e565b39455fc?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", List.of(3, 10)),
         new ProjectTemplate("Educación Financiera para Familias", "Imparte talleres prácticos sobre cómo interpretar el recibo de la luz, el gas o el agua, cómo comparar tarifas y cómo ahorrar en la factura mensual. Tu conocimiento puede ayudar a muchas familias a mejorar su economía doméstica.", "Familias formadas", "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80", List.of(1, 10)),
-        new ProjectTemplate("Muralismo Comunitario para la Integración", "Transformaremos un muro gris y degradado en una obra de arte que refleje la diversidad y la riqueza cultural de nuestro barrio. No se requiere experiencia previa, solo ganas de pintar y un poco de creatividad.", "Metros de mural", "https://images.unsplash.com/photo-1574674826492-cbcd09c5db3c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", List.of(10, 9))
+        new ProjectTemplate("Muralismo Comunitario para la Integración", "Transformaremos un muro gris y degradado en una obra de arte que refleje la diversidad y la riqueza cultural de nuestro barrio. No se requiere experiencia previa, solo ganas de pintar y un poco de creatividad.", "Metros de mural", "https://images.unsplash.com/photo-1574674826492-cbcd09c5db3c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", List.of(10, 9)),
+        new ProjectTemplate("Muestreo de Microplásticos en el Litoral", "Participa en nuestra expedición costera para recoger y clasificar muestras de arena. Trabajaremos con biólogos marinos para analizar el impacto de los microplásticos en nuestro ecosistema. Una experiencia vital para entender y proteger la biodiversidad de nuestras playas.", "Muestras analizadas", "https://images.unsplash.com/photo-1618477461853-cf6ed80fabe9?w=800&q=80", List.of(14, 12)),
+        
+        new ProjectTemplate("Bootcamp de Programación para Mujeres Jóvenes", "Buscamos profesionales del sector tecnológico para mentorizar a chicas de institutos públicos. Ayudaremos a romper la brecha de género en STEM enseñando los fundamentos de lógica y diseño web. Tu experiencia inspirará a la próxima generación de ingenieras.", "Alumnas mentorizadas", "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800&q=80", List.of(5, 10)),
+        
+        new ProjectTemplate("Instalación de Paneles Solares en Viviendas Sociales", "Colabora con nuestro equipo de ingenieros para instalar sistemas de energía solar en hogares vulnerables. Reduciremos la pobreza energética de estas familias mientras fomentamos el uso de energías limpias. Se proporcionará toda la formación en seguridad y herramientas.", "KWh generados", "https://images.unsplash.com/photo-1509391366360-1e97d52b09ff?w=800&q=80", List.of(7, 1)),
+        
+        new ProjectTemplate("Rehabilitación de Fuentes Públicas y Lavaderos", "Únete a la brigada de restauración de antiguas fuentes y sistemas de agua comunitarios en zonas rurales. Aseguraremos el acceso a agua limpia y preservaremos el patrimonio histórico. Una jornada de trabajo manual y conexión con la historia local.", "Fuentes restauradas", "https://images.unsplash.com/photo-1544465544-1b71aee9dfa3?w=800&q=80", List.of(6, 9)),
+        
+        new ProjectTemplate("Preparación de Kits de Higiene para Personas sin Hogar", "Necesitamos voluntarios para organizar, empaquetar y distribuir kits de aseo personal básicos. Estos paquetes incluyen cepillos de dientes, jabón, calcetines y productos de higiene íntima. Un pequeño esfuerzo que devuelve la dignidad a quienes más lo necesitan.", "Kits distribuidos", "https://images.unsplash.com/photo-1593113589914-075990110da5?w=800&q=80", List.of(1, 3)),
+        
+        new ProjectTemplate("Taller Mecánico de Bicicletas Recuperadas", "Ayúdanos a reparar bicicletas donadas que luego entregaremos a personas en riesgo de exclusión social para facilitar su movilidad y acceso al empleo. No importa si no eres experto, te enseñaremos a cambiar ruedas, ajustar frenos y engrasar cadenas.", "Bicicletas reparadas", "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&q=80", List.of(9, 12, 10)),
+        
+        new ProjectTemplate("Organización de Mercadillo de Ropa de Segunda Mano", "Apoya la moda circular participando en nuestro evento de intercambio y venta de ropa de segunda mano. Las tareas incluyen clasificar prendas por tallas, atender a los asistentes y gestionar el stock. Todo lo recaudado irá destinado a proyectos de inserción laboral.", "Prendas recirculadas", "https://images.unsplash.com/photo-1540221652346-e5dd6b50f3e7?w=800&q=80", List.of(12, 1)),
+        
+        new ProjectTemplate("Jornada de Surf Adaptado para Niños", "Vive una mañana inolvidable ayudando a niños con movilidad reducida a disfrutar del mar sobre una tabla de surf. Requerimos voluntarios con habilidades básicas de natación para dar soporte en el agua y en la arena. Tu energía les regalará una experiencia única de libertad.", "Sonrisas y olas", "https://images.unsplash.com/photo-1502680390469-be75c86b636f?w=800&q=80", List.of(3, 10)),
+        
+        new ProjectTemplate("Cocina Solidaria: Menús de Fin de Semana", "Colabora en los fogones de nuestro comedor social elaborando raciones nutritivas para familias vulnerables que no tienen recursos los fines de semana. Cortaremos verduras, cocinaremos guisos y empaquetaremos la comida con mucho cariño y dedicación.", "Menús preparados", "https://images.unsplash.com/photo-1556910103-1c02745a872e?w=800&q=80", List.of(2, 1)),
+        
+        new ProjectTemplate("Asesoría Laboral Especializada para Mujeres", "Proyecto remoto orientado a profesionales de Recursos Humanos. Dedica unas horas a revisar CVs y preparar entrevistas para mujeres que intentan reincorporarse al mercado laboral tras sufrir violencia de género. Tu empatía y experiencia técnica serán clave en su independencia.", "Mujeres asesoradas", "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&q=80", List.of(5, 10)),
+        
+        new ProjectTemplate("Diseño y Creación de Jardines Verticales Urbanos", "Transformaremos muros grises de escuelas públicas en jardines verticales vivos. Aprenderás sobre plantas trepadoras, sistemas de riego por goteo y paisajismo urbano. Una actividad perfecta para hacer nuestra ciudad un lugar más fresco, verde y acogedor.", "Muros reverdecidos", "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80", List.of(9, 12)),
+        
+        new ProjectTemplate("Vigilancia Nocturna de Nidos de Tortugas Marinas", "Forma parte de la patrulla nocturna en la costa para proteger los nidos de tortugas en peligro de extinción. Nos turnaremos para evitar que depredadores o curiosos dañen los huevos. Es una labor tranquila pero de un impacto altísimo para la conservación marina.", "Horas de patrullaje", "https://images.unsplash.com/photo-1518467166778-b88f373ffec7?w=800&q=80", List.of(14)),
+        
+        new ProjectTemplate("Clasificación de Libros para Bibliotecas Rurales", "Ayúdanos a catalogar y preparar cientos de libros donados que serán enviados a pequeños pueblos sin acceso a bibliotecas públicas. Fomentaremos la lectura y la cultura en zonas despobladas. Un trabajo relajado y gratificante, ideal para amantes de la literatura.", "Libros catalogados", "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&q=80", List.of(10, 9)),
+        
+        new ProjectTemplate("Campaña de Concienciación sobre Eficiencia Energética", "Únete a nuestro equipo de calle para informar a los vecinos sobre cómo reducir el consumo eléctrico en sus hogares y cambiar a comercializadoras de energía verde. Repartiremos folletos y resolveremos dudas básicas. Tu voz ayudará a frenar el cambio climático.", "Hogares informados", "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&q=80", List.of(7, 12)),
+        
+        new ProjectTemplate("Mapeo y Recolección de Frutales Urbanos", "Participa en esta curiosa actividad donde identificaremos y recolectaremos frutos de árboles públicos que habitualmente no se aprovechan. Todo lo recogido se llevará a centros de procesamiento para hacer mermeladas solidarias. ¡Descubre tu ciudad desde otra perspectiva!", "Árboles mapeados", "https://images.unsplash.com/photo-1590868309235-ea34bed7bd7f?w=800&q=80", List.of(2, 12))
     );
 
         String[] addresses = {"Gran Vía de les Corts Catalanes 585", "Paseo de la Castellana 15", "Avinguda del Paral·lel 71", "Calle de Alcalá 120", "Carrer de Balmes 22", "Avenida de las Ciencias s/n","Calle de la Paz 123","Avenida de la Constitución 456","Calle de la Libertad 789","Avenida de la Independencia 101", "Calle del Sol 123", "Calle de la Luna 456", "Calle del Mar 789", "Calle del Cielo 101", "Calle de la Montaña 123", "Calle de la Playa 456", "Calle del Río 789", "Calle del Lago 101", "Calle del Bosque 123", "Calle del Campo 456", "Calle del Monte 789", "Calle de la Colina 101"};
@@ -221,12 +250,12 @@ public class DataSeeder implements CommandLineRunner {
         LocationType[] locationTypes = LocationType.values(); 
 
         List<Integer> timelineYearsAgo = new ArrayList<>();
-        for(int i=0; i<4; i++) timelineYearsAgo.add(5);
-        for(int i=0; i<8; i++) timelineYearsAgo.add(4);
-        for(int i=0; i<12; i++) timelineYearsAgo.add(3);
-        for(int i=0; i<16; i++) timelineYearsAgo.add(2);
-        for(int i=0; i<20; i++) timelineYearsAgo.add(1);
-        for(int i=0; i<20; i++) timelineYearsAgo.add(0);
+        for(int i=0; i<10; i++) timelineYearsAgo.add(5);
+        for(int i=0; i<15; i++) timelineYearsAgo.add(4);
+        for(int i=0; i<25; i++) timelineYearsAgo.add(3);
+        for(int i=0; i<35; i++) timelineYearsAgo.add(2);
+        for(int i=0; i<45; i++) timelineYearsAgo.add(1);
+        for(int i=0; i<30; i++) timelineYearsAgo.add(0);
 
         List<ProjectTemplate> shuffledTemplates = new ArrayList<>(templates);
         Collections.shuffle(shuffledTemplates, random);
@@ -245,10 +274,10 @@ public class DataSeeder implements CommandLineRunner {
             project.setGno(gno);
             project.setTitle(template.title());
             project.setDescription(template.description());
-            project.setRequiredVolunteers(random.nextInt(15) + 5);
+            project.setRequiredVolunteers(random.nextInt(16) + 10);
             project.setImpactUnit(template.impactUnit());
             project.setImageUrl(template.imageUrl());
-            project.setTotalHours(random.nextInt(8) + 2);
+            project.setTotalHours(random.nextInt(2) + 2);
 
             LocationType randomLoc = locationTypes[random.nextInt(locationTypes.length)];
             project.setLocationType(randomLoc);
@@ -260,7 +289,6 @@ public class DataSeeder implements CommandLineRunner {
                 project.setCity(cities[random.nextInt(cities.length)]);
             }
 
-            int numSdgs = random.nextInt(3) + 1;
             for (Integer sdgId : template.sdgIds()) {
                 allSdgs.stream()
                        .filter(s -> s.getId().equals(sdgId))
@@ -276,15 +304,15 @@ public class DataSeeder implements CommandLineRunner {
 
             } else {
 
-                if (yearZeroCounter < 5) {
+                if (yearZeroCounter < 8) {
                     project.setStartDate(now.minusMonths(random.nextInt(3) + 1));
                     project.setEndDate(project.getStartDate().plusDays(3));
                     project.setStatus(StatusProject.COMPLETED);
-                } else if (yearZeroCounter < 10) {
+                } else if (yearZeroCounter < 15) {
                     project.setStartDate(now.minusDays(random.nextInt(5) + 1));
                     project.setEndDate(now.plusDays(15)); 
                     project.setStatus(StatusProject.PUBLISHED);
-                } else if (yearZeroCounter < 15) {
+                } else if (yearZeroCounter < 22) {
                     project.setStartDate(now.plusMonths(1));
                     project.setEndDate(now.plusMonths(1).plusDays(3));
                     project.setStatus(StatusProject.PUBLISHED);
